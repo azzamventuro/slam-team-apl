@@ -1,0 +1,1423 @@
+SLAM TEAM
+Scouting Legion Airsofter Malang
+Rancangan Aplikasi
+Pembangunan ulang — Absensi, Jadwal, Hak Akses Dinamis & KTA
+
+
+Sifat proyek
+Pembangunan ulang dari nol — tidak ada modul yang diteruskan
+Domain
+slamteam.id
+Frontend
+Angular 21 (PWA) · Angular CLI 21 · Node 24.0.0
+Backend
+Go
+Database
+PostgreSQL — slamteam_db
+Stack sebelumnya
+Laravel · Angular versi lama · MySQL — tidak dilanjutkan
+Jumlah tabel
+31
+Jumlah modul
+19
+Berkas menyertai
+slamteam_db.dbml — ERD untuk dbdiagram.io
+Tanggal
+7 September 2026
+
+Daftar Isi
+TOC \h \o &quot;1-3&quot;
+
+1. Ringkasan Sistem
+Aplikasi SLAM Team adalah sistem pendataan keanggotaan klub airsoft SLAM (Scouting Legion Airsofter Malang), terdiri dari halaman publik berisi profil klub, artikel, kegiatan, dan pengecekan keanggotaan, serta panel administrasi untuk mengelola data anggota, unit, prestasi, jadwal, absensi, dan kartu tanda anggota.
+1.1 Sifat proyek
+DIBANGUN ULANG DARI NOL
+Rancangan ini bukan penyesuaian atas aplikasi yang sudah berjalan. Pengerjaan sebelumnya menggunakan Laravel, Angular versi lama, dan MySQL, dan tidak dilanjutkan. Seluruh basis kode ditulis ulang di atas Go, Angular 21, dan PostgreSQL.
+Aplikasi lama hanya menjadi rujukan TAMPILAN. Rute API dan skema basis data berubah sepenuhnya, sehingga tidak ada kode, tabel, maupun data yang dipindahkan. Dokumen Rancangan Awal New diperlakukan sebagai rujukan kebutuhan, bukan sebagai keadaan awal yang harus dimigrasi.
+Karena itu tidak ada bab migrasi data pada dokumen ini. Bab 10 memuat pembuatan skema awal dan urutan pengisian data acuan.
+
+Urutan kerjanya: perencanaan dimatangkan lebih dahulu hingga skema dan aturan terkunci, kemudian implementasi dikerjakan bertahap satu modul demi satu modul dengan bantuan Claude Code, merujuk tampilan aplikasi lama sebagai acuan visual. Metode ini diuraikan pada Bab 11.
+1.2 Ruang lingkup
+Kemampuan
+Ringkas
+Bab
+Hak akses dinamis
+Matriks C/R/U/D disimpan sebagai data; super admin dapat membuat peran dan mengatur izin per modul lewat antarmuka
+3
+Modul jadwal
+Jadwal dengan lokasi, koordinat, zona waktu, dan pola berulang; dapat ditugaskan kepada anggota oleh admin atau moderator
+4
+Modul absensi
+Absen terikat sesi jadwal, menangkap selfie, latitude, longitude, dan zona waktu
+5
+Manajemen file
+Setiap gambar disimpan dalam tiga varian: original, medium, dan low
+6
+KTA, NRA & QR
+Nomor Register Anggota, kartu pelajar dan dewasa terpisah, kode QR untuk pengecekan status
+7
+
+1.3 Pelajaran dari pengerjaan sebelumnya
+Progress Table pada Rancangan Awal mencatat catatan yang identik pada tujuh modul: &quot;Store image belum jalan di create & edit&quot;. Pola yang sama persis di tujuh tempat menunjukkan satu penyebab bersama di lapisan unggah berkas, bukan tujuh kesalahan terpisah.
+Karena proyek dimulai dari nol, hal ini bukan lagi perbaikan yang harus dikerjakan, melainkan pelajaran yang menentukan urutan pembangunan: lapisan berkas dibangun sekali, terpusat, dan diselesaikan sampai benar sebelum modul mana pun memakainya. Tujuh modul yang sebelumnya bermasalah adalah bukti bahwa menyalin logika unggah ke tiap modul menghasilkan tujuh tempat untuk gagal.
+Konsekuensinya terhadap rencana kerja: Fase 0 pada Bab 12 membangun manajemen berkas dan fondasi lain lebih dahulu, dan tidak ada modul yang menyentuh berkas sebelum fase itu selesai.
+
+TIDAK ADA REGISTRASI MANDIRI
+Aplikasi tidak menyediakan fitur registrasi. Baris pada tabel users dan anggota hanya dibuat oleh pengguna yang memiliki izin terkait melalui panel administrasi. Modul &quot;Registrasi&quot; yang tercantum pada Rancangan Awal tidak dibuat.
+Ini konsisten dengan tabel Role Credentials pada rancangan awal, yang sudah menetapkan kolom Registrasi bernilai &quot;No&quot; untuk seluruh peran.
+2. Daftar Modul
+Sembilan belas modul. Kode modul pada kolom pertama menjadi nilai tabel mst_modul sekaligus awalan kode izin, misalnya anggota.create.
+Kode
+Nama modul
+Kelompok
+anggota
+Master Data Anggota
+Master Data
+admin
+Master Data Admin
+Master Data
+moderator
+Master Data Moderator
+Master Data
+user
+Master Data User
+Master Data
+instansi
+Master Data Instansi / Sekolah
+Master Data
+unit
+Master Data Unit
+Master Data
+prestasi
+Master Data Prestasi
+Master Data
+inorga
+Master Data Inorga
+Master Data
+kegiatan
+Master Data Kegiatan
+Konten
+artikel
+Master Data Artikel
+Konten
+medsos
+Master Data Medsos
+Konten
+profile_club
+Master Data Profile Club
+Konten
+dokumen
+Master Data Dokumen
+Sistem
+hak_akses
+Pengaturan Hak Akses & Peran
+Sistem
+lokasi
+Master Data Lokasi
+Operasional
+jadwal
+Modul Jadwal
+Operasional
+absensi
+Modul Absensi
+Operasional
+izin
+Pengajuan Izin & Pulang Cepat
+Operasional
+kta
+Kartu Tanda Anggota
+Operasional
+3. Peran dan Hak Akses
+Inti bab ini dapat diringkas satu kalimat: matriks hak akses tidak hidup di dalam dokumen, melainkan sebagai baris di dalam basis data yang dapat diubah super admin melalui antarmuka aplikasi.
+Pada rancangan awal, peran disimpan sebagai kolom role bertipe integer. Dengan struktur seperti itu, menambah peran berarti mengubah kode program, bukan mengubah data — sehingga kebutuhan agar super admin dapat menambah hak akses dan mengatur peran tidak dapat dipenuhi.
+3.1 Empat konsep yang dipisah
+Konsep
+Artinya
+Contoh
+Diatur oleh
+Modul
+Satu area fungsi di aplikasi
+anggota, jadwal, absensi
+Developer (seed)
+Aksi
+Kata kerja yang bisa dilakukan
+create, read, update, delete, approve, assign, export, override, print
+Developer (seed)
+Izin
+Pasangan modul dan aksi
+anggota.create, absensi.override
+Developer (seed)
+Peran
+Kumpulan izin yang diberi nama
+Admin, Moderator, Pelatih
+Super admin (runtime)
+
+Super admin dapat membuat peran baru dan mencentang izin tanpa melibatkan developer. Namun izin baru tetap lahir dari kode, karena setiap izin harus ada yang menegakkannya pada endpoint. Pembagian ini disengaja: super admin tidak dapat membuat izin yang tidak dijaga backend.
+3.2 Dimensi cakupan
+Empat aksi C/R/U/D tidak cukup untuk membedakan &quot;boleh melihat absensi semua orang&quot; dari &quot;boleh melihat absensi sendiri&quot;. Karena itu ditambahkan dimensi keempat pada tabel role_permission:
+Nilai
+Artinya
+semua
+Seluruh data pada modul tersebut
+instansi_sendiri
+Terbatas pada instansi atau sekolah tempat anggota terdaftar
+milik_sendiri
+Hanya data milik pengguna yang bersangkutan
+
+ALASAN DIMENSI INI ADA SEJAK AWAL
+Tanpa kolom cakupan, aturan &quot;user hanya melihat absensi miliknya sendiri&quot; akan ditulis sebagai percabangan di dalam handler. Aturan seperti itu tidak terlihat pada halaman pengaturan hak akses, tidak dapat diubah super admin, dan hanya bisa diubah dengan deploy ulang. Biayanya satu kolom.
+3.3 Aturan yang ditegakkan backend
+Super admin adalah bypass, bukan daftar izin. Peran dengan is_super bernilai true melewati seluruh pengecekan tanpa membaca role_permission. Jika super admin diberi daftar izin seperti peran lain, setiap penambahan modul baru berisiko membuat super admin kehilangan akses ke modul tersebut sampai ada yang mencentangnya.
+Peran super admin tidak dapat dihapus, dinonaktifkan, atau diturunkan. Sistem juga menolak menghapus super admin terakhir yang tersisa; tanpa aturan ini, satu tindakan dapat mengunci seluruh pengguna dari aplikasi secara permanen.
+Pencegahan eskalasi hak. Pengguna tidak boleh memberikan izin yang dirinya sendiri tidak miliki, dan tidak boleh mengubah peran yang nilai level-nya lebih tinggi atau sama dengan miliknya. Tanpa aturan ini, pemegang izin pengelolaan peran dapat membuat peran berisi seluruh izin lalu memberikannya kepada dirinya sendiri.
+Guest bukan baris pada tabel users. Guest adalah peran semu untuk permintaan tanpa token. Izinnya tetap disimpan pada role_permission agar dapat diatur, tetapi tidak pernah ada pengguna yang memilikinya.
+Seluruh perubahan hak akses dicatat pada tabel log_aktivitas beserta nilai lama, nilai baru, pelaku, dan alamat IP.
+3.4 Penegakan
+Lapisan
+Mekanisme
+Backend (Go)
+Middleware RequirePermission(&quot;jadwal.assign&quot;) dipasang pada setiap route. Izin dimuat sekali per permintaan dari cache dengan kunci perm:role:{id}. JWT membawa role_id dan perm_version; ketika super admin mengubah peran, perm_version dinaikkan sehingga token lama otomatis memuat ulang izin.
+Frontend (Angular)
+Guard canActivate per route, directive *hasPermission untuk menyembunyikan tombol, dan menu sidebar yang dibangkitkan dari mst_modul beserta izin efektif — bukan dari array yang ditulis tetap di kode.
+
+MENYEMBUNYIKAN TOMBOL BUKAN KEAMANAN
+Siapa pun dapat memanggil endpoint secara langsung tanpa melewati antarmuka. Setiap izin yang ditampilkan pada antarmuka wajib memiliki pasangan pengecekan pada handler Go. Tanpa itu, izin tersebut hanya hiasan.
+3.5 Matriks hak akses
+Matriks berikut menjadi nilai awal tabel role_permission. Setelah aplikasi berjalan, super admin dapat mengubahnya melalui modul Hak Akses.
+
+Modul master dan konten
+Modul
+Super Admin
+Admin
+Moderator
+User
+Guest
+anggota
+CRUD
+CRUD
+CRUD
+R
+—
+admin
+CRUD
+R
+R
+R
+—
+moderator
+CRUD
+CRUD
+R
+R
+—
+user
+CRUD
+CRUD
+CRU
+R
+—
+instansi
+CRUD
+CRUD
+R
+R
+—
+unit
+CRUD
+CRUD
+CRUD
+CRUD
+—
+prestasi
+CRUD
+CRUD
+CRUD
+R
+R
+inorga
+CRUD
+CRUD
+R
+R
+R
+kegiatan
+CRUD
+CRUD
+CRUD
+R
+R
+artikel
+CRUD
+CRUD
+CRUD
+R
+R
+medsos
+CRUD
+CRUD
+CRUD
+CRUD
+R
+profile_club
+CRUD
+CRUD
+R
+R
+R
+dokumen
+CRUD
+CRUD
+CRUD
+R
+—
+
+Modul operasional dan sistem
+Modul / Aksi
+Super Admin
+Admin
+Moderator
+User
+Guest
+lokasi
+CRUD
+CRUD
+R
+R
+—
+jadwal
+CRUD
+CRUD
+CRUD
+R
+—
+jadwal.assign
+V
+V
+V
+—
+—
+jadwal.batal_sesi
+V
+V
+V
+—
+—
+absensi.create
+V
+V
+V
+V
+—
+absensi.read
+semua
+semua
+semua
+sendiri
+—
+absensi.override
+V
+V
+—
+—
+—
+absensi.delete
+V
+—
+—
+—
+—
+absensi.export
+V
+V
+V
+—
+—
+izin.create
+V
+V
+V
+V
+—
+izin.approve
+V
+V
+V
+—
+—
+kta.create
+V
+V
+—
+—
+—
+kta.print
+V
+V
+—
+—
+—
+kta.cabut
+V
+V
+—
+—
+—
+file.create
+V
+V
+V
+V
+—
+file.delete
+V
+V
+sendiri
+sendiri
+—
+hak_akses
+CRUD
+—
+—
+—
+—
+
+Dua baris bernilai &quot;sendiri&quot; berasal dari kolom cakupan pada Sub-bab 3.2, dan merupakan alasan mengapa dimensi tersebut diperlukan.
+
+PENAMAAN AKSI DISELARASKAN DENGAN ENUM
+Melakukan absensi, mengajukan izin, dan mengunggah berkas ketiganya adalah pembuatan baris baru, sehingga memakai aksi create dan tidak memerlukan nilai enum tersendiri. Yang benar-benar tidak memiliki padanan hanya dua: cabut untuk pencabutan KTA, yang berbeda dari delete karena barisnya tetap disimpan, dan batal_sesi untuk pembatalan satu sesi jadwal, yang dipisah dari update karena berdampak ke seluruh peserta.
+4. Modul Jadwal
+Modul jadwal menyediakan jadwal dengan atribut nama, waktu, latitude, longitude, dan zona waktu, yang dapat ditugaskan kepada anggota oleh admin atau moderator.
+4.1 Empat tabel, bukan satu
+Satu tabel jadwal yang memuat koordinat dan waktu terlihat memadai, sampai dua kebutuhan berikut muncul:
+Jadwal berulang. &quot;Latihan rutin setiap Minggu pukul 07.00&quot; adalah satu jadwal, tetapi absensinya terjadi per tanggal. Tanpa tabel sesi, tidak ada tempat menempelkan absensi tanggal 7 September dan 14 September secara terpisah, dan tidak ada tempat mencatat bahwa sesi minggu tertentu dibatalkan.
+Lokasi yang dipakai berulang. Jika satu lapangan digunakan lima puluh jadwal, koordinatnya tersalin lima puluh kali. Ketika lokasi berpindah atau koordinatnya dikoreksi, seluruh baris harus disunting satu per satu.
+
+Karena itu modul terdiri dari empat tabel bertingkat: mst_lokasi sebagai master koordinat, jadwal sebagai definisi dan pola, jadwal_sesi sebagai kejadian per tanggal, dan jadwal_peserta sebagai penugasan. Absensi menempel pada sesi, bukan pada jadwal.
+4.2 Atribut tabel jadwal
+Kolom
+Tipe
+Keterangan
+nama
+varchar(150)
+Nama jadwal
+jenis_jadwal
+varchar(50)
+latihan / kegiatan / rapat / kompetisi / piket
+lokasi_id
+bigint
+Rujukan ke mst_lokasi; boleh kosong bila koordinat diisi manual
+latitude, longitude
+decimal(10,7)
+Salinan dari lokasi saat jadwal dibuat, agar jadwal lampau tetap benar meski master lokasi berubah
+radius_meter
+int
+Radius toleransi absen; menimpa nilai bawaan lokasi
+timezone
+varchar(50)
+Nama zona IANA, misalnya Asia/Jakarta
+tanggal_mulai, tanggal_selesai
+date
+Rentang berlakunya jadwal
+jam_mulai, jam_selesai
+time
+Waktu lokal menurut kolom timezone
+is_berulang, pola_ulang
+bool, enum
+harian / mingguan / bulanan / kustom
+hari_ulang
+int[]
+Untuk pola mingguan; 0 = Minggu hingga 6 = Sabtu
+mode_absen
+enum
+masuk_saja atau masuk_pulang — lihat Bab 5
+butuh_selfie, butuh_lokasi
+bool
+Menentukan apakah selfie dan koordinat wajib
+izinkan_luar_radius
+bool
+Bila true, absen di luar radius diterima setelah konfirmasi pengguna
+toleransi_telat_mnt
+int
+Batas menit sebelum status berubah menjadi terlambat
+buka_absen_mnt, tutup_absen_mnt
+int
+Jendela waktu absen relatif terhadap jam mulai
+kuota
+int
+Batas jumlah peserta; kosong berarti tanpa batas
+kegiatan_id
+bigint
+Menyambungkan jadwal ke Master Data Kegiatan
+
+4.3 Sesi jadwal
+Tabel jadwal_sesi berisi kejadian per tanggal, dibangkitkan dari pola pada tabel jadwal, dan menjadi titik sandar absensi. Jadwal dengan tanggal tunggal tetap memiliki satu baris pada tabel ini agar alur absensi seragam untuk semua jenis jadwal.
+Setiap sesi menyimpan mulai_utc dan selesai_utc bertipe timestamptz, absen_buka_utc dan absen_tutup_utc yang dihitung dari jendela pada jadwal, serta status bernilai terjadwal, berlangsung, selesai, atau dibatalkan.
+4.4 Penugasan kepada anggota
+Admin dan moderator menugaskan anggota melalui empat cara, yang seluruhnya menghasilkan baris pada tabel jadwal_peserta:
+Cara
+Digunakan untuk
+Yang terjadi
+Pilih anggota satu per satu
+Kelompok kecil, penugasan khusus
+Satu baris per anggota
+Berdasarkan instansi atau sekolah
+Latihan per sekolah
+Penambahan massal dengan penyaring mst_instansi
+Berdasarkan jenis atau status anggota
+Misalnya seluruh anggota aktif
+Penambahan massal dengan penyaring tabel anggota
+Terbuka (pendaftaran mandiri)
+Kegiatan sukarela
+Anggota mendaftar sendiri, status_tugas langsung diterima
+
+Kolom status_tugas berjalan dari ditugaskan menjadi diterima, ditolak, atau izin. Status ini terpisah dari kehadiran: seseorang dapat menyanggupi penugasan namun tetap tidak hadir. Membedakan keduanya membuat rekap dapat menjawab &quot;tidak hadir padahal sudah menyanggupi&quot; secara berbeda dari &quot;tidak pernah ditugaskan&quot;.
+Kolom sesi_id bernilai kosong bila penugasan berlaku untuk seluruh sesi jadwal, dan terisi bila hanya berlaku untuk satu tanggal, misalnya anggota pengganti.
+
+KOLOM WAJIB_ABSEN PADA JADWAL_PESERTA
+Penugasan memakai anggota_id, sehingga anggota tanpa akun pengguna tetap dapat didaftarkan sebagai peserta kegiatan. Namun mereka tidak ikut absensi sama sekali (Bab 5), sehingga kolom wajib_absen otomatis diisi false saat penugasan.
+Tanpa kolom ini, anggota tanpa akun akan ditandai alfa selamanya oleh proses penutup sesi — dinyatakan tidak hadir padahal memang tidak pernah bisa absen. Kolom ini membuat aturannya terlihat pada data, bukan tersembunyi di dalam query, dan rekap dapat menyebut &quot;dari 30 peserta, 25 wajib absen&quot;.
+
+4.5 Penanganan zona waktu
+ATURAN POKOK
+Simpan momen sebagai timestamptz dalam UTC, ditambah kolom timezone berisi nama IANA. Keduanya wajib: UTC saja menghilangkan konteks &quot;pukul tujuh pagi menurut siapa&quot;, sedangkan nama zona saja tidak dapat diurutkan atau dibandingkan.
+Jangan menyimpan offset seperti +07:00. Offset adalah hasil, bukan sumber; aturan zona waktu dapat berubah dan data lama menjadi salah tafsir.
+
+Lapisan
+Ketentuan
+PostgreSQL
+Seluruh kolom waktu bertipe timestamptz. Konversi tampilan menggunakan mulai_utc AT TIME ZONE timezone.
+Go
+time.Time selalu dalam UTC pada lapisan service; konversi hanya pada lapisan presentasi melalui time.LoadLocation. Sertakan import _ &quot;time/tzdata&quot; agar basis data zona waktu tertanam dalam binary — tanpa ini, deploy ke image minimal seperti scratch atau alpine gagal memuat zona waktu tanpa pesan yang jelas.
+Angular
+Tampilkan waktu menurut zona jadwal, bukan zona peramban, dan cantumkan labelnya seperti 07:00 WIB. Anggota yang membuka jadwal dari zona berbeda harus melihat jam yang sama.
+
+Indonesia memiliki tiga zona waktu: Asia/Jakarta, Asia/Makassar, dan Asia/Jayapura. Sistem dirancang mendukung banyak zona dengan nilai bawaan Asia/Jakarta. Biaya menyiapkannya sejak awal hampir nol, sedangkan menambahkannya pada sistem yang sudah berjalan jauh lebih mahal.
+5. Modul Absensi
+Absensi terikat pada sesi jadwal yang diatur admin atau moderator, menangkap gambar selfie, merekam latitude dan longitude, serta zona waktu.
+
+HANYA ANGGOTA BERAKUN YANG IKUT ABSENSI
+Tidak semua anggota memiliki akun pengguna. Anggota tanpa akun tidak ikut absensi sama sekali: mereka tidak dapat login, tidak memiliki halaman absen, dan tidak pernah ditandai alfa. Mereka tetap dapat memiliki KTA dan tetap dapat didaftarkan sebagai peserta kegiatan melalui jadwal_peserta dengan wajib_absen bernilai false.
+Karena itu kolom absensi.user_id bertanda NOT NULL. Setiap baris absensi selalu berasal dari anggota yang memiliki akun.
+5.1 Tiga tipe absen
+Tipe
+Disimpan pada
+Yang terjadi
+1. Datang saja
+jadwal.mode_absen = masuk_saja
+Satu baris absensi bertipe masuk. Sesi ditutup tanpa menunggu absen pulang.
+2. Datang dan wajib pulang
+jadwal.mode_absen = masuk_pulang
+Dua baris absensi: masuk dan pulang. Peserta yang tidak melakukan absen pulang ditandai saat sesi ditutup.
+3. Izin pulang cepat
+absensi_izin, jenis = pulang_cepat
+Pengajuan yang memerlukan persetujuan moderator, disertai waktu_pulang_diminta. Bila disetujui, absen pulang lebih awal tidak dihitung sebagai pelanggaran.
+
+Tipe ketiga bukan mode jadwal, melainkan pengecualian atas tipe kedua. Bila dimodelkan sebagai nilai ketiga pada kolom mode_absen, tidak tersedia tempat menyimpan siapa yang menyetujui dan pukul berapa yang diizinkan.
+5.2 Alur absen
+#
+Langkah
+Rincian
+1
+Membuka halaman absen
+Sistem menampilkan sesi yang jendela absennya sedang terbuka, berdasarkan absen_buka_utc hingga absen_tutup_utc dan daftar penugasan anggota.
+2
+Meminta izin kamera dan lokasi
+Keduanya memerlukan HTTPS. Bila ditolak peramban, absen tidak dapat dilanjutkan; tampilkan panduan mengaktifkannya, bukan pesan kesalahan mentah.
+3
+Mengambil selfie
+Kamera depan, pratinjau, lalu konfirmasi. Gambar diambil langsung dari aliran kamera, bukan dipilih dari galeri.
+4
+Mengirim data
+Foto, latitude, longitude, akurasi GPS, zona waktu perangkat, dan jam perangkat dikirim dalam satu permintaan multipart.
+5
+Validasi backend
+Jendela waktu diperiksa dengan jam server. Jarak ke titik sesi dihitung dengan rumus Haversine. Foto disimpan dalam tiga varian sesuai Bab 6.
+6
+Penetapan status
+Sistem menetapkan status kehadiran dan menit keterlambatan. Anggota menerima konfirmasi berisi waktu, lokasi, dan status.
+
+5.3 Tiga zona waktu yang dibedakan
+Satu baris absensi menyentuh tiga zona waktu berbeda dan ketiganya perlu disimpan. Bagian ini ditulis eksplisit karena merupakan sumber kesalahan yang paling sering terjadi pada sistem absensi.
+Kolom
+Isinya
+Alasan disimpan
+waktu_server_utc
+Jam server ketika permintaan diterima
+Acuan resmi. Seluruh penetapan terlambat dihitung dari kolom ini.
+timezone_jadwal
+Zona waktu lokasi kegiatan
+Untuk menampilkan waktu yang dipahami manusia dan menghitung keterlambatan
+timezone_perangkat
+Zona waktu yang dilaporkan peramban
+Bukti konteks, sekaligus penanda bila perangkat disetel tidak wajar
+waktu_perangkat
+Jam pada perangkat pengguna
+Dibandingkan dengan jam server; selisih besar menandakan jam perangkat dimanipulasi
+
+JANGAN MEMPERCAYAI JAM PERANGKAT
+Jam pada telepon genggam dapat diubah dalam hitungan detik. Bila status terlambat dihitung dari waktu yang dikirim perangkat, seluruh modul absensi kehilangan artinya. Jam perangkat tetap disimpan, tetapi sebagai bukti, bukan sebagai acuan.
+5.4 Status kehadiran
+Status
+Ditetapkan ketika
+hadir
+Absen dilakukan dalam jendela waktu dan di dalam radius
+terlambat
+Absen dilakukan melewati toleransi keterlambatan
+pulang_cepat
+Absen pulang dilakukan sebelum jam selesai
+hadir_luar_radius
+Absen diterima namun posisi berada di luar radius
+izin / sakit / dinas
+Pengajuan pada absensi_izin telah disetujui
+alfa
+Tidak ada baris absensi untuk peserta ber-wajib_absen; ditetapkan proses penutup sesi, tidak pernah dibuat melalui absen
+
+5.5 Validasi lokasi
+Radius bersifat dinamis dan diisi sebagai atribut pada dua tempat: mst_lokasi.radius_meter sebagai nilai bawaan lokasi, dan jadwal.radius_meter yang menimpanya bila satu jadwal memerlukan radius berbeda pada lokasi yang sama. Nilai yang berlaku saat absen disimpan pada absensi.radius_berlaku, sehingga catatan lama tetap mencerminkan aturan yang berlaku saat itu meskipun radius diubah kemudian.
+
+PERINGATAN ABSEN DI LUAR RADIUS
+Ketika koordinat pengguna berada di luar radius, aplikasi menahan pengiriman dan menampilkan konfirmasi dengan teks:
+&quot;Apakah anda yakin melakukan absen diluar radius? cek Kembali lokasi GPS anda!&quot;
+Bila pengguna menekan OK, absensi tetap tersimpan dengan dalam_radius bernilai false dan konfirmasi_luar_radius bernilai true. Kolom kedua sengaja dipisah karena mencatat hal berbeda: bahwa pengguna telah diperingatkan dan tetap melanjutkan. Perilaku ini dapat dimatikan per jadwal melalui izinkan_luar_radius.
+
+Perhitungan jarak memakai rumus Haversine antara koordinat absen dan koordinat sesi. Untuk radius puluhan hingga ratusan meter, Haversine sudah cukup akurat; ekstensi PostGIS belum diperlukan.
+Akurasi GPS wajib diperiksa. Peramban mengirim position.coords.accuracy dalam meter. Bila akurasinya dua ribu meter, koordinat tersebut tidak membuktikan apa pun mengenai radius seratus meter. Absen ditolak atau ditandai bila akurasi melampaui ambang pada mst_pengaturan.
+Komputer meja tidak memiliki GPS. Peramban desktop memperkirakan lokasi dari alamat IP atau jaringan nirkabel, sering meleset beberapa kilometer. Absensi diarahkan dilakukan dari telepon genggam.
+5.6 Yang dapat dan tidak dapat dicegah
+Ditulis terus terang agar ekspektasi terbentuk sejak awal. Absensi berbasis peramban dapat dipersulit, tetapi tidak dapat dibuat kebal pemalsuan sepenuhnya.
+Dapat dideteksi atau dicegah
+Tidak dapat dijamin melalui peramban
+• Jam perangkat dimanipulasi, melalui perbandingan dengan jam server
+• Absen ganda, melalui unique constraint per sesi
+• Absen di luar jendela waktu, diperiksa dengan jam server
+• Unggah foto lama dari galeri, karena gambar wajib diambil dari aliran kamera dan EXIF diperiksa
+• Akurasi GPS yang buruk, melalui ambang accuracy
+• Satu perangkat dipakai banyak akun, melalui pola info_perangkat dan alamat IP
+• Aplikasi GPS palsu (mock location) — API peramban tidak menyediakan penanda isMock seperti Android native
+• Mengarahkan kamera ke foto orang lain pada layar
+• Titip absen menggunakan akun yang dipinjamkan
+Mitigasi realistis: simpan seluruh data, tandai yang janggal pada flag_mencurigakan, biarkan moderator meninjau.
+6. Manajemen File
+Setiap berkas gambar disimpan dalam tiga varian: ukuran asli, salinan resolusi menengah, dan salinan resolusi rendah.
+6.1 Satu tabel file terpusat
+Pada rancangan awal terdapat lima belas kolom gambar bertipe text yang tersebar di sembilan tabel, masing-masing menyimpan satu path sebagai teks. Satu kolom teks hanya memuat satu path, sehingga kebutuhan tiga varian akan memaksa penambahan dua kolom untuk setiap gambar — tiga puluh kolom — dan logika pengubahan ukuran tersalin ke setiap modul.
+Dengan tabel mst_file dan mst_file_varian, unggah ditulis satu kali dan dipakai seluruh modul. Penambahan varian keempat di kemudian hari, misalnya AVIF, cukup satu baris per berkas, bukan satu kolom per tabel. Seluruh kolom gambar pada tabel lain berupa rujukan bernama *_file_id.
+6.2 Spesifikasi tiga varian
+Varian
+Sisi terpanjang
+Kualitas
+Format
+Digunakan pada
+original
+maks 4000 px
+90
+JPEG atau PNG sesuai asal
+Arsip, unduh, cetak KTA, bukti absensi
+medium
+1200 px
+80
+WebP dengan cadangan JPEG
+Halaman detail, galeri, pratinjau absensi
+low
+400 px
+70
+WebP dengan cadangan JPEG
+Daftar, avatar, kartu, thumbnail rekap
+
+Gambar tidak pernah diperbesar: bila berkas asli 800 piksel, varian medium ikut 800 piksel dan varian low tetap 400 piksel. Berkas lebih besar dari 4000 piksel diturunkan saat disimpan. Seluruh angka ini diambil dari mst_pengaturan grup file, bukan ditulis tetap di kode.
+6.3 Struktur URL dan penyimpanan
+Struktur URL mengikuti pola domain/modul/id/nama_file dan sengaja dipisahkan dari struktur folder pada disk; kolom mst_file.path_dasar memetakan keduanya.
+
+Pola
+URL
+slamteam.id/anggota/142/budi-santoso-medium.webp
+URL
+slamteam.id/absensi/90311/selfie-low.webp
+Disk
+storage/foto_profil/2026/09/{uuid}/original.jpg, medium.webp, low.webp
+Disk
+storage/absensi/2026/09/{uuid}/original.jpg, medium.webp, low.webp
+
+URL dibuat mudah dibaca, sedangkan disk dipartisi per tahun dan bulan agar satu folder tidak berisi puluhan ribu entri — kondisi yang membuat operasi sistem berkas melambat drastis, dan yang pasti terjadi bila absensi menyimpan foto bertahun-tahun.
+
+URL YANG MUDAH DITEBAK BUKAN MASALAH, ASALKAN BERKAS PRIVAT MELALUI HANDLER
+Struktur seperti /absensi/90311/ dapat ditebak berurutan, dan itu tidak menjadi masalah selama berkas privat disajikan handler Go yang memeriksa izin. Yang berbahaya adalah menyajikannya langsung dari folder statis nginx; di sana URL yang dapat ditebak berarti siapa pun dapat mengunduh selfie anggota mana pun.
+
+Kelompok
+Contoh
+Cara disajikan
+Publik
+Logo klub, banner, gambar artikel dan kegiatan, foto pada halaman publik KTA
+Disajikan langsung dengan cache, boleh melalui CDN
+Privat
+Foto selfie absensi, berkas identitas, lampiran surat izin, dokumen internal
+Wajib melalui endpoint dengan autentikasi dan pemeriksaan izin
+
+BAGIAN YANG PALING MUDAH KELIRU
+Foto selfie absensi memuat wajah anggota, koordinat, dan waktu. Bila disimpan pada folder publik yang dapat diakses siapa pun yang menebak URL-nya, hal itu merupakan kebocoran data pribadi — terlebih karena sebagian anggota SLAM adalah pelajar. Berkas privat harus melalui endpoint GET /api/v1/files/{uuid}/{varian} yang memeriksa izin.
+
+6.4 Konsekuensi volume penyimpanan
+Foto absensi disimpan tanpa batas waktu karena belum ada kebijakan retensi. Angkanya dicantumkan agar keputusan itu diambil dengan informasi yang cukup. Asumsi: 50 anggota dan 3 sesi per minggu.
+Mode absen
+Foto/tahun
+Original
+Medium + low
+Total/tahun
+Lima tahun
+Datang saja
+7.800
+15,6 GB
+1,8 GB
+± 17 GB
+± 87 GB
+Datang dan pulang
+15.600
+31,2 GB
+3,5 GB
+± 35 GB
+± 174 GB
+
+Hampir seluruh ruang dihabiskan varian original; medium dan low bersama-sama hanya sekitar sebelas persen. Bila ruang menjadi kendala, langkah termurah adalah menghapus varian original untuk absensi lama dan menyisakan medium serta low — bukan menghapus baris absensinya. Struktur mst_file_varian memang memungkinkan hal itu: menghapus satu varian tidak menyentuh varian lain, dan baris absensi tetap utuh.
+
+6.5 Ketentuan teknis pada Go
+Pustaka pengubah ukuran: github.com/disintegration/imaging, murni Go tanpa cgo sehingga hasil deploy tetap satu binary. Bila volume membesar dan proses ini menjadi hambatan, h2non/bimg berbasis libvips jauh lebih cepat namun menambah ketergantungan pustaka sistem.
+Auto-orient wajib. Foto dari kamera telepon membawa penanda EXIF Orientation. Bila diabaikan, seluruh selfie absensi tampil miring sembilan puluh derajat — kesalahan klasik yang biasanya baru diketahui setelah ratusan foto masuk.
+EXIF disimpan dahulu, baru dihapus. Untuk foto absensi, EXIF disimpan pada metadata_exif sebagai bukti, lalu dihapus dari varian medium dan low yang mungkin ditampilkan lebih luas.
+Varian dibangkitkan asinkron. Respons absen tidak boleh menunggu tiga kali pengubahan ukuran, karena anggota sedang menunggu di lokasi. Kolom status_proses bernilai menunggu, selesai, atau gagal membuat kegagalan terlihat, bukan hilang tanpa jejak.
+Validasi tipe dari isi berkas, bukan ekstensi. http.DetectContentType membaca byte awal; ekstensi .jpg tidak menjamin isinya gambar.
+Kolom hash_sha256 memungkinkan deduplikasi berkas identik sekaligus pemeriksaan keutuhan untuk bukti absensi.
+
+6.6 Daftar periksa lapisan unggah
+Karena lapisan unggah adalah titik kegagalan pada pengerjaan sebelumnya (Sub-bab 1.3), enam hal berikut diperiksa saat Fase 0 dinyatakan selesai — sebelum modul mana pun memakainya.
+Angular mengirim FormData tanpa menetapkan header Content-Type secara manual. Menuliskannya sendiri menghapus boundary yang dibuat peramban, sehingga Go menerima body yang tidak dapat diurai, sering tanpa pesan kesalahan yang jelas.
+Go memanggil r.ParseMultipartForm(maxMemory) sebelum r.FormFile().
+Go memeriksa nilai kesalahan dari io.Copy dan os.Create. Kegagalan penulisan yang errornya tidak diperiksa menghasilkan gejala &quot;notifikasi berhasil tetapi berkas tidak ada&quot;.
+Nilai client_max_body_size pada nginx dinaikkan dari bawaan satu megabyte; foto telepon hampir selalu lebih besar dan ditolak sebelum mencapai Go.
+Direktori penyimpanan dapat ditulis oleh pengguna yang menjalankan proses.
+CORS mengizinkan permintaan preflight untuk multipart.
+7. Kartu Tanda Anggota, NRA, dan QR
+7.1 Struktur Nomor Register Anggota
+NRA terdiri dari sebelas digit dan melekat pada KARTU, bukan pada anggota. Nomor disimpan pada kolom kta.no_kta; kolom anggota.no_induk hanya menyimpan salinan NRA yang sedang aktif untuk keperluan tampilan daftar dan pencarian.
+
+Segmen
+Digit
+Contoh
+Sumber
+Keterangan
+Kode wilayah
+1–4
+3573
+mst_wilayah.kode
+Paten 3573, Kota Malang
+Bulan lahir
+5–6
+10
+anggota.tanggal_lahir
+Dua digit bulan
+Tahun lahir
+7–8
+02
+anggota.tanggal_lahir
+Dua digit terakhir tahun
+Nomor urut kartu
+9+
+021
+kta.no_urut_kartu
+Berurutan global, dapat diubah manual
+
+Diverifikasi terhadap dua kartu acuan: NRA 35731002021 atas nama Achmad Maulana Azzam, lahir di Malang 16 Oktober 2002 — segmen bulan 10 dan tahun 02 sesuai; dan NRA 35731206033 atas nama Nelson Pradipa Wisnu, lahir di Blitar 15 Desember 2006 — segmen bulan 12 dan tahun 06 sesuai.
+
+KODE WILAYAH BUKAN BERASAL DARI TEMPAT LAHIR
+Kartu kedua mencantumkan tempat lahir Blitar sementara kode wilayahnya 3573, yaitu Kota Malang. Karena SLAM adalah Scouting Legion Airsofter Malang, kode wilayah merujuk pada wilayah klub, bukan tempat kelahiran anggota.
+Implikasinya: sistem tidak boleh mengambil kode wilayah dari kolom tempat_lahir. Untuk saat ini nilainya paten 3573 dan disimpan pada pengaturan umum.kode_wilayah_paten. Tabel mst_wilayah tetap disediakan agar penambahan wilayah lain kelak tidak memerlukan perubahan skema.
+
+7.2 Penomoran global dan pemekaran digit
+Nomor urut berjalan global lintas seluruh kartu. Setelah melewati 999, nomor melar menjadi empat digit sehingga NRA menjadi dua belas digit:
+  35731002021   →  11 digit, nomor urut 021
+  357310021021  →  12 digit, nomor urut 1021
+Pembacaan tetap tidak ambigu karena delapan digit pertama berlebar tetap; sisa digit adalah nomor urut. Karena itu kolom bertipe varchar(20), bukan char(11).
+
+NOMOR URUT MEMAKAI SEQUENCE, DENGAN SATU ATURAN TAMBAHAN
+Nilai bawaan diambil dari PostgreSQL SEQUENCE. Karena nomor boleh disunting manual, tambahkan aturan: bila nilai manual melampaui posisi sequence, majukan sequence dengan setval. Tanpa itu, sequence akan menabrak nomor manual di kemudian hari dan ditolak constraint UNIQUE dengan pesan yang membingungkan bagi petugas input.
+
+7.3 Aturan penomoran
+Kolom kta.no_kta wajib UNIQUE. Justru karena nomor urut dapat disunting manual, tabrakan tidak dapat dicegah oleh antarmuka — dua petugas dapat mengetik angka sama dari dua layar berbeda pada saat bersamaan. Constraint pada basis data adalah satu-satunya penjaga yang tidak dapat dilewati.
+Nomor permanen setelah kartu dicetak. Koreksi tanggal lahir di kemudian hari tidak membangkitkan ulang nomor, karena kartu fisiknya telah beredar.
+Cetak ulang tidak mengubah nomor. Kartu hilang atau rusak menghasilkan baris kta baru dengan versi_cetak naik dan token QR baru, sedangkan no_kta tetap sama. Token lama dicabut sehingga kartu yang hilang tidak lagi memvalidasi.
+Penerbitan kartu jenis berbeda mengambil nomor baru. Lihat Sub-bab 7.4.
+
+7.4 KTA pelajar dan dewasa
+Kartu pelajar dan kartu dewasa disimpan terpisah. Anggota dengan jenis_anggota bernilai siswa_ke_dewasa wajib memiliki dua baris pada tabel kta: satu berjenis pelajar dan satu berjenis dewasa. Kartu dewasa tidak menimpa kartu pelajar. Format dan isi kartunya sama; yang berbeda adalah tempat penyimpanan, nomor, dan masa berlakunya.
+Hal
+KTA pelajar
+KTA dewasa
+NRA
+Nomor urut sendiri
+Nomor urut BARU — berbeda dari kartu pelajarnya
+Masa berlaku
+12 bulan sejak diterbitkan
+24 bulan sejak diterbitkan
+Status setelah naik jenis
+Menjadi arsip
+Menjadi aktif
+Token QR
+Berhenti memvalidasi
+Berlaku
+
+Constraint (anggota_id, jenis_kta, versi_cetak) yang menjamin keduanya tersimpan berdampingan. Kolom anggota.no_induk menunjuk NRA kartu yang sedang aktif, sehingga daftar anggota menampilkan nomor dewasa untuk anggota yang sudah naik jenis, sementara nomor pelajarnya tetap tersimpan dan dapat ditelusuri.
+
+HALAMAN PUBLIK UNTUK KARTU BERSTATUS ARSIP
+Memindai QR pada kartu pelajar yang sudah diarsipkan tidak boleh menampilkan kesalahan mentah. Halaman menampilkan keterangan bahwa kartu sudah digantikan dan tidak lagi berlaku, tanpa membocorkan token kartu penggantinya. Status keanggotaan orang tersebut tetap tidak ditampilkan sebagai valid dari kartu itu.
+
+7.5 Masa berlaku
+Masa berlaku terisi otomatis saat penerbitan dan tetap dapat diubah manual: pelajar 12 bulan dan dewasa 24 bulan terhitung dari tanggal terbit. Nilai bulannya diambil dari mst_pengaturan pada kunci kta.masa_berlaku_pelajar_bulan dan kta.masa_berlaku_dewasa_bulan.
+Karena pencetakan dilakukan secara massal, satu batch menghasilkan tanggal yang seragam dengan sendirinya — kedua kartu acuan sama-sama bertuliskan BERLAKU S/D AGUSTUS 2027. Anggota yang bergabung di tengah siklus tetap memperoleh masa berlaku penuh sesuai jenis kartunya, bukan diselaraskan ke tanggal batch.
+
+MASA BERLAKU HABIS BUKAN BERARTI NON AKTIF
+Kolom anggota.status_anggota diset manual dan tidak berubah otomatis ketika kartu kadaluarsa. Keanggotaan dapat tetap aktif sementara kartunya perlu diperpanjang; keduanya sengaja dipisah.
+
+7.6 Spesifikasi cetak
+Ukuran kartu mengikuti standar ID-1 (CR80), sama dengan KTP Indonesia. Angka berikut diambil dari berkas template KTA SLAM Opsi 2B.
+Hal
+Nilai
+Pada 300 dpi
+Ukuran potong (trim)
+85,6 x 54 mm
+1011 x 638 px
+Ukuran dengan bleed
+89,6 x 58 mm
+1058 x 685 px
+Bleed
+2 mm pada setiap sisi
+24 px
+Resolusi cetak
+300 dpi
+—
+Orientasi
+Mendatar, dua sisi
+—
+Sudut
+Membulat mengikuti standar ID-1, radius sekitar 3,18 mm
+—
+
+Generator kartu menghasilkan dua varian untuk setiap sisi: versi trim untuk pratinjau di layar dan untuk dilampirkan pada profil anggota, serta versi bleed untuk dikirim ke percetakan. Keduanya disimpan sebagai mst_file dengan kategori kta. Ukuran, bleed, dan dpi diambil dari mst_pengaturan, bukan ditulis tetap di kode.
+
+UNSUR YANG HARUS BERADA DI DALAM AREA AMAN
+Seluruh teks dan kode QR ditempatkan minimal 3 mm dari garis potong. Bleed 2 mm hanya berlaku untuk latar dan elemen dekoratif yang memang dimaksudkan terpotong, seperti garis miring merah di tepi kartu. Nama, NRA, masa berlaku, dan QR tidak boleh masuk area bleed.
+
+7.7 Tata letak sisi depan
+Zona
+Isi
+Sumber data
+Kepala
+Logo SLAM bersayap di kiri; teks KARTU TANDA ANGGOTA berukuran besar; di bawahnya SCOUTING LEGION AIRSOFTER MALANG berhuruf renggang; garis pemisah merah tipis
+Tetap
+Latar
+Hitam pekat dengan watermark emblem bintang samar di sisi kanan
+Tetap
+Foto
+Pas foto formal berlatar merah dengan bingkai bersudut potong di sisi kiri
+anggota.foto_formal_file_id
+Baris data
+Empat baris berikon: NAMA, TTL, ALAMAT, NRA. Label abu-abu, nilai putih tebal, tanda titik dua sejajar
+anggota.nama_lengkap, tempat_lahir + tanggal_lahir, alamat, kta.no_kta
+Masa berlaku
+Panel bawah dengan aksen merah tegak di kiri, teks BERLAKU S/D diikuti nama bulan dan tahun
+kta.berlaku_sampai
+Kaki
+Pola garis miring merah dan gelap di tepi bawah
+Tetap
+
+Empat baris data adalah satu-satunya bagian yang berubah antar anggota. Bidang teks perlu diuji terhadap nilai terpanjang yang mungkin: nama lengkap dan alamat adalah dua kolom yang paling sering meluap. Generator memperkecil ukuran huruf secara bertahap bila teks melebihi lebar bidang, dan tidak pernah memotong nama.
+
+7.8 Tata letak sisi belakang
+Zona
+Isi
+Sumber data
+Kepala
+Teks PERATURAN PENGGUNAAN diapit garis miring merah di kiri dan kanan; di bawahnya KARTU TANDA ANGGOTA berhuruf renggang
+Tetap
+Daftar peraturan
+Lima butir dengan ikon bulat bergaris merah di sisi kiri
+Butir kedua mengikuti jenis kartu — lihat di bawah
+Kode QR
+Kotak QR di sisi kanan, berukuran sekitar 24 x 24 mm, berjarak sekitar 5 mm dari garis potong kanan
+kta.token_publik
+Kaki
+Teks SCOUTING LEGION AIRSOFTER MALANG berhuruf renggang di tengah
+Tetap
+Latar
+Hitam dengan siluet merah samar di sudut kanan bawah dan garis miring merah di sudut
+Tetap
+
+Lima butir peraturan
+Penggunaan KTA ini diatur dalam ketentuan organisasi.
+Kartu anggota ini berlaku 2 (dua) tahun sejak diterbitkan — untuk KTA pelajar tertulis 1 (satu) tahun.
+Kartu anggota ini tidak boleh di pindah tangankan.
+Apabila menemukan kartu anggota ini di mohon menghubungi Sekretariat Scouting Legion Airsofter Malang di Jalan Laksda Adi Sucipto Nomor 32 Blimbing, Kota Malang.
+Pengguna KTA ini wajib mematuhi undang undang yang berlaku di Indonesia.
+
+BUTIR KEDUA DIRANGKAI DARI PENGATURAN, BUKAN DIKETIK
+Karena KTA pelajar berlaku 12 bulan dan KTA dewasa 24 bulan, kalimat pada butir kedua berbeda menurut jenis kartu. Kalimat itu dirangkai generator dari nilai kta.masa_berlaku_pelajar_bulan dan kta.masa_berlaku_dewasa_bulan — pengaturan yang sama dengan yang menghitung tanggal kadaluarsa pada sisi depan.
+Dengan begitu, kalimat yang tercetak dan tanggal yang tercetak tidak akan pernah berselisih. Bila masa berlaku diubah suatu saat, keduanya berubah bersamaan tanpa perlu menyunting desain kartu.
+Butir keempat merangkai alamat dari pengaturan umum.alamat_sekretariat, dengan alasan yang sama.
+
+7.9 Kode QR
+Kode QR memuat tautan ke halaman publik pengecekan keanggotaan, yaitu slamteam.id/kta/{token_publik}. Token berupa kode acak 32 karakter, bukan data anggota yang dienkripsi.
+Pendekatan
+Konsekuensi
+Data anggota dienkripsi ke dalam QR
+Status membeku pada saat kartu dicetak, sehingga anggota yang keluar tahun berikutnya tetap terbaca aktif. QR menjadi padat dan sulit dipindai. Bila kunci bocor, seluruh kartu terdampak.
+Token bertanda tangan (JWT atau HMAC)
+Dapat diverifikasi tanpa koneksi, namun datanya tetap membeku dan tidak dapat dicabut sebelum masa berlakunya habis.
+Token acak dengan pencarian ke basis data
+QR tetap pendek, status selalu terkini, kartu hilang dapat dicabut seketika, dan token tidak membocorkan apa pun bila kode difoto orang lain.
+
+Pendekatan ketiga yang dipakai. Karena tujuannya memeriksa status keanggotaan yang berlaku saat itu, status harus dibaca langsung dari basis data ketika kode dipindai.
+
+7.9.1 Tiga hal yang harus diperbaiki pada template
+Kode QR pada template Opsi 2B diuji menggunakan pustaka pembaca QR standar. Gambar apa adanya tidak terdeteksi sama sekali; kode baru terbaca setelah warnanya dibalik. Tiga hal berikut perlu disesuaikan sebelum kartu dicetak dalam jumlah banyak.
+Hal
+Keadaan pada template
+Yang diperlukan
+Polaritas
+Modul terang di atas latar gelap (terbalik)
+Modul gelap di atas latar terang
+Kontras
+Rasio sekitar 3,85 banding 1; modul terang bernilai 113 dari 255, bukan putih
+Modul gelap mendekati hitam di atas putih
+Isi kode
+Teks biasa SLAM-KTA:35731002021
+URL https://slamteam.id/kta/{token_publik}
+
+Mengapa polaritas penting. Standar QR mengasumsikan modul gelap di atas latar terang. Membaca kode terbalik adalah kemampuan tambahan yang boleh dimiliki pembaca, bukan keharusan — banyak aplikasi pemindai dan sebagian kamera bawaan telepon tidak memilikinya. Kartu yang tercetak dengan QR terbalik akan terbaca pada sebagian telepon dan gagal pada sebagian lainnya, dan kegagalan itu baru diketahui setelah kartu dibagikan.
+Mengapa kontras penting. Kertas atau PVC yang dicetak selalu menurunkan kontras dibandingkan tampilan di layar, dan pemindaian sering dilakukan pada cahaya lapangan yang tidak ideal. Rasio 3,85 banding 1 sudah tipis di layar, dan akan makin tipis setelah dicetak.
+Mengapa isi kode penting. Teks SLAM-KTA:35731002021 memuat NRA secara langsung. Karena NRA dibangun dari kode wilayah, tanggal lahir, dan nomor urut berjalan, kode seperti itu dapat ditebak dan dibuat sendiri oleh siapa pun — sehingga tidak membuktikan apa-apa. Selain itu, memindainya dengan kamera telepon hanya memunculkan tulisan, bukan tautan yang dapat dibuka. Dengan URL token, pemindaian langsung membuka halaman pengecekan dan tokennya tidak dapat ditebak.
+
+UKURANNYA SUDAH MEMADAI
+Kotak QR pada template berukuran sekitar 24 x 24 mm. Dengan isi berupa URL token sepanjang 56 karakter, kode memerlukan versi 3 berukuran 29 x 29 modul pada tingkat koreksi kesalahan M, sehingga satu modul berukuran sekitar 0,82 mm — jauh di atas batas praktis kamera telepon yang sekitar 0,4 mm. Ukuran kotak tidak perlu diubah.
+Sisakan zona sunyi selebar empat modul, yaitu sekitar 3,3 mm, di sekeliling kode. Zona ini harus berlatar terang yang sama dengan modul terang, bukan latar hitam kartu.
+
+7.9.2 Halaman publik
+HALAMAN PUBLIK DAPAT DIBUKA SIAPA PUN YANG MEMEGANG KARTU
+Termasuk orang yang menemukan kartu di jalan. Karena itu halaman hanya menampilkan foto, nama, NRA, status keanggotaan, instansi, dan masa berlaku — cukup untuk membuktikan keanggotaan. Halaman tidak menampilkan alamat, nomor identitas, tanggal lahir lengkap, nomor telepon, maupun daftar unit.
+Halaman juga memerlukan pembatasan laju permintaan agar token tidak dapat diuji secara massal.
+Memindai QR pada kartu berstatus arsip menampilkan keterangan bahwa kartu sudah digantikan dan tidak lagi berlaku, tanpa membocorkan token kartu penggantinya.
+
+7.10 Pencetakan
+Keluaran berupa berkas PNG, disimpan sebagai mst_file dan tertaut pada kta.file_kta_id. Pencetakan massal memilih sejumlah anggota lalu menghasilkan lembar berisi beberapa kartu sekaligus, ditandai dengan batch_cetak_id yang sama sehingga satu batch dapat ditelusuri dan dicetak ulang seluruhnya.
+Karena format keluarannya PNG dan bukan PDF, batch yang melampaui satu lembar menghasilkan beberapa berkas PNG, bukan satu berkas berhalaman banyak. Jumlah kartu per lembar diatur pada pengaturan kta.kartu_per_lembar.
+8. Rancangan Basis Data
+Basis data slamteam_db terdiri dari 31 tabel. Rincian lengkap seluruh kolom, tipe data, indeks, dan relasi tersedia pada berkas slamteam_db.dbml yang menyertai dokumen ini dan dapat langsung dibuka pada dbdiagram.io. Berkas tersebut adalah acuan tunggal; bila dokumen ini dan berkas ERD berbeda, berkas ERD yang berlaku.
+8.1 Peta tabel
+Kelompok
+Jml
+Tabel
+Hak akses
+5
+mst_modul, mst_permission, mst_role, role_permission, user_role
+Sistem
+4
+mst_pengaturan, notifikasi, log_aktivitas, sesi_login
+Identitas & KTA
+5
+users, anggota, kta, mst_wilayah, mst_instansi
+File
+2
+mst_file, mst_file_varian
+Jadwal
+4
+mst_lokasi, jadwal, jadwal_sesi, jadwal_peserta
+Absensi
+3
+absensi, absensi_izin, absensi_rekap
+Konten & master
+8
+kegiatan, artikel, unit, prestasi, profile_club, mst_inorga, mst_medsos, mst_dokumen
+
+8.2 Konvensi
+Hal
+Ketentuan
+Alasan
+Nama tabel pengguna
+users, bukan user
+USER adalah fungsi bawaan SQL pada PostgreSQL dan akan selalu memerlukan tanda kutip ganda
+Awalan nama tabel
+mst_ hanya untuk tabel master atau referensi
+Tabel transaksional seperti absensi dan jadwal_sesi bukan master
+Soft delete
+is_deleted boolean, deleted_at, deleted_by
+Mencatat kapan dan oleh siapa; penting untuk data absensi yang dapat disengketakan
+Tipe waktu
+timestamptz untuk seluruh kolom waktu
+Menyimpan informasi zona waktu
+Primary key
+bigint identity
+Tabel absensi bertambah cepat
+Identitas publik
+kolom uuid atau token acak terpisah
+URL berkas dan token QR tidak boleh dapat ditebak berurutan
+Koordinat
+decimal(10,7)
+Tujuh angka desimal setara presisi satu sentimeter; float menimbulkan galat pembulatan
+Enum
+Tipe enum PostgreSQL, bukan integer tanpa keterangan
+Nilai terbaca langsung dari basis data tanpa perlu tabel rujukan di kepala
+
+8.3 Nilai enum
+Enum
+Nilai
+jenis_anggota
+1 siswa (school division) · 2 dewasa · 3 siswa_ke_dewasa (sudah lulus, wajib punya KTA pelajar dan dewasa)
+status_anggota
+1 aktif · 2 non_aktif — diset MANUAL; masa berlaku KTA habis tidak mengubahnya
+jenis_kta
+pelajar · dewasa
+status_kta
+aktif · arsip · dicabut · kadaluarsa
+mode_absen
+masuk_saja · masuk_pulang
+metode_absensi
+selfie · qr · manual (override oleh moderator)
+status_kehadiran
+hadir · terlambat · pulang_cepat · hadir_luar_radius · izin · sakit · dinas · alfa
+cakupan_permission
+semua · instansi_sendiri · milik_sendiri
+
+8.4 Indeks dan constraint utama
+Indeks
+Constraint
+• absensi (sesi_id, anggota_id, tipe) — UNIQUE
+• absensi (anggota_id, waktu_server_utc)
+• jadwal_sesi (jadwal_id, tanggal_lokal) — UNIQUE
+• jadwal_sesi (absen_buka_utc, absen_tutup_utc)
+• jadwal_peserta (anggota_id, jadwal_id)
+• mst_file (reff_type, reff_id) dan (hash_sha256)
+• role_permission (role_id, permission_id) — UNIQUE
+• kta (no_kta) dan (token_publik) — UNIQUE
+• kta (anggota_id, jenis_kta, versi_cetak) — UNIQUE
+• notifikasi (user_id, is_dibaca, created_at)
+• users (username), (email) — UNIQUE partial
+• CHECK latitude BETWEEN -90 AND 90
+• CHECK longitude BETWEEN -180 AND 180
+• CHECK radius_meter > 0
+• CHECK jam_selesai > jam_mulai
+• CHECK berlaku_sampai > berlaku_dari
+• Relasi ke data historis memakai ON DELETE RESTRICT, sehingga absensi tidak ikut terhapus ketika jadwal dihapus
+• Relasi ke kolom *_file_id memakai ON DELETE SET NULL
+• Unique partial WHERE is_deleted = false agar username bekas dapat dipakai lagi
+
+8.5 Tabel pengaturan sistem
+Tabel mst_pengaturan berbentuk key-value bertipe, dengan metadata yang cukup untuk membangkitkan halaman pengaturannya sendiri. Menambah setelan baru cukup satu baris INSERT tanpa menyentuh frontend.
+Kunci
+Nilai awal
+umum.nama_klub
+Scouting Legion Airsofter Malang
+umum.singkatan
+SLAM
+umum.alamat_sekretariat
+Jalan Laksda Adi Sucipto Nomor 32 Blimbing, Kota Malang
+umum.timezone_bawaan
+Asia/Jakarta
+umum.kode_wilayah_paten
+3573
+nra.mode_penomoran
+global
+nra.panjang_urut_minimal
+3 (melar ke 4 digit setelah 999)
+kta.masa_berlaku_pelajar_bulan
+12
+kta.masa_berlaku_dewasa_bulan
+24
+kta.format_keluaran
+png
+kta.dpi_cetak
+300
+kta.lebar_mm
+85.6
+kta.tinggi_mm
+54
+kta.bleed_mm
+2
+kta.qr_ukuran_mm
+24
+kta.kartu_per_lembar
+8
+absensi.akurasi_gps_maks_meter
+100
+absensi.radius_bawaan_meter
+100
+absensi.toleransi_telat_menit
+15
+absensi.buka_absen_menit
+30
+absensi.tutup_absen_menit
+60
+file.varian_original_maks_px
+4000
+file.varian_medium_px
+1200
+file.varian_low_px
+400
+
+Kolom is_terkunci menandai setelan yang hanya boleh diubah super admin, seperti nra.mode_penomoran dan ambang akurasi GPS. Kolom is_publik menandai setelan yang boleh dibaca frontend tanpa autentikasi, seperti nama klub.
+
+8.6 Tabel notifikasi
+Notifikasi dibuat satu baris per penerima, karena status baca melekat pada masing-masing orang. Menugaskan lima puluh anggota ke satu jadwal menghasilkan lima puluh baris; indeks (user_id, is_dibaca, created_at) menjaga kueri penghitung notifikasi belum dibaca tetap ringan.
+Jenis notifikasi
+Dipicu oleh
+jadwal_ditugaskan
+Anggota ditugaskan pada suatu jadwal
+jadwal_pengingat
+Menjelang sesi dimulai
+sesi_dibatalkan
+Moderator membatalkan satu sesi
+izin_disetujui / izin_ditolak
+Pengajuan izin diproses
+absensi_dioverride
+Moderator mengubah catatan absensi anggota
+kta_diterbitkan / kta_kadaluarsa
+Kartu terbit, atau masa berlakunya habis
+sistem
+Pengumuman dari administrator
+
+YANG SENGAJA TIDAK DIBUAT
+Tabel template, tabel kanal pengiriman, dan tabel status pengiriman tidak dibuat. Ketiganya baru berguna bila kelak ditambahkan email atau WhatsApp; untuk notifikasi dalam aplikasi saja, ketiganya hanya menjadi tabel kosong yang harus dirawat. Bila kebutuhan itu muncul, cukup menambah tabel notifikasi_kanal tanpa mengubah tabel notifikasi.
+Konsekuensi yang perlu disadari: anggota tanpa akun pengguna tidak menerima notifikasi apa pun.
+9. Daftar Endpoint API
+Seluruh endpoint berada di bawah awalan /api/v1 dan dilindungi middleware pemeriksa izin sesuai Bab 3.
+Kelompok
+Endpoint
+Autentikasi
+POST /auth/login (menerima username ATAU email) · POST /auth/refresh · POST /auth/logout · GET /me · GET /me/permissions
+Hak akses
+GET /modul · GET /permissions · GET /roles · POST /roles · PUT /roles/{id} · DELETE /roles/{id} · GET /roles/{id}/permissions · PUT /roles/{id}/permissions
+Pengaturan
+GET /pengaturan · GET /pengaturan/{grup} · PUT /pengaturan · GET /public/pengaturan
+Notifikasi
+GET /notifikasi · GET /notifikasi/jumlah-belum-dibaca · PATCH /notifikasi/{id}/baca · PATCH /notifikasi/baca-semua
+Lokasi
+GET /lokasi · POST /lokasi · PUT /lokasi/{id} · DELETE /lokasi/{id}
+Jadwal
+GET /jadwal · POST /jadwal · PUT /jadwal/{id} · DELETE /jadwal/{id} · POST /jadwal/{id}/generate-sesi · GET /jadwal/{id}/sesi · PATCH /sesi/{id}/batalkan
+Penugasan
+POST /jadwal/{id}/peserta · POST /jadwal/{id}/peserta/bulk · DELETE /jadwal/{id}/peserta/{anggotaId} · PATCH /peserta/{id}/respon
+Absensi
+GET /absensi/sesi-aktif · POST /absensi/check-in · POST /absensi/check-out · GET /absensi · GET /absensi/rekap · PATCH /absensi/{id}/override · POST /absensi/export
+Izin
+POST /izin · GET /izin · PATCH /izin/{id}/approve · PATCH /izin/{id}/tolak
+Berkas
+POST /files · GET /files/{uuid}/{varian} · DELETE /files/{uuid}
+KTA
+POST /kta · POST /kta/bulk · GET /kta/anggota/{anggotaId} · POST /kta/{id}/cetak-ulang · PATCH /kta/{id}/cabut · GET /kta/batch/{batchId}
+Publik
+GET /public/kta/{token} · GET /public/profil · GET /public/artikel · GET /public/kegiatan
+10. Skema Awal dan Urutan Pembangunan
+Karena proyek dibangun dari nol, bab ini memuat pembuatan skema awal dan pengisian data acuan — bukan migrasi dari basis data lama. Tidak ada data yang dipindahkan dari sistem Laravel dan MySQL sebelumnya.
+10.1 Prinsip
+Skema ditulis sebagai berkas migrasi bernomor sejak hari pertama. Meskipun basis datanya masih kosong, setiap perubahan tetap melalui berkas migrasi dengan pasangan rollback. Kebiasaan ini yang membuat perubahan skema di tengah pengerjaan tidak menjadi sumber perbedaan antara mesin pengembang.
+Berkas .dbml adalah acuan tunggal. Migrasi dibangkitkan mengikuti berkas tersebut. Bila kode dan ERD berbeda, ERD yang menang dan kodenya diperbaiki.
+Data acuan diisi lewat seeder yang dapat dijalankan ulang. Seeder bersifat idempoten, sehingga menjalankannya dua kali tidak menggandakan baris.
+10.2 Urutan pembuatan skema
+Tabel sistem: mst_pengaturan, log_aktivitas.
+Tabel berkas: mst_file dan mst_file_varian, beserta endpoint unggah yang telah lolos daftar periksa Sub-bab 6.6.
+Tabel hak akses: mst_modul, mst_permission, mst_role, role_permission, user_role.
+Tabel identitas: mst_wilayah, mst_instansi, anggota, users, sesi_login.
+Tabel KTA: kta.
+Tabel jadwal: mst_lokasi, jadwal, jadwal_sesi, jadwal_peserta.
+Tabel absensi: absensi, absensi_izin, absensi_rekap.
+Tabel notifikasi dan tabel konten: kegiatan, artikel, unit, prestasi, profile_club, mst_inorga, mst_medsos, mst_dokumen.
+Seluruh indeks dan constraint pada Sub-bab 8.4.
+10.3 Urutan pengisian data acuan
+#
+Isi
+Keterangan
+1
+mst_pengaturan
+Dua puluh baris pada Sub-bab 8.5
+2
+mst_wilayah
+Kode BPS; minimal 3573 Kota Malang
+3
+mst_modul
+Sembilan belas modul pada Bab 2
+4
+mst_permission
+Kombinasi modul dan aksi
+5
+mst_role
+Lima peran bawaan dengan is_sistem bernilai true
+6
+role_permission
+Matriks pada Sub-bab 3.5
+7
+Super admin pertama
+Lihat Sub-bab 10.4
+8
+profile_club, mst_instansi
+Data klub dan instansi awal
+10.4 Membuat super admin pertama
+PERSOALAN AYAM DAN TELUR
+Tidak ada registrasi mandiri, dan pengguna hanya dapat dibuat oleh pengguna lain yang memiliki izin user.create. Pada basis data yang masih kosong, tidak ada seorang pun yang dapat membuat pengguna pertama.
+Jalan keluarnya adalah perintah CLI tersendiri pada aplikasi Go, misalnya &quot;slamctl create-superadmin&quot;, yang membuat satu baris anggota beserta users dan menautkannya ke peran super admin. Perintah ini menolak berjalan bila sudah ada pengguna dengan peran super admin, sehingga tidak dapat dipakai untuk membuat pintu belakang setelah aplikasi berjalan.
+Perintah ini tidak boleh berupa endpoint HTTP. Endpoint pembuatan super admin yang tidak terlindungi adalah celah yang paling sering ditemukan pada aplikasi sejenis.
+11. Metode Pengembangan
+11.1 Hubungan dengan aplikasi lama
+Aplikasi lama berbasis Laravel, Angular versi lama, dan MySQL dijadikan rujukan TAMPILAN saja: tata letak halaman, alur antar layar, dan susunan formulir. Rute API dan skema basis data berubah sepenuhnya karena backend berpindah ke Go dan basis data berpindah ke PostgreSQL.
+Aturan praktisnya: ketika mengerjakan satu modul, tampilan lama boleh ditiru, tetapi nama endpoint, bentuk payload, dan nama kolom selalu mengikuti dokumen ini dan berkas .dbml. Menyalin bentuk respons API lama adalah sumber ketidakcocokan yang paling mudah terjadi dan paling sulit dilacak kemudian.
+11.2 Claude Code
+Implementasi dikerjakan bertahap satu modul demi satu modul dengan bantuan Claude Code. Pembagian pekerjaan berikut yang membedakan hasil yang dapat dirawat dari hasil yang harus ditulis ulang beberapa bulan kemudian.
+Sesuai untuk didelegasikan
+Harus diputuskan manusia
+• Handler CRUD berulang untuk sembilan belas modul dengan pola sama
+• Berkas migrasi SQL dari rancangan .dbml yang telah disepakati
+• Komponen Angular yang mengikuti pola yang sudah ada
+• Pengujian untuk aturan yang sudah tertulis: Haversine, jendela absen, penetapan status, pemekaran digit NRA
+• Seeder matriks role_permission dan dua puluh baris pengaturan
+• Bentuk skema dan relasi, yang dikunci pada .dbml sebelum kode ditulis
+• Aturan pencegahan eskalasi hak akses pada Bab 3
+• Data yang boleh tampil pada halaman publik KTA
+• Nilai ambang: toleransi keterlambatan, akurasi GPS, radius
+• Segala hal yang menyangkut bukti dan data pribadi
+
+SKEMA DIKUNCI LEBIH DAHULU, KODE MENYUSUL
+Berkas slamteam_db.dbml berperan sebagai sumber kebenaran tunggal. Tanpa patokan itu, setiap sesi pengembangan berisiko melahirkan variasi nama kolom yang berbeda-beda untuk maksud yang sama — persoalan yang justru paling mudah muncul ketika kode ditulis cepat.
+
+11.3 Taste Skill
+Taste Skill (https://www.tasteskill.dev) adalah kumpulan berkas SKILL.md sumber terbuka yang menuntun agen AI menjauh dari tampilan generik yang khas dihasilkan pengembangan cepat berbantuan AI. Dipasang dengan perintah:
+npx skills add Leonxlnx/taste-skill
+Alih-alih memaksakan satu selera visual, Taste Skill memetakan kebutuhan proyek ke sistem desain yang sesuai seperti Material, shadcn, atau Bootstrap, lalu menegakkan aturan tipografi, spasi, sistem warna, dan konsistensi mode gelap. Versi kedua menambahkan penyimpulan brief, pemetaan sistem desain, dan protokol audit terlebih dahulu untuk perancangan ulang. Kompatibel dengan Claude Code, Cursor, Codex, dan agen lainnya.
+
+SATU SYARAT AGAR PENERAPANNYA EFEKTIF
+Taste Skill mencegah tampilan generik, tetapi tidak mengetahui seperti apa SLAM seharusnya terlihat. Agar sembilan belas modul tidak berakhir dengan sembilan belas gaya berbeda, tetapkan lebih dahulu satu berkas design token berisi warna, skala tipografi, radius sudut, spasi, dan tinggi komponen. Simpan di dalam repositori bersama CLAUDE.md yang menyebutnya sebagai acuan.
+Titik awalnya sudah tersedia: palet KTA yang ada — hitam, abu-abu gelap, dan merah pada logo — beserta tipografi kapital tebal berjarak lebar pada kartu.
+Tiga halaman yang paling rawan tidak konsisten justru yang paling jarang dibuka: pengaturan hak akses berupa grid peran dan modul, kalender jadwal, dan layar absen. Ketiganya tidak menyerupai halaman CRUD mana pun dan tidak memiliki padanan di aplikasi lama, sehingga sebaiknya dirancang lebih dahulu, bukan diserahkan pada proses generate di tahap akhir.
+
+11.4 Progressive Web App
+Aplikasi dikonversi menjadi Progressive Web App agar dapat dipasang pada layar utama telepon tanpa membangun aplikasi native. Kebutuhannya meliputi manifest, service worker, ikon beberapa ukuran, dan paket @angular/pwa.
+
+PENGGUNA IPHONE DIARAHKAN KE PERAMBAN
+Keputusan mengarahkan pengguna iPhone langsung ke peramban menghindari masalah nyata: PWA iOS yang berjalan dalam mode standalone memiliki riwayat panjang bermasalah dengan getUserMedia — izin kamera dapat hilang setiap kali aplikasi ditutup, atau ditolak tanpa pemberitahuan. Pada Safari biasa, izin kamera dan lokasi berperilaku normal.
+Deteksi dilakukan melalui navigator.standalone dan pola user agent, lalu tampilkan arahan membuka aplikasi melalui Safari ketika pengguna menekan menu absensi. Deteksi tidak boleh mengandalkan percobaan mengakses kamera, karena kegagalannya baru diketahui setelah pengguna terlanjur berada di lokasi.
+
+HTTPS BUKAN OPSIONAL
+Baik getUserMedia maupun geolocation hanya berfungsi pada secure context. Tanpa sertifikat SSL pada slamteam.id, modul absensi tidak akan berfungsi pada peramban mana pun. Kegagalan ini tidak terlihat selama pengembangan di localhost, karena localhost diperlakukan sebagai secure context. Pastikan sertifikat aktif sebelum Fase 4 diuji.
+12. Roadmap dan Progress Table
+Urutan fase ditentukan ketergantungan teknis. Absensi memerlukan berkas dan jadwal; jadwal memerlukan hak akses; seluruhnya memerlukan fondasi waktu, berkas, dan pengaturan.
+12.1 Fase pengerjaan
+Fase
+Nama
+Prasyarat
+Isi
+0
+Fondasi
+—
+Kerangka proyek Go dan Angular, mst_pengaturan, log_aktivitas, manajemen berkas tiga varian beserta daftar periksa unggah, konvensi timestamptz, perintah CLI pembuat super admin
+1
+Hak akses dinamis
+Fase 0
+Lima tabel hak akses, seed matriks, middleware Go, guard dan directive Angular, halaman pengaturan hak akses
+2
+Anggota dan master data
+Fase 1
+Anggota, instansi, unit, prestasi, inorga, medsos, dokumen, profile club — modul CRUD dengan pola berulang
+3
+Lokasi dan jadwal
+Fase 1
+CRUD lokasi dengan pemilih peta, CRUD jadwal, pembangkit jadwal_sesi termasuk pola berulang, tampilan kalender
+4
+Penugasan jadwal
+Fase 3
+Penugasan satuan dan massal, kolom wajib_absen, alur terima dan tolak, notifikasi dalam aplikasi
+5
+Absensi
+Fase 0, 3, 4
+Halaman absen dengan kamera dan GPS, validasi backend, pengajuan izin, override manual, proses penutup sesi
+6
+KTA, NRA, dan QR
+Fase 0, 2
+Seed mst_wilayah, pembangkit NRA dengan sequence dan penyuntingan manual, tabel kta, generate PNG, cetak massal, halaman publik, cetak ulang dan pencabutan
+7
+Laporan dan rekap
+Fase 5
+Rekap per anggota, per jadwal, dan per periode; ekspor Excel dan PDF; dasbor kehadiran
+8
+Landing page dan konten publik
+Fase 2
+Halaman publik profil klub, artikel, kegiatan, prestasi
+9
+PWA dan penyempurnaan
+Fase 5
+Manifest, service worker, ikon, pemasangan pada layar utama, pengarahan pengguna iOS, pengingat jadwal
+
+Fase 6 hanya bergantung pada Fase 0 dan Fase 2, sehingga tidak menunggu jadwal maupun absensi. Bila tersedia lebih dari satu pengembang, jalur KTA dapat berjalan sejajar dengan Fase 3 sampai 5.
+
+12.2 Progress table
+Seluruh modul dimulai dari nol. Keterangan: V selesai, P sedang dikerjakan, X belum dikerjakan.
+Modul
+Fase
+C
+R
+U
+D
+Catatan
+Fondasi & manajemen berkas
+0
+X
+X
+X
+X
+Prasyarat seluruh modul
+Hak akses
+1
+X
+X
+X
+X
+
+Anggota
+2
+X
+X
+X
+X
+
+Instansi / Sekolah
+2
+X
+X
+X
+X
+
+Unit
+2
+X
+X
+X
+X
+
+Prestasi
+2
+X
+X
+X
+X
+
+Inorga
+2
+X
+X
+X
+X
+
+Medsos
+2
+X
+X
+X
+X
+
+Dokumen
+2
+X
+X
+X
+X
+
+Profile Club
+2
+X
+X
+X
+X
+
+Lokasi
+3
+X
+X
+X
+X
+
+Jadwal
+3
+X
+X
+X
+X
+
+Penugasan jadwal
+4
+X
+X
+X
+X
+
+Absensi
+5
+X
+X
+X
+X
+
+Izin
+5
+X
+X
+X
+X
+
+KTA & QR
+6
+X
+X
+X
+X
+
+Laporan
+7
+X
+X
+X
+X
+
+Kegiatan
+8
+X
+X
+X
+X
+
+Artikel
+8
+X
+X
+X
+X
+
+Landing page
+8
+X
+X
+X
+X
+
+Lampiran A — Hal yang Masih Terbuka
+Rancangan ini lengkap dan dapat langsung dikerjakan. Tiga hal yang sebelumnya terbuka — penempatan kode QR, ukuran cetak kartu, dan teks masa berlaku pada sisi belakang — sudah ditutup pada revisi ini dan pindah menjadi ketentuan pada Bab 7. Dua hal berikut masih menggantung.
+Kode
+Hal
+Nilai sementara
+Menghambat
+A-4
+Kebijakan pencadangan basis data dan berkas
+Belum ditetapkan
+Sebelum rilis
+A-5
+Revisi template kartu untuk tiga hal pada Sub-bab 7.9.1: polaritas QR, kontras QR, dan isi kode QR
+Template Opsi 2B apa adanya
+Fase 6
+
+CATATAN MENGENAI A-5
+Ketiganya adalah penyesuaian pada berkas desain, bukan pada perangkat lunak. Ukuran, posisi, dan zona sunyi kode QR pada template sudah memadai; yang perlu diubah hanya warna modul, latar di balik kode, dan isi yang dibangkitkan generator.
+Selama belum diperbaiki, kartu tetap dapat dicetak dan seluruh fungsi lain berjalan — hanya pemindaian QR yang akan berhasil pada sebagian telepon dan gagal pada sebagian lainnya.
+
+Berkas ERD slamteam_db.dbml menyertai dokumen ini dan menjadi acuan tunggal untuk struktur basis data.

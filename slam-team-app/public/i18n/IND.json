@@ -1,0 +1,12 @@
+{
+  "APP": { "TITLE": "Slam Team" },
+  "MENU": { "DASHBOARD": "Dasbor", "LOGOUT": "Keluar" },
+  "LOGIN": {
+    "TITLE": "Masuk",
+    "EMAIL": "Email",
+    "PASSWORD": "Kata Sandi",
+    "SUBMIT": "Masuk",
+    "ERROR": "Email atau kata sandi salah"
+  },
+  "DASHBOARD": { "TITLE": "Dasbor", "WELCOME": "Selamat datang" }
+}

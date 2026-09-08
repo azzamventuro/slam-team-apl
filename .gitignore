@@ -1,0 +1,51 @@
+# ── Agent / tooling ────────────────────────────────────────────────
+.claude/
+.cursor/
+.aider*
+
+# ── Secrets & local config ─────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ── Node / Angular (slam-team-app) ─────────────────────────────────
+node_modules/
+dist/
+out-tsc/
+.angular/
+npm-debug.log*
+yarn-error.log*
+.sass-cache/
+coverage/
+testem.log
+__screenshots__/
+
+# ── Go (slam-team-api) ─────────────────────────────────────────────
+bin/
+tmp/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+build-errors.log
+
+# ── IDE / editor ───────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.sublime-workspace
+
+# ── OS ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Office temp files ──────────────────────────────────────────────
+~$*

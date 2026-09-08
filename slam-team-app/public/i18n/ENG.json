@@ -1,0 +1,12 @@
+{
+  "APP": { "TITLE": "Slam Team" },
+  "MENU": { "DASHBOARD": "Dashboard", "LOGOUT": "Logout" },
+  "LOGIN": {
+    "TITLE": "Sign In",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "SUBMIT": "Sign In",
+    "ERROR": "Invalid email or password"
+  },
+  "DASHBOARD": { "TITLE": "Dashboard", "WELCOME": "Welcome" }
+}

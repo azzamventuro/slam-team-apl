@@ -1,0 +1,37 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      APP_ENV: development
+      APP_PORT: "8080"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: slamteam_db
+      DB_USER: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_SSLMODE: disable
+      JWT_SECRET: ${JWT_SECRET:-change-me}
+      REDIS_ADDR: redis:6379
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: slamteam_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  pg_data:

@@ -1,0 +1,1296 @@
+// =====================================================================
+//  SLAM TEAM — slamteam_db
+//  ERD Rev. 3 — skema awal untuk pembangunan ulang (greenfield)
+//
+//  Stack baru : Angular 21 (PWA) · Go · PostgreSQL · slamteam.id
+//  Stack lama : Laravel · Angular versi lama · MySQL  (TIDAK dimigrasi)
+//
+//  Proyek dibangun ulang dari nol. Tidak ada modul yang diteruskan.
+//  Project lama hanya menjadi rujukan TAMPILAN; route API dan skema
+//  berubah total. Tidak ada migrasi data dari basis data lama.
+//
+//  31 tabel. Buka di https://dbdiagram.io → Import → From DBML
+//
+//  Catatan bertanda << >> menunjukkan perbedaan terhadap dokumen
+//  "Rancangan Awal New", untuk memudahkan perbandingan — bukan
+//  instruksi migrasi.
+//
+//  Konvensi:
+//    - Kolom waktu       : timestamptz (UTC). Tidak ada datetime.
+//    - Soft delete       : is_deleted bool + deleted_at + deleted_by
+//    - Primary key       : bigint identity
+//    - Identitas publik  : kolom uuid/token terpisah, bukan id berurutan
+//    - Koordinat         : decimal(10,7) ≈ presisi 1 cm
+//    - Prefiks mst_      : hanya tabel master/referensi
+// =====================================================================
+
+
+// =====================================================================
+//  ENUM
+// =====================================================================
+
+Enum aksi_permission {
+  create      [note: 'Termasuk melakukan absensi, mengajukan izin, dan mengunggah berkas — ketiganya adalah pembuatan baris baru']
+  read
+  update
+  delete
+  approve
+  assign
+  export
+  override    [note: 'Membetulkan absensi yang gagal atau terlewat']
+  print
+  cabut       [note: 'Mencabut KTA — berbeda dari delete, karena barisnya tetap disimpan']
+  batal_sesi  [note: 'Membatalkan satu sesi jadwal — dipisah dari update karena berdampak ke seluruh peserta']
+}
+
+Enum cakupan_permission {
+  semua
+  instansi_sendiri
+  milik_sendiri
+}
+
+Enum jenis_anggota {
+  siswa          [note: '1 — School division']
+  dewasa         [note: '2 — Anggota dewasa']
+  siswa_ke_dewasa [note: '3 — Sudah lulus, pindah dari siswa ke dewasa. WAJIB punya KTA pelajar DAN KTA dewasa.']
+}
+
+Enum status_anggota {
+  aktif      [note: '1 — Diset MANUAL. Masa berlaku KTA habis TIDAK membuat status jadi non aktif.']
+  non_aktif  [note: '2 — Diset manual']
+}
+
+Enum jenis_kta {
+  pelajar
+  dewasa
+}
+
+Enum status_kta {
+  aktif
+  arsip        [note: 'KTA pelajar yang sudah digantikan KTA dewasa — datanya tetap disimpan']
+  dicabut
+  kadaluarsa
+}
+
+Enum mode_absen {
+  masuk_saja
+  masuk_pulang
+}
+
+Enum tipe_absensi {
+  masuk
+  pulang
+}
+
+Enum metode_absensi {
+  selfie   [note: 'Absen mandiri lewat aplikasi — jalur normal']
+  qr
+  manual   [note: 'Dibuat moderator lewat override, untuk membetulkan absen yang gagal atau terlewat. BUKAN untuk anggota tanpa akun — mereka tidak ikut absensi sama sekali.']
+}
+
+Enum status_kehadiran {
+  hadir
+  terlambat
+  pulang_cepat
+  hadir_luar_radius
+  izin
+  sakit
+  dinas
+  alfa
+}
+
+Enum jenis_izin {
+  izin
+  sakit
+  dinas
+  pulang_cepat
+}
+
+Enum status_izin {
+  menunggu
+  disetujui
+  ditolak
+}
+
+Enum status_sesi {
+  terjadwal
+  berlangsung
+  selesai
+  dibatalkan
+}
+
+Enum status_tugas {
+  ditugaskan
+  diterima
+  ditolak
+  izin
+}
+
+Enum pola_ulang {
+  tidak_berulang
+  harian
+  mingguan
+  bulanan
+  kustom
+}
+
+Enum varian_file {
+  original
+  medium
+  low
+}
+
+Enum status_proses_file {
+  menunggu
+  selesai
+  gagal
+}
+
+Enum tipe_nilai_pengaturan {
+  string
+  integer
+  boolean
+  json
+  date
+}
+
+Enum prioritas_notifikasi {
+  rendah
+  normal
+  tinggi
+}
+
+
+// =====================================================================
+//  KELOMPOK 1 — HAK AKSES  (5 tabel)
+// =====================================================================
+
+Table mst_modul {
+  id              bigint       [pk, increment]
+  kode            varchar(50)  [unique, not null]
+  nama            varchar(100) [not null]
+  grup            varchar(50)
+  route           varchar(150)
+  icon            varchar(50)
+  urutan          int          [default: 0]
+  tampil_di_menu  boolean      [default: true]
+  is_aktif        boolean      [default: true]
+  created_at      timestamptz  [default: `now()`]
+  created_by      bigint
+  modified_at     timestamptz
+  modified_by     bigint
+
+  Note: '''
+  19 baris seed: anggota, admin, moderator, user, kegiatan, medsos,
+  profile_club, inorga, unit, prestasi, instansi, artikel, dokumen,
+  hak_akses, lokasi, jadwal, absensi, izin, kta.
+  << Modul "registrasi" TIDAK ADA — tidak ada registrasi mandiri. >>
+  '''
+}
+
+Table mst_permission {
+  id            bigint          [pk, increment]
+  modul_id      bigint          [not null]
+  aksi          aksi_permission [not null]
+  kode          varchar(100)    [unique, not null, note: 'Format modul.aksi → "anggota.create"']
+  nama          varchar(150)
+  keterangan    text
+  is_berbahaya  boolean         [default: false]
+
+  Indexes {
+    (modul_id, aksi) [unique]
+  }
+}
+
+Table mst_role {
+  id           bigint       [pk, increment]
+  kode         varchar(50)  [unique, not null]
+  nama         varchar(100) [not null]
+  level        int          [not null, note: 'SA=0, Admin=10, Moderator=20, User=30, Guest=99']
+  keterangan   text
+  is_sistem    boolean      [default: false]
+  is_super     boolean      [default: false, note: 'Bypass semua pengecekan izin']
+  is_aktif     boolean      [default: true]
+  is_deleted   boolean      [default: false]
+  deleted_at   timestamptz
+  deleted_by   bigint
+  created_at   timestamptz  [default: `now()`]
+  created_by   bigint
+  modified_at  timestamptz
+  modified_by  bigint
+
+  Note: '''
+  Aturan yang ditegakkan backend:
+  1. Peran is_super tidak bisa dihapus/dinonaktifkan/diturunkan
+  2. Super admin terakhir tidak boleh dihapus
+  3. Anti-eskalasi: tidak bisa memberi izin yang dirinya tidak punya,
+     dan tidak bisa mengubah peran dengan level <= level miliknya
+  4. Hanya super admin yang mengelola peran
+  '''
+}
+
+Table role_permission {
+  id             bigint             [pk, increment]
+  role_id        bigint             [not null]
+  permission_id  bigint             [not null]
+  cakupan        cakupan_permission [default: 'semua']
+  created_at     timestamptz        [default: `now()`]
+  created_by     bigint
+
+  Indexes {
+    (role_id, permission_id) [unique]
+    role_id
+  }
+
+  Note: 'Jantung matriks hak akses. Kolom cakupan membedakan "lihat semua" dari "lihat milik sendiri".'
+}
+
+Table user_role {
+  id              bigint       [pk, increment]
+  user_id         bigint       [not null]
+  role_id         bigint       [not null]
+  is_utama        boolean      [default: true]
+  berlaku_sampai  timestamptz
+  created_at      timestamptz  [default: `now()`]
+  created_by      bigint
+
+  Indexes {
+    (user_id, role_id) [unique]
+  }
+
+  Note: 'Satu peran per user untuk sekarang; kode membaca lewat tabel ini sejak awal agar multi-peran nanti tanpa migrasi.'
+}
+
+
+// =====================================================================
+//  KELOMPOK 2 — SISTEM  (3 tabel)
+//  << BARU di Rev. 3 — menutup celah yang belum ada di Rev. 2 >>
+// =====================================================================
+
+Table mst_pengaturan {
+  id            bigint                 [pk, increment]
+  kunci         varchar(100)           [unique, not null, note: 'Format grup.nama → "kta.masa_berlaku_bulan"']
+  grup          varchar(50)            [not null, note: 'umum / nra / kta / absensi / file / notifikasi']
+  label         varchar(150)           [not null, note: 'Teks yang tampil di halaman pengaturan']
+  nilai         text                   [note: 'Selalu disimpan sebagai teks, ditafsirkan menurut tipe_nilai']
+  tipe_nilai    tipe_nilai_pengaturan  [default: 'string']
+  nilai_bawaan  text                   [note: 'Untuk tombol "kembalikan ke bawaan"']
+  opsi          jsonb                  [note: 'Daftar pilihan bila berupa dropdown']
+  satuan        varchar(20)            [note: 'meter / menit / bulan / px']
+  keterangan    text
+  urutan        int                    [default: 0]
+  is_publik     boolean                [default: false, note: 'true = boleh dibaca frontend tanpa autentikasi, mis. nama klub']
+  is_terkunci   boolean                [default: false, note: 'true = hanya super admin yang boleh mengubah']
+  modified_at   timestamptz
+  modified_by   bigint
+
+  Indexes {
+    kunci [unique]
+    (grup, urutan)
+  }
+
+  Note: '''
+  Key-value bertipe, dengan metadata yang cukup untuk MEMBANGKITKAN
+  halaman pengaturan secara otomatis — menambah setelan baru cukup
+  satu baris INSERT, tanpa menyentuh frontend.
+
+  SEED AWAL:
+    umum.nama_klub            = "Scouting Legion Airsofter Malang"
+    umum.singkatan            = "SLAM"
+    umum.alamat_sekretariat   = "Jalan Laksda Adi Sucipto Nomor 32 Blimbing, Kota Malang"
+    umum.timezone_bawaan      = "Asia/Jakarta"
+    umum.kode_wilayah_paten   = "3573"
+    nra.mode_penomoran        = "global"
+    nra.panjang_urut_minimal  = 3      (melar ke 4 digit setelah 999)
+    kta.masa_berlaku_pelajar_bulan = 12
+    kta.masa_berlaku_dewasa_bulan  = 24
+    kta.format_keluaran       = "png"
+    kta.dpi_cetak             = 300
+    kta.lebar_mm              = 85.6      (standar ID-1 / CR80)
+    kta.tinggi_mm             = 54
+    kta.bleed_mm              = 2
+    kta.qr_ukuran_mm          = 24
+    kta.kartu_per_lembar      = 8
+    absensi.akurasi_gps_maks_meter = 100
+    absensi.radius_bawaan_meter    = 100
+    absensi.toleransi_telat_menit  = 15
+    absensi.buka_absen_menit       = 30
+    absensi.tutup_absen_menit      = 60
+    file.varian_original_maks_px   = 4000
+    file.varian_medium_px          = 1200
+    file.varian_low_px             = 400
+
+  Nilai alamat_sekretariat diambil dari teks di balik KTA, sehingga
+  aturan yang tercetak di kartu dan yang tersimpan di sistem berasal
+  dari satu sumber.
+  '''
+}
+
+Table notifikasi {
+  id               bigint                [pk, increment]
+  uuid             uuid                  [unique, not null, default: `gen_random_uuid()`]
+  user_id          bigint                [not null, note: 'Penerima. Notifikasi in-app hanya untuk yang punya akun.']
+  tipe             varchar(50)           [not null, note: 'jadwal_ditugaskan / jadwal_pengingat / sesi_dibatalkan / izin_disetujui / izin_ditolak / absensi_dioverride / kta_diterbitkan / kta_kadaluarsa / sistem']
+  judul            varchar(200)          [not null]
+  isi              text
+  ikon             varchar(50)
+  warna            varchar(20)           [note: 'info / sukses / peringatan / bahaya']
+  route            varchar(255)          [note: 'Tujuan saat notifikasi diklik, mis. /jadwal/12/sesi/340']
+  reff_type        varchar(50)           [note: 'Entitas sumber — polymorphic']
+  reff_id          bigint
+  prioritas        prioritas_notifikasi  [default: 'normal']
+  is_dibaca        boolean               [default: false]
+  dibaca_pada      timestamptz
+  is_diarsipkan    boolean               [default: false]
+  kedaluwarsa_pada timestamptz           [note: 'Pengingat jadwal tidak relevan lagi setelah sesi lewat; dibersihkan job terjadwal']
+  created_at       timestamptz           [default: `now()`]
+  created_by       bigint                [note: 'Pemicu; kosong untuk notifikasi sistem']
+
+  Indexes {
+    (user_id, is_dibaca, created_at) [note: 'Query utama: badge jumlah belum dibaca + daftar notifikasi']
+    (reff_type, reff_id)
+    kedaluwarsa_pada
+    uuid [unique]
+  }
+
+  Note: '''
+  Satu baris per penerima (fan-out). Menugaskan 50 anggota ke satu
+  jadwal menghasilkan 50 baris — disengaja, karena status baca melekat
+  per orang dan indeks di atas membuat query badge tetap ringan.
+
+  SENGAJA TIDAK DIBUAT (agar tidak berlebihan untuk kebutuhan saat ini):
+  tabel template, tabel kanal pengiriman, dan tabel status pengiriman.
+  Ketiganya baru diperlukan bila nanti ditambahkan email atau WhatsApp;
+  saat itu cukup menambah tabel notifikasi_kanal tanpa mengubah tabel ini.
+
+  Anggota TANPA akun user tidak menerima notifikasi in-app.
+  '''
+}
+
+Table log_aktivitas {
+  id             bigint       [pk, increment]
+  aktor_user_id  bigint       [note: 'Kosong untuk tindakan oleh sistem/job terjadwal']
+  modul          varchar(50)  [not null, note: 'hak_akses / pengaturan / absensi / kta / anggota / …']
+  aksi           varchar(50)  [not null, note: 'buat / ubah / hapus / override / cabut / cetak / login']
+  reff_type      varchar(50)
+  reff_id        bigint
+  ringkasan      varchar(255) [note: 'Kalimat siap tampil, mis. "Mengubah izin peran Moderator"']
+  nilai_lama     jsonb
+  nilai_baru     jsonb
+  ip_address     inet
+  user_agent     text
+  created_at     timestamptz  [default: `now()`]
+
+  Indexes {
+    (modul, created_at)
+    (reff_type, reff_id)
+    (aktor_user_id, created_at)
+  }
+
+  Note: '''
+  << Menggantikan log_hak_akses pada Rev. 2. >>
+  Karena proyek dibangun dari nol, dua tabel log yang sempit
+  (hak akses saja) digabung menjadi satu tabel audit generik yang
+  juga mencakup perubahan pengaturan, override absensi, pencabutan
+  KTA, dan pencetakan kartu. Tidak ada biaya penggabungan sekarang,
+  sementara membelahnya nanti berarti migrasi.
+  '''
+}
+
+Table sesi_login {
+  id              bigint       [pk, increment]
+  user_id         bigint       [not null]
+  refresh_token   varchar(255) [unique, not null]
+  ip_address      inet
+  user_agent      text
+  info_perangkat  jsonb
+  berlaku_sampai  timestamptz  [not null]
+  dicabut_pada    timestamptz
+  created_at      timestamptz  [default: `now()`]
+
+  Indexes {
+    user_id
+    refresh_token [unique]
+  }
+
+  Note: 'Memungkinkan logout paksa dan melihat perangkat aktif. Diperlukan karena PWA menyimpan sesi lebih lama.'
+}
+
+
+// =====================================================================
+//  KELOMPOK 3 — IDENTITAS, WILAYAH & KTA  (4 tabel)
+// =====================================================================
+
+Table users {
+  id                bigint       [pk, increment]
+  anggota_id        bigint       [not null, note: 'Setiap user adalah anggota. Sebaliknya TIDAK berlaku.']
+  username          varchar(50)  [not null]
+  email             varchar(150) [not null]
+  password          varchar(255) [note: 'bcrypt / argon2']
+  role_id           bigint       [not null]
+  timezone          varchar(50)  [default: 'Asia/Jakarta']
+  is_aktif          boolean      [default: true]
+  login_terakhir    timestamptz
+  password_diubah   timestamptz
+  gagal_login       int          [default: 0]
+  terkunci_sampai   timestamptz
+  is_deleted        boolean      [default: false]
+  deleted_at        timestamptz
+  deleted_by        bigint
+  created_at        timestamptz  [default: `now()`]
+  created_by        bigint
+  modified_at       timestamptz
+  modified_by       bigint
+
+  Indexes {
+    username [unique, note: 'Partial: WHERE is_deleted = false']
+    email    [unique, note: 'Partial: WHERE is_deleted = false']
+    anggota_id
+    role_id
+  }
+
+  Note: '''
+  << Bernama "users", bukan "user" — USER adalah fungsi bawaan SQL
+     di PostgreSQL dan akan selalu memerlukan tanda kutip ganda. >>
+  << Tidak ada kolom "role integer"; digantikan role_id. >>
+
+  LOGIN: pengguna boleh memakai username ATAU email. Backend mencari
+  keduanya dalam satu query, karena itu keduanya UNIQUE.
+
+  TIDAK ADA REGISTRASI MANDIRI. Baris di sini hanya dibuat oleh
+  pengguna yang memegang izin user.create lewat panel admin.
+
+  TIDAK SEMUA ANGGOTA PUNYA AKUN. Anggota tanpa akun tetap punya
+  KTA dan bisa ditugaskan ke jadwal, tetapi tidak bisa absen mandiri
+  maupun menerima notifikasi — lihat catatan pada tabel absensi.
+  '''
+}
+
+Table mst_wilayah {
+  id         bigint       [pk, increment]
+  kode       varchar(10)  [unique, not null, note: 'Kode BPS 4 digit']
+  nama       varchar(150) [not null]
+  provinsi   varchar(100)
+  tingkat    varchar(20)
+  is_aktif   boolean      [default: true]
+  created_at timestamptz  [default: `now()`]
+  created_by bigint
+
+  Note: '''
+  Menyuplai 4 digit pertama NRA. Untuk saat ini nilainya PATEN 3573
+  (Kota Malang) untuk seluruh anggota, disimpan pada pengaturan
+  umum.kode_wilayah_paten. Tabel ini tetap ada agar penambahan wilayah
+  lain di kemudian hari tidak memerlukan perubahan skema.
+  '''
+}
+
+Table anggota {
+  id                     bigint          [pk, increment]
+  instansi_id            bigint          [not null]
+  wilayah_id             bigint
+  no_induk               varchar(20)     [unique, note: '<< kini boleh KOSONG >> NRA yang sedang AKTIF — disalin dari baris kta berstatus aktif. Kosong sampai KTA pertama diterbitkan.']
+  nama_lengkap           varchar(150)    [not null]
+  nama_panggilan         varchar(50)
+  foto_profil_file_id    bigint          [note: 'Foto bebas untuk profil di aplikasi']
+  foto_formal_file_id    bigint          [note: '<< BARU >> Pas foto formal latar merah — khusus untuk dicetak di KTA']
+  jenis_anggota          jenis_anggota   [not null]
+  jenis_kelamin          int
+  jenis_identitas        int
+  no_identitas           varchar(50)
+  file_identitas_file_id bigint          [note: 'PRIVAT']
+  pekerjaan              varchar(100)
+  alamat                 text            [note: 'Dicetak di KTA']
+  kode_pos               varchar(10)
+  tempat_lahir           varchar(100)    [note: 'Dicetak di KTA. TIDAK dipakai untuk kode wilayah NRA.']
+  tanggal_lahir          date            [not null, note: 'Menyuplai digit 5-8 NRA']
+  tanggal_bergabung      date
+  status_anggota         status_anggota  [default: 'aktif', note: 'Diset MANUAL']
+  is_deleted             boolean         [default: false]
+  deleted_at             timestamptz
+  deleted_by             bigint
+  created_at             timestamptz     [default: `now()`]
+  created_by             bigint
+  modified_at            timestamptz
+  modified_by            bigint
+
+  Indexes {
+    no_induk [unique]
+    instansi_id
+    jenis_anggota
+    status_anggota
+  }
+
+  Note: '''
+  NRA MELEKAT PADA KARTU, BUKAN PADA ANGGOTA.
+  << Berubah di Rev. 3 >> Karena KTA dewasa mendapat NRA BARU, satu
+  anggota jenis siswa_ke_dewasa memiliki DUA NRA. Nomor karena itu
+  disimpan pada kta.no_kta, dan kolom no_induk di sini hanya salinan
+  NRA yang sedang aktif — untuk keperluan tampilan daftar dan pencarian.
+  Rincian format ada pada Note tabel kta.
+
+  jenis_anggota = siswa_ke_dewasa WAJIB punya dua baris kta:
+  satu pelajar berstatus arsip, satu dewasa berstatus aktif.
+  no_induk di sini menunjuk yang dewasa.
+  '''
+}
+
+Table kta {
+  id              bigint       [pk, increment]
+  anggota_id      bigint       [not null]
+  jenis_kta       jenis_kta    [not null, note: '<< BARU >> pelajar atau dewasa']
+  no_kta          varchar(20)  [unique, not null, note: 'NRA yang tercetak di kartu ini. UNIQUE global — satu nomor tidak pernah dipakai dua kartu.']
+  no_urut_kartu   int          [not null, note: 'Nomor urut GLOBAL untuk kartu ini. Otomatis dari sequence, dapat diubah manual.']
+  token_publik    varchar(32)  [unique, not null, note: 'Kode acak untuk URL QR — bukan hasil enkripsi data']
+  qr_url          text         [note: 'https://slamteam.id/kta/{token_publik}']
+  versi_cetak     int          [default: 1, note: 'Naik saat cetak ulang; NRA tidak berubah']
+  status          status_kta   [default: 'aktif']
+  berlaku_dari    date         [not null, note: 'Terisi otomatis = tanggal terbit, dapat diubah manual']
+  berlaku_sampai  date         [not null, note: 'Terisi otomatis: pelajar +12 bulan, dewasa +24 bulan. Dapat diubah manual.']
+  file_kta_id     bigint       [note: 'PNG kartu hasil generate → mst_file']
+  alasan_cetak    varchar(150) [note: 'baru / naik_jenis / hilang / rusak / perpanjangan / data_berubah']
+  dicetak_pada    timestamptz
+  dicetak_oleh    bigint
+  batch_cetak_id  varchar(50)  [note: 'Menandai kartu yang dicetak dalam satu operasi massal']
+  dicabut_pada    timestamptz
+  dicabut_oleh    bigint
+  alasan_dicabut  text
+  is_deleted      boolean      [default: false]
+  deleted_at      timestamptz
+  deleted_by      bigint
+  created_at      timestamptz  [default: `now()`]
+  created_by      bigint
+  modified_at     timestamptz
+  modified_by     bigint
+
+  Indexes {
+    token_publik [unique]
+    no_kta [unique]
+    (anggota_id, jenis_kta, versi_cetak) [unique]
+    (anggota_id, status)
+    batch_cetak_id
+    berlaku_sampai
+  }
+
+  Note: '''
+  FORMAT NRA (Nomor Register Anggota)
+    3573 | 10 | 02 | 021   →  35731002021   (11 digit)
+    digit 1-4   kode wilayah        ← paten 3573
+    digit 5-6   bulan lahir         ← anggota.tanggal_lahir
+    digit 7-8   dua digit tahun     ← anggota.tanggal_lahir
+    digit 9+    nomor urut kartu    ← no_urut_kartu
+
+  PENOMORAN GLOBAL. Nomor urut berjalan lintas seluruh KARTU, bukan
+  per anggota. Setelah melewati 999, nomor MELAR menjadi 4 digit
+  sehingga NRA menjadi 12 digit: 3573 10 02 1021 → 357310021021
+  Parsing tetap tidak ambigu karena 8 digit pertama lebarnya tetap;
+  sisa digit adalah nomor urut. Karena itu varchar(20), bukan char(11).
+
+  IMPLEMENTASI NOMOR URUT. Pakai PostgreSQL SEQUENCE sebagai sumber
+  nilai bawaan. Karena nomornya boleh disunting manual, tambahkan satu
+  aturan: bila nilai manual melampaui posisi sequence, majukan sequence
+  dengan setval — tanpa itu, sequence akan menabrak nomor manual di
+  kemudian hari dan ditolak UNIQUE dengan pesan yang membingungkan.
+
+  DIVERIFIKASI terhadap dua kartu contoh:
+    35731206033 — Blitar, 15 Desember 2006 → bulan 12, tahun 06 ✓
+    35731002021 — Malang, 16 Oktober 2002  → bulan 10, tahun 02 ✓
+  Kartu pertama membuktikan kode wilayah BUKAN dari tempat lahir:
+  lahir di Blitar, kode tetap 3573 (Kota Malang).
+
+  KTA PELAJAR DAN DEWASA TERPISAH, DENGAN NRA BERBEDA.
+  Anggota jenis siswa_ke_dewasa punya dua baris: pelajar (arsip) dan
+  dewasa (aktif). KTA dewasa mengambil nomor urut baru, sehingga NRA-nya
+  berbeda dari KTA pelajarnya. KTA dewasa TIDAK menimpa KTA pelajar.
+  Format dan isi kartunya sama; yang berbeda hanya tempat penyimpanan
+  dan masa berlakunya.
+
+  Cetak ulang kartu yang SAMA (hilang/rusak) menaikkan versi_cetak dan
+  membuat token baru, tetapi TIDAK mengubah no_kta. Yang mengambil nomor
+  baru hanya penerbitan kartu jenis berbeda.
+
+  MASA BERLAKU: pelajar 12 bulan, dewasa 24 bulan, dihitung dari
+  berlaku_dari. Terisi otomatis saat penerbitan namun tetap dapat
+  diubah manual. Nilai bulannya diambil dari mst_pengaturan.
+
+  Kalimat "berlaku N (…) tahun" pada butir kedua peraturan di sisi
+  belakang kartu DIRANGKAI dari nilai pengaturan yang sama dengan yang
+  menghitung berlaku_sampai. Dengan begitu tanggal yang tercetak di muka
+  dan kalimat yang tercetak di belakang tidak akan pernah berselisih.
+
+  MASA BERLAKU HABIS BUKAN NON AKTIF. anggota.status_anggota diset
+  manual dan tidak berubah otomatis ketika kartu kadaluarsa.
+
+  STATUS arsip. Diterapkan pada KTA pelajar begitu KTA dewasa terbit.
+  Token QR kartu arsip berhenti memvalidasi; halaman publik menampilkan
+  keterangan bahwa kartu sudah digantikan, tanpa membocorkan token
+  kartu penggantinya.
+
+  QR mengarah ke halaman PUBLIK yang hanya menampilkan foto, nama, NRA,
+  status keanggotaan, instansi, dan masa berlaku. TIDAK menampilkan
+  alamat, nomor identitas, tanggal lahir lengkap, atau kontak.
+  '''
+}
+
+
+// =====================================================================
+//  KELOMPOK 4 — FILE  (2 tabel)
+// =====================================================================
+
+Table mst_file {
+  id              bigint              [pk, increment]
+  uuid            uuid                [unique, not null, default: `gen_random_uuid()`]
+  nama_asli       varchar(255)        [note: 'Hanya untuk ditampilkan — tidak pernah dipakai sebagai nama di disk']
+  nama_slug       varchar(255)        [note: 'Dipakai di URL: domain/{modul}/{reff_id}/{nama_slug}-{varian}.{ext}']
+  ekstensi        varchar(10)
+  mime_type       varchar(100)
+  ukuran_byte     bigint
+  hash_sha256     char(64)
+  lebar_px        int
+  tinggi_px       int
+  kategori        varchar(50)         [not null, note: 'foto_profil / foto_formal / absensi / banner / logo / dokumen / flyer / kta']
+  reff_type       varchar(50)
+  reff_id         bigint
+  storage_driver  varchar(20)         [default: 'local']
+  path_dasar      varchar(500)
+  is_publik       boolean             [default: false, note: 'false = WAJIB lewat endpoint ber-auth']
+  status_proses   status_proses_file  [default: 'menunggu']
+  metadata_exif   jsonb
+  is_deleted      boolean             [default: false]
+  deleted_at      timestamptz
+  deleted_by      bigint
+  created_at      timestamptz         [default: `now()`]
+  created_by      bigint
+  modified_at     timestamptz
+  modified_by     bigint
+
+  Indexes {
+    (reff_type, reff_id)
+    hash_sha256
+    kategori
+    uuid [unique]
+  }
+
+  Note: '''
+  URL dan DISK sengaja dipisah; path_dasar yang memetakan keduanya.
+    URL  : slamteam.id/{modul}/{reff_id}/{nama_slug}-{varian}.{ext}
+    Disk : storage/{kategori}/{tahun}/{bulan}/{uuid}/{varian}.{ext}
+  URL dibuat mudah dibaca; disk tetap terpartisi agar satu folder tidak
+  berisi puluhan ribu entri.
+
+  URL yang mudah ditebak tidak masalah SELAMA berkas privat disajikan
+  handler Go yang memeriksa izin — bukan langsung dari folder statis nginx.
+  '''
+}
+
+Table mst_file_varian {
+  id           bigint       [pk, increment]
+  file_id      bigint       [not null]
+  varian       varian_file  [not null]
+  path         varchar(500) [not null]
+  url_publik   text
+  lebar_px     int
+  tinggi_px    int
+  ukuran_byte  bigint
+  mime_type    varchar(100)
+  kualitas     int
+  created_at   timestamptz  [default: `now()`]
+
+  Indexes {
+    (file_id, varian) [unique]
+  }
+
+  Note: '''
+  3 baris per gambar:
+    original : sisi terpanjang maks 4000 px, kualitas 90, format asal
+    medium   : 1200 px, kualitas 80, WebP + cadangan JPEG
+    low      : 400 px,  kualitas 70, WebP + cadangan JPEG
+  Gambar tidak pernah diperbesar.
+  Nilai piksel diambil dari mst_pengaturan grup "file", bukan hardcode.
+  '''
+}
+
+
+// =====================================================================
+//  KELOMPOK 5 — LOKASI & JADWAL  (4 tabel)
+// =====================================================================
+
+Table mst_lokasi {
+  id            bigint        [pk, increment]
+  kode          varchar(50)   [unique, not null]
+  nama          varchar(150)  [not null]
+  jenis_lokasi  varchar(50)
+  alamat        text
+  latitude      decimal(10,7) [not null, note: 'CHECK BETWEEN -90 AND 90']
+  longitude     decimal(10,7) [not null, note: 'CHECK BETWEEN -180 AND 180']
+  radius_meter  int           [default: 100, not null, note: 'Dinamis, diinput per lokasi. CHECK > 0']
+  timezone      varchar(50)   [default: 'Asia/Jakarta', not null, note: 'Nama IANA, bukan offset']
+  foto_file_id  bigint
+  keterangan    text
+  is_aktif      boolean       [default: true]
+  is_deleted    boolean       [default: false]
+  deleted_at    timestamptz
+  deleted_by    bigint
+  created_at    timestamptz   [default: `now()`]
+  created_by    bigint
+  modified_at   timestamptz
+  modified_by   bigint
+}
+
+Table jadwal {
+  id                   bigint        [pk, increment]
+  kode                 varchar(50)   [unique, not null]
+  nama                 varchar(150)  [not null]
+  jenis_jadwal         varchar(50)
+  deskripsi            text
+  lokasi_id            bigint
+  latitude             decimal(10,7) [note: 'Snapshot dari lokasi saat jadwal dibuat']
+  longitude            decimal(10,7)
+  radius_meter         int           [default: 100, note: 'Menimpa radius lokasi']
+  timezone             varchar(50)   [default: 'Asia/Jakarta', not null]
+  tanggal_mulai        date          [not null]
+  tanggal_selesai      date
+  jam_mulai            time          [not null]
+  jam_selesai          time          [not null, note: 'CHECK jam_selesai > jam_mulai']
+  is_berulang          boolean       [default: false]
+  pola_ulang           pola_ulang    [default: 'tidak_berulang']
+  hari_ulang           "int[]"       [note: 'Pola mingguan: {0..6}, 0 = Minggu']
+  interval_ulang       int           [default: 1]
+  tanggal_akhir_ulang  date
+  mode_absen           mode_absen    [default: 'masuk_saja']
+  wajib_absen          boolean       [default: true]
+  butuh_selfie         boolean       [default: true]
+  butuh_lokasi         boolean       [default: true]
+  izinkan_luar_radius  boolean       [default: true]
+  toleransi_telat_mnt  int           [default: 15]
+  buka_absen_mnt       int           [default: 30]
+  tutup_absen_mnt      int           [default: 60]
+  kuota                int
+  kegiatan_id          bigint
+  inorga_id            bigint
+  status               varchar(20)   [default: 'draft', note: 'draft / terbit / dibatalkan / selesai']
+  is_deleted           boolean       [default: false]
+  deleted_at           timestamptz
+  deleted_by           bigint
+  created_at           timestamptz   [default: `now()`]
+  created_by           bigint
+  modified_at          timestamptz
+  modified_by          bigint
+
+  Indexes {
+    (tanggal_mulai, status)
+    lokasi_id
+  }
+}
+
+Table jadwal_sesi {
+  id               bigint       [pk, increment]
+  jadwal_id        bigint       [not null]
+  tanggal_lokal    date         [not null]
+  mulai_utc        timestamptz  [not null]
+  selesai_utc      timestamptz  [not null]
+  timezone         varchar(50)  [not null]
+  absen_buka_utc   timestamptz  [not null]
+  absen_tutup_utc  timestamptz  [not null]
+  status           status_sesi  [default: 'terjadwal']
+  alasan_batal     text
+  jml_ditugaskan   int          [default: 0]
+  jml_hadir        int          [default: 0]
+  catatan          text
+  created_at       timestamptz  [default: `now()`]
+  created_by       bigint
+  modified_at      timestamptz
+  modified_by      bigint
+
+  Indexes {
+    (jadwal_id, tanggal_lokal) [unique]
+    (tanggal_lokal, status)
+    (absen_buka_utc, absen_tutup_utc)
+  }
+
+  Note: 'Titik sandar absensi. Jadwal tanggal tunggal tetap punya satu baris di sini agar alur absensi seragam.'
+}
+
+Table jadwal_peserta {
+  id               bigint        [pk, increment]
+  jadwal_id        bigint        [not null]
+  sesi_id          bigint        [note: 'Kosong = berlaku semua sesi jadwal ini']
+  anggota_id       bigint        [not null, note: 'Penugasan memakai anggota, BUKAN user — anggota tanpa akun tetap bisa ditugaskan']
+  peran_peserta    varchar(50)   [note: 'peserta / pelatih / panitia / pengawas']
+  wajib_absen      boolean       [default: true, note: '<< BARU >> Otomatis false bila anggota tidak punya akun user. Job penutup sesi hanya menandai alfa untuk baris yang bernilai true.']
+  status_tugas     status_tugas  [default: 'ditugaskan']
+  ditugaskan_oleh  bigint        [not null]
+  ditugaskan_pada  timestamptz   [default: `now()`]
+  direspon_pada    timestamptz
+  keterangan       text
+  is_deleted       boolean       [default: false]
+  deleted_at       timestamptz
+  deleted_by       bigint
+
+  Indexes {
+    (anggota_id, jadwal_id)
+    (jadwal_id, sesi_id)
+  }
+
+  Note: '''
+  Penugasan memakai anggota_id, sehingga anggota tanpa akun tetap bisa
+  didaftarkan sebagai peserta kegiatan. Tetapi karena mereka tidak ikut
+  absensi, kolom wajib_absen otomatis diset false saat penugasan.
+
+  Tanpa kolom ini, anggota tanpa akun akan ditandai alfa selamanya
+  oleh job penutup sesi — tidak hadir menurut sistem padahal memang
+  tidak pernah bisa absen. Kolom ini membuat aturannya terlihat di data,
+  bukan tersembunyi di dalam query.
+
+  Rekap membaca kolom ini juga: "dari 30 peserta, 25 wajib absen".
+  '''
+}
+
+
+// =====================================================================
+//  KELOMPOK 6 — ABSENSI  (3 tabel)
+// =====================================================================
+
+Table absensi {
+  id                     bigint            [pk, increment]
+  uuid                   uuid              [unique, not null, default: `gen_random_uuid()`]
+  sesi_id                bigint            [not null]
+  jadwal_id              bigint            [not null]
+  anggota_id             bigint            [not null, note: 'Subjek absensi']
+  user_id                bigint            [not null, note: 'Akun anggota yang bersangkutan. NOT NULL karena hanya anggota berakun yang ikut absensi.']
+  tipe                   tipe_absensi      [not null]
+
+  waktu_server_utc       timestamptz       [not null, note: 'ACUAN RESMI']
+  waktu_perangkat        timestamptz       [note: 'BUKTI, bukan acuan']
+  timezone_jadwal        varchar(50)       [not null]
+  timezone_perangkat     varchar(50)
+  selisih_jam_detik      int
+
+  latitude               decimal(10,7)     [note: 'Kosong hanya untuk baris hasil override manual']
+  longitude              decimal(10,7)     [note: 'Kosong hanya untuk baris hasil override manual']
+  akurasi_meter          decimal(8,2)
+  jarak_meter            decimal(10,2)
+  radius_berlaku         int               [note: 'Radius yang berlaku saat absen — disimpan agar catatan lama tetap sesuai aturan saat itu']
+  dalam_radius           boolean           [note: 'Kosong hanya untuk baris hasil override manual']
+  konfirmasi_luar_radius boolean           [default: false, note: 'true bila pengguna menekan OK pada peringatan luar radius']
+  alamat_perkiraan       text
+
+  foto_file_id           bigint            [note: 'Selfie. Kosong untuk absensi manual. PRIVAT.']
+
+  status_kehadiran       status_kehadiran  [not null]
+  menit_telat            int               [default: 0]
+  menit_pulang_cepat     int               [default: 0]
+  izin_id                bigint
+
+  metode                 metode_absensi    [default: 'selfie']
+  info_perangkat         jsonb
+  ip_address             inet
+  flag_mencurigakan      jsonb             [note: 'jam_perangkat_beda / akurasi_rendah / exif_tidak_cocok / perangkat_dipakai_banyak_akun']
+
+  is_override            boolean           [default: false]
+  override_oleh          bigint
+  override_pada          timestamptz
+  alasan_override        text
+
+  catatan                text
+  is_deleted             boolean           [default: false]
+  deleted_at             timestamptz
+  deleted_by             bigint
+  created_at             timestamptz       [default: `now()`]
+  created_by             bigint
+  modified_at            timestamptz
+  modified_by            bigint
+
+  Indexes {
+    (sesi_id, anggota_id, tipe) [unique]
+    (anggota_id, waktu_server_utc)
+    (jadwal_id, status_kehadiran)
+    sesi_id
+  }
+
+  Note: '''
+  HANYA ANGGOTA BERAKUN YANG IKUT ABSENSI.
+  Anggota tanpa akun user tidak ikut absensi sama sekali — mereka tidak
+  ditugaskan sebagai peserta wajib absen, dan tidak pernah ditandai alfa.
+  Penjaganya ada di jadwal_peserta.wajib_absen; lihat catatan tabel itu.
+
+  Dua jalur pembuatan baris:
+  1. metode = selfie — jalur normal. user_id, koordinat, dalam_radius,
+     dan foto terisi.
+  2. metode = manual — moderator membetulkan absen yang gagal atau
+     terlewat MILIK anggota berakun. user_id tetap berisi akun anggota
+     yang bersangkutan, koordinat dan foto kosong, is_override = true,
+     alasan_override wajib, override_oleh berisi moderatornya.
+
+  JANGAN PERCAYA JAM PERANGKAT. Jam telepon bisa diubah dalam hitungan
+  detik. Waktu acuan selalu waktu_server_utc.
+  '''
+}
+
+Table absensi_izin {
+  id                   bigint       [pk, increment]
+  sesi_id              bigint       [not null]
+  jadwal_id            bigint
+  anggota_id           bigint       [not null]
+  jenis                jenis_izin   [not null]
+  alasan               text         [not null]
+  waktu_pulang_diminta time         [note: 'Khusus jenis = pulang_cepat']
+  lampiran_file_id     bigint       [note: 'Mis. surat dokter. PRIVAT.']
+  status               status_izin  [default: 'menunggu']
+  diproses_oleh        bigint
+  diproses_pada        timestamptz
+  catatan_peninjau     text
+  is_deleted           boolean      [default: false]
+  deleted_at           timestamptz
+  deleted_by           bigint
+  created_at           timestamptz  [default: `now()`]
+  created_by           bigint
+  modified_at          timestamptz
+  modified_by          bigint
+
+  Indexes {
+    (sesi_id, anggota_id)
+    (status, created_at)
+  }
+}
+
+Table absensi_rekap {
+  id                bigint        [pk, increment]
+  anggota_id        bigint        [not null]
+  periode           date          [not null]
+  jml_wajib         int           [default: 0]
+  jml_hadir         int           [default: 0]
+  jml_telat         int           [default: 0]
+  jml_pulang_cepat  int           [default: 0]
+  jml_izin          int           [default: 0]
+  jml_sakit         int           [default: 0]
+  jml_alfa          int           [default: 0]
+  total_menit_telat int           [default: 0]
+  persen_kehadiran  decimal(5,2)
+  dihitung_pada     timestamptz
+
+  Indexes {
+    (anggota_id, periode) [unique]
+  }
+
+  Note: 'OPSIONAL. Baru dibuat bila laporan bulanan melambat; awalnya hitung langsung dari tabel absensi.'
+}
+
+
+// =====================================================================
+//  KELOMPOK 7 — KONTEN & MASTER  (10 tabel)
+// =====================================================================
+
+Table mst_instansi {
+  id                     bigint       [pk, increment]
+  kode                   varchar(50)  [unique]
+  nama                   varchar(150)
+  nama_club              varchar(150)
+  alamat                 text
+  no_telepon             varchar(30)
+  logo_utama_file_id     bigint
+  logo_tambahan_file_id  bigint
+  tanggal_bergabung      date
+  status                 int
+  is_deleted             boolean      [default: false]
+  deleted_at             timestamptz
+  deleted_by             bigint
+  created_at             timestamptz  [default: `now()`]
+  created_by             bigint
+  modified_at            timestamptz
+  modified_by            bigint
+}
+
+Table kegiatan {
+  id                        bigint       [pk, increment]
+  user_id                   bigint       [not null]
+  kode                      varchar(50)
+  judul                     varchar(200)
+  gambar_highlight_file_id  bigint
+  konten                    text
+  tanggal_mulai             date
+  tanggal_selesai           date
+  status_kegiatan           int
+  is_deleted                boolean      [default: false]
+  deleted_at                timestamptz
+  deleted_by                bigint
+  created_at                timestamptz  [default: `now()`]
+  created_by                bigint
+  modified_at               timestamptz
+  modified_by               bigint
+}
+
+Table artikel {
+  id                        bigint       [pk, increment]
+  user_id                   bigint       [not null]
+  kode                      varchar(50)
+  judul                     varchar(200)
+  gambar_highlight_file_id  bigint
+  konten                    text
+  status_kegiatan           varchar(50)
+  is_deleted                boolean      [default: false]
+  deleted_at                timestamptz
+  deleted_by                bigint
+  created_at                timestamptz  [default: `now()`]
+  created_by                bigint
+  modified_at               timestamptz
+  modified_by               bigint
+}
+
+Table unit {
+  id                  bigint        [pk, increment]
+  anggota_id          bigint        [not null]
+  kode                varchar(50)
+  model               varchar(100)
+  panjang             decimal(8,2)
+  panjang_inbar       decimal(8,2)
+  lebar               decimal(8,2)
+  berat               decimal(8,2)
+  berat_bb            decimal(8,3)
+  fps                 decimal(8,2)
+  deskripsi_warna     varchar(150)
+  foto_sampul_file_id bigint
+  disetujui           boolean       [default: false]
+  disetujui_oleh      bigint
+  disetujui_pada      timestamptz
+  is_deleted          boolean       [default: false]
+  deleted_at          timestamptz
+  deleted_by          bigint
+  created_at          timestamptz   [default: `now()`]
+  created_by          bigint
+  modified_at         timestamptz
+  modified_by         bigint
+}
+
+Table prestasi {
+  id                  bigint       [pk, increment]
+  anggota_id          bigint       [not null]
+  kode                varchar(50)
+  peringkat           varchar(50)
+  tingkat             varchar(50)
+  judul_kompetisi     varchar(200)
+  flyer_file_id       bigint
+  tanggal_kompetisi   date
+  alamat_kompetisi    text
+  foto_sampul_file_id bigint
+  keterangan          text
+  is_deleted          boolean      [default: false]
+  deleted_at          timestamptz
+  deleted_by          bigint
+  created_at          timestamptz  [default: `now()`]
+  created_by          bigint
+  modified_at         timestamptz
+  modified_by         bigint
+}
+
+Table profile_club {
+  id                   bigint       [pk, increment]
+  nama                 varchar(150)
+  singkatan            varchar(50)
+  banner_file_id       bigint
+  logo_simple_file_id  bigint
+  logo_besar_file_id   bigint
+  alamat               text
+  keterangan           text
+  is_deleted           boolean      [default: false]
+  deleted_at           timestamptz
+  deleted_by           bigint
+  created_at           timestamptz  [default: `now()`]
+  created_by           bigint
+  modified_at          timestamptz
+  modified_by          bigint
+}
+
+Table mst_inorga {
+  id               bigint       [pk, increment]
+  kode             varchar(50)
+  nama             varchar(150)
+  logo_file_id     bigint
+  banner_file_id   bigint
+  tanggal_mulai    date
+  tanggal_selesai  date
+  file_sk_file_id  bigint
+  konten           text
+  is_deleted       boolean      [default: false]
+  deleted_at       timestamptz
+  deleted_by       bigint
+  created_at       timestamptz  [default: `now()`]
+  created_by       bigint
+  modified_at      timestamptz
+  modified_by      bigint
+}
+
+Table mst_medsos {
+  id             bigint       [pk, increment]
+  anggota_id     bigint       [not null]
+  kode           varchar(50)
+  tipe           int
+  icon           varchar(50)  [note: 'Nama ikon dari icon set ("instagram") — BUKAN berkas unggahan']
+  jenis_medsos   varchar(50)
+  konten_medsos  varchar(255)
+  is_deleted     boolean      [default: false]
+  deleted_at     timestamptz
+  deleted_by     bigint
+  created_at     timestamptz  [default: `now()`]
+  created_by     bigint
+  modified_at    timestamptz
+  modified_by    bigint
+}
+
+Table mst_dokumen {
+  id           bigint       [pk, increment]
+  kode         varchar(50)
+  file_id      bigint
+  tipe         varchar(50)
+  format       varchar(20)
+  reff_id      bigint
+  reff_type    varchar(50)
+  jenis        int
+  keterangan   varchar(255)
+  is_deleted   boolean      [default: false]
+  deleted_at   timestamptz
+  deleted_by   bigint
+  created_at   timestamptz  [default: `now()`]
+  created_by   bigint
+  modified_at  timestamptz
+  modified_by  bigint
+}
+
+
+// =====================================================================
+//  RELASI
+// =====================================================================
+
+// Hak akses
+Ref: mst_permission.modul_id       > mst_modul.id
+Ref: role_permission.role_id       > mst_role.id      [delete: cascade]
+Ref: role_permission.permission_id > mst_permission.id
+Ref: user_role.user_id             > users.id         [delete: cascade]
+Ref: user_role.role_id             > mst_role.id
+Ref: users.role_id                 > mst_role.id      [delete: restrict]
+
+// Sistem
+Ref: mst_pengaturan.modified_by    > users.id
+Ref: notifikasi.user_id            > users.id         [delete: cascade]
+Ref: notifikasi.created_by         > users.id
+Ref: log_aktivitas.aktor_user_id   > users.id
+Ref: sesi_login.user_id            > users.id         [delete: cascade]
+
+// Identitas & KTA
+Ref: users.anggota_id              > anggota.id       [delete: restrict]
+Ref: anggota.instansi_id           > mst_instansi.id  [delete: restrict]
+Ref: anggota.wilayah_id            > mst_wilayah.id
+Ref: anggota.foto_profil_file_id   > mst_file.id
+Ref: anggota.foto_formal_file_id   > mst_file.id
+Ref: anggota.file_identitas_file_id > mst_file.id
+Ref: kta.anggota_id                > anggota.id       [delete: restrict]
+Ref: kta.file_kta_id               > mst_file.id
+Ref: kta.dicetak_oleh              > users.id
+Ref: kta.dicabut_oleh              > users.id
+
+// File
+Ref: mst_file_varian.file_id       > mst_file.id      [delete: cascade]
+
+// Jadwal
+Ref: mst_lokasi.foto_file_id       > mst_file.id
+Ref: jadwal.lokasi_id              > mst_lokasi.id    [delete: restrict]
+Ref: jadwal.kegiatan_id            > kegiatan.id
+Ref: jadwal.inorga_id              > mst_inorga.id
+Ref: jadwal_sesi.jadwal_id         > jadwal.id        [delete: restrict]
+Ref: jadwal_peserta.jadwal_id      > jadwal.id        [delete: restrict]
+Ref: jadwal_peserta.sesi_id        > jadwal_sesi.id
+Ref: jadwal_peserta.anggota_id     > anggota.id       [delete: restrict]
+Ref: jadwal_peserta.ditugaskan_oleh > users.id
+
+// Absensi
+Ref: absensi.sesi_id               > jadwal_sesi.id   [delete: restrict]
+Ref: absensi.jadwal_id             > jadwal.id        [delete: restrict]
+Ref: absensi.anggota_id            > anggota.id       [delete: restrict]
+Ref: absensi.user_id               > users.id         [delete: restrict]
+Ref: absensi.foto_file_id          > mst_file.id
+Ref: absensi.override_oleh         > users.id
+Ref: absensi.izin_id               > absensi_izin.id
+Ref: absensi_izin.sesi_id          > jadwal_sesi.id   [delete: restrict]
+Ref: absensi_izin.jadwal_id        > jadwal.id
+Ref: absensi_izin.anggota_id       > anggota.id       [delete: restrict]
+Ref: absensi_izin.lampiran_file_id > mst_file.id
+Ref: absensi_izin.diproses_oleh    > users.id
+Ref: absensi_rekap.anggota_id      > anggota.id       [delete: restrict]
+
+// Konten & master
+Ref: kegiatan.user_id                    > users.id
+Ref: kegiatan.gambar_highlight_file_id   > mst_file.id
+Ref: artikel.user_id                     > users.id
+Ref: artikel.gambar_highlight_file_id    > mst_file.id
+Ref: unit.anggota_id                     > anggota.id
+Ref: unit.foto_sampul_file_id            > mst_file.id
+Ref: unit.disetujui_oleh                 > users.id
+Ref: prestasi.anggota_id                 > anggota.id
+Ref: prestasi.flyer_file_id              > mst_file.id
+Ref: prestasi.foto_sampul_file_id        > mst_file.id
+Ref: mst_instansi.logo_utama_file_id     > mst_file.id
+Ref: mst_instansi.logo_tambahan_file_id  > mst_file.id
+Ref: profile_club.banner_file_id         > mst_file.id
+Ref: profile_club.logo_simple_file_id    > mst_file.id
+Ref: profile_club.logo_besar_file_id     > mst_file.id
+Ref: mst_inorga.logo_file_id             > mst_file.id
+Ref: mst_inorga.banner_file_id           > mst_file.id
+Ref: mst_inorga.file_sk_file_id          > mst_file.id
+Ref: mst_medsos.anggota_id               > anggota.id
+Ref: mst_dokumen.file_id                 > mst_file.id
+
+
+// =====================================================================
+//  PENGELOMPOKAN
+// =====================================================================
+
+TableGroup "1 · Hak Akses" {
+  mst_modul
+  mst_permission
+  mst_role
+  role_permission
+  user_role
+}
+
+TableGroup "2 · Sistem" {
+  mst_pengaturan
+  notifikasi
+  log_aktivitas
+  sesi_login
+}
+
+TableGroup "3 · Identitas & KTA" {
+  users
+  anggota
+  kta
+  mst_wilayah
+  mst_instansi
+}
+
+TableGroup "4 · File" {
+  mst_file
+  mst_file_varian
+}
+
+TableGroup "5 · Jadwal" {
+  mst_lokasi
+  jadwal
+  jadwal_sesi
+  jadwal_peserta
+}
+
+TableGroup "6 · Absensi" {
+  absensi
+  absensi_izin
+  absensi_rekap
+}
+
+TableGroup "7 · Konten & Master" {
+  kegiatan
+  artikel
+  unit
+  prestasi
+  profile_club
+  mst_inorga
+  mst_medsos
+  mst_dokumen
+}
