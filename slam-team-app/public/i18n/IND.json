@@ -6,6 +6,7 @@
     "PRIMARY": "Navigasi utama",
     "TOGGLE": "Buka/tutup menu",
     "DASHBOARD": "Dasbor",
+    "PENGATURAN": "Pengaturan",
     "LOGOUT": "Keluar",
     "GROUP": {
       "MAIN": "Utama",
@@ -86,6 +87,7 @@
     "UNIQUE": "Nilai ini sudah digunakan",
     "FILE_TOO_LARGE": "Ukuran berkas melebihi {{max}} MB",
     "FILE_TYPE": "Tipe berkas tidak didukung",
+    "JSON": "Harus berupa JSON yang valid",
     "INVALID": "Isian tidak valid"
   },
   "LOGIN": {
@@ -99,5 +101,19 @@
   "DASHBOARD": {
     "TITLE": "Dasbor",
     "WELCOME": "Selamat datang"
+  },
+  "PENGATURAN": {
+    "TITLE": "Pengaturan Sistem",
+    "TAB": {
+      "UMUM": "Umum",
+      "NRA": "NRA",
+      "KTA": "KTA",
+      "ABSENSI": "Absensi",
+      "FILE": "Berkas",
+      "NOTIFIKASI": "Notifikasi"
+    },
+    "LOCKED_HINT": "Hanya super admin yang dapat mengubah setelan ini",
+    "RESET_DEFAULT": "Kembalikan ke bawaan",
+    "NO_CHANGES": "Tidak ada perubahan untuk disimpan"
   }
 }

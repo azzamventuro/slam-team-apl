@@ -6,6 +6,7 @@
     "PRIMARY": "Primary navigation",
     "TOGGLE": "Toggle menu",
     "DASHBOARD": "Dashboard",
+    "PENGATURAN": "Settings",
     "LOGOUT": "Logout",
     "GROUP": {
       "MAIN": "Main",
@@ -86,6 +87,7 @@
     "UNIQUE": "This value is already taken",
     "FILE_TOO_LARGE": "File exceeds {{max}} MB",
     "FILE_TYPE": "Unsupported file type",
+    "JSON": "Must be valid JSON",
     "INVALID": "Invalid input"
   },
   "LOGIN": {
@@ -99,5 +101,19 @@
   "DASHBOARD": {
     "TITLE": "Dashboard",
     "WELCOME": "Welcome"
+  },
+  "PENGATURAN": {
+    "TITLE": "System Settings",
+    "TAB": {
+      "UMUM": "General",
+      "NRA": "NRA",
+      "KTA": "Membership Card",
+      "ABSENSI": "Attendance",
+      "FILE": "Files",
+      "NOTIFIKASI": "Notifications"
+    },
+    "LOCKED_HINT": "Only a super admin can change this setting",
+    "RESET_DEFAULT": "Reset to default",
+    "NO_CHANGES": "No changes to save"
   }
 }

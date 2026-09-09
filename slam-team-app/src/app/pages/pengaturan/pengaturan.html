@@ -1,0 +1,132 @@
+<header class="page-head">
+  <div>
+    <p class="slam-eyebrow">{{ 'MENU.GROUP.SISTEM' | translate }}</p>
+    <h1 class="h3 mb-0">{{ 'PENGATURAN.TITLE' | translate }}</h1>
+  </div>
+  <button type="button" class="btn btn-primary" [disabled]="saving() || loading()" (click)="save()">
+    {{ (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE') | translate }}
+  </button>
+</header>
+
+@if (loading()) {
+  <p class="text-secondary mb-0">{{ 'COMMON.LOADING' | translate }}</p>
+} @else if (!groups().length) {
+  <p class="text-secondary mb-0">{{ 'COMMON.EMPTY' | translate }}</p>
+} @else {
+  <ul class="nav nav-tabs pengaturan-tabs" role="tablist">
+    @for (g of groups(); track g.grup) {
+      <li class="nav-item" role="presentation">
+        <button
+          type="button"
+          class="nav-link"
+          [class.active]="activeGrup() === g.grup"
+          role="tab"
+          [attr.aria-selected]="activeGrup() === g.grup"
+          (click)="activeGrup.set(g.grup)"
+        >
+          {{ 'PENGATURAN.TAB.' + g.grup.toUpperCase() | translate }}
+        </button>
+      </li>
+    }
+  </ul>
+
+  <div class="card pengaturan-panel">
+    <div class="card-body">
+      @for (g of groups(); track g.grup) {
+        @if (activeGrup() === g.grup) {
+          @for (s of g.items; track s.kunci) {
+            <div class="pengaturan-row" [class.pengaturan-row--locked]="s.is_terkunci">
+              <div class="pengaturan-row__label">
+                <label class="form-label mb-1" [for]="s.kunci">
+                  {{ s.label }}
+                  @if (s.is_terkunci) {
+                    <span
+                      class="pengaturan-lock"
+                      [attr.title]="'PENGATURAN.LOCKED_HINT' | translate"
+                      aria-hidden="true"
+                      >&#128274;</span
+                    >
+                  }
+                </label>
+                @if (s.keterangan) {
+                  <p class="pengaturan-help">{{ s.keterangan }}</p>
+                }
+              </div>
+
+              <div class="pengaturan-row__control">
+                @if (s.tipe_nilai === 'boolean') {
+                  <div class="form-check form-switch">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      role="switch"
+                      [id]="s.kunci"
+                      [formControl]="controlFor(s.kunci)"
+                    />
+                  </div>
+                } @else if (s.opsi && s.opsi.length) {
+                  <select class="form-select" [id]="s.kunci" [formControl]="controlFor(s.kunci)">
+                    @for (opt of s.opsi; track opt) {
+                      <option [value]="opt">{{ opt }}</option>
+                    }
+                  </select>
+                } @else if (s.tipe_nilai === 'integer') {
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      class="form-control"
+                      [id]="s.kunci"
+                      [formControl]="controlFor(s.kunci)"
+                    />
+                    @if (s.satuan) {
+                      <span class="input-group-text">{{ s.satuan }}</span>
+                    }
+                  </div>
+                } @else if (s.tipe_nilai === 'date') {
+                  <input type="date" class="form-control" [id]="s.kunci" [formControl]="controlFor(s.kunci)" />
+                } @else if (s.tipe_nilai === 'json') {
+                  <textarea
+                    class="form-control slam-mono"
+                    rows="4"
+                    [id]="s.kunci"
+                    [formControl]="controlFor(s.kunci)"
+                    [class.is-invalid]="controlFor(s.kunci).invalid && controlFor(s.kunci).touched"
+                  ></textarea>
+                  @if (controlFor(s.kunci).hasError('json')) {
+                    <div class="invalid-feedback d-block">{{ 'VALIDATION.JSON' | translate }}</div>
+                  }
+                } @else {
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      [id]="s.kunci"
+                      [formControl]="controlFor(s.kunci)"
+                    />
+                    @if (s.satuan) {
+                      <span class="input-group-text">{{ s.satuan }}</span>
+                    }
+                  </div>
+                }
+                @if (controlFor(s.kunci).hasError('server')) {
+                  <div class="invalid-feedback d-block">{{ controlFor(s.kunci).getError('server') }}</div>
+                }
+              </div>
+
+              <div class="pengaturan-row__actions">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-light"
+                  [disabled]="controlFor(s.kunci).disabled"
+                  (click)="resetToDefault(s)"
+                >
+                  {{ 'PENGATURAN.RESET_DEFAULT' | translate }}
+                </button>
+              </div>
+            </div>
+          }
+        }
+      }
+    </div>
+  </div>
+}

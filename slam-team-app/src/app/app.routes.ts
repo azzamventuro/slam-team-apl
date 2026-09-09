@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,13 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+      },
+      {
+        // System settings — SA/Admin only (no pengaturan.* permission is
+        // seeded; adminGuard mirrors the backend's role-based gate).
+        path: 'pengaturan',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./pages/pengaturan/pengaturan').then((m) => m.Pengaturan),
       },
     ],
   },
