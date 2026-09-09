@@ -6,7 +6,7 @@ project also has its own `CLAUDE.md` with details.
 
 | Project         | Stack                                                            | Doc                                                |
 | --------------- | ---------------------------------------------------------------- | -------------------------------------------------- |
-| `slam-team-api` | Go 1.24 · Gin · GORM/MySQL · JWT · Zap                       | [slam-team-api/CLAUDE.md](slam-team-api/CLAUDE.md) |
+| `slam-team-api` | Go 1.24 · Gin · GORM/PostgreSQL · JWT · Zap                  | [slam-team-api/CLAUDE.md](slam-team-api/CLAUDE.md) |
 | `slam-team-app` | Angular 21 · standalone/signals · Bootstrap 5 · ngx-translate | [slam-team-app/CLAUDE.md](slam-team-app/CLAUDE.md) |
 
 ## How the two connect
@@ -59,7 +59,7 @@ Every feature is a standalone component under `pages/<name>/`, lazy-loaded via
 
 ## Toolchain
 
-Go 1.24+ (this repo built with 1.26) · Node 24 · Angular CLI 21 · MySQL 8 ·
+Go 1.24+ (this repo built with 1.26) · Node 24 · Angular CLI 21 · PostgreSQL 16 ·
 Redis (optional).
 
 - **Go deps:** `cd slam-team-api && go mod tidy`
@@ -69,7 +69,7 @@ Redis (optional).
 ## Run locally
 
 ```bash
-# API (needs MySQL — or use docker-compose)
+# API (needs PostgreSQL — or use docker-compose)
 cd slam-team-api && cp .env.example .env && make run
 
 # APP

@@ -27,7 +27,7 @@ import (
 //	3. validator.Register()→ custom go-playground rules on Gin
 //	4. jwt.New()          → HS256 issuer/verifier
 //	5. redis.Initialize() → optional, non-fatal if unavailable
-//	6. database.New()     → GORM MySQL pool (fatal on failure)
+//	6. database.New()     → GORM PostgreSQL pool (fatal on failure)
 //	7. router.Setup()     → mounts /api/v1 and registers modules
 func main() {
 	cfg := config.Load()
