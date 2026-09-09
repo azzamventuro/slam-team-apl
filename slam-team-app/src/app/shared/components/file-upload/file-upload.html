@@ -1,0 +1,104 @@
+@if (labelKey(); as key) {
+  <p class="slam-eyebrow file-upload__label">{{ key | translate }}</p>
+}
+
+<!-- The real control. Kept visually-hidden rather than display:none so it stays
+     focusable; the styled <label> next to it is what the pointer sees. -->
+<input
+  type="file"
+  class="visually-hidden file-upload__input"
+  [id]="inputId"
+  [accept]="accept()"
+  [disabled]="!interactive()"
+  (change)="onChange($event)"
+/>
+
+@if (current(); as file) {
+  <div class="file-upload__card" [attr.aria-busy]="busy()">
+    <div class="file-upload__thumb">
+      @if (showsThumbnail()) {
+        <app-secure-image
+          [uuid]="file.uuid"
+          [varian]="previewVarian()"
+          [alt]="file.nama_asli"
+          ratio="1 / 1"
+        />
+      } @else {
+        <span class="file-upload__doc" aria-hidden="true">&#128196;</span>
+      }
+    </div>
+
+    <div class="file-upload__meta">
+      <p class="file-upload__name" [attr.title]="file.nama_asli">{{ file.nama_asli }}</p>
+      <p class="file-upload__hint">
+        <span>{{ fileSize() }}</span>
+        @if (processing()) {
+          <span class="file-upload__badge">
+            <span aria-hidden="true">&#9203;</span>
+            {{ 'FILE.PROCESSING' | translate }}
+          </span>
+        }
+      </p>
+      <div class="file-upload__actions">
+        <label class="btn btn-sm btn-outline-light" [attr.for]="inputId">
+          {{ 'FILE.REPLACE' | translate }}
+        </label>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline-danger"
+          [disabled]="!interactive()"
+          (click)="remove()"
+        >
+          {{ 'FILE.REMOVE' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+} @else {
+  <div
+    class="file-upload__zone"
+    [class.file-upload__zone--dragging]="dragging()"
+    [class.file-upload__zone--disabled]="!interactive()"
+    [attr.aria-busy]="busy()"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+  >
+    @if (localPreview(); as preview) {
+      <img class="file-upload__local" [src]="preview" alt="" />
+    } @else {
+      <span class="file-upload__glyph" aria-hidden="true">&#8593;</span>
+    }
+
+    <p class="file-upload__drag">{{ 'FILE.DRAG_HERE' | translate }}</p>
+
+    <label class="btn btn-outline-light file-upload__choose" [attr.for]="inputId">
+      {{ 'COMMON.CHOOSE_FILE' | translate }}
+    </label>
+
+    @if (maxMb() > 0) {
+      <p class="file-upload__hint">{{ 'FILE.HINT' | translate: { max: maxMb() } }}</p>
+    }
+  </div>
+}
+
+@if (busy()) {
+  <!-- Indeterminate: the API client returns the parsed body, not upload events. -->
+  <div class="progress file-upload__progress" role="status">
+    <div class="progress-bar progress-bar-striped progress-bar-animated"></div>
+    <span class="visually-hidden">{{ 'FILE.UPLOADING' | translate }}</span>
+  </div>
+}
+
+@if (errorKey(); as key) {
+  <!-- Status is never colour-only: the glyph carries it too. The server's own
+       sentence wins over the generic key when there is one. -->
+  <p class="file-upload__error" role="alert">
+    <span aria-hidden="true">&#9888;</span>
+    @if (errorText()) {
+      {{ errorText() }}
+    } @else {
+      {{ key | translate: { max: maxMb() } }}
+    }
+  </p>
+}

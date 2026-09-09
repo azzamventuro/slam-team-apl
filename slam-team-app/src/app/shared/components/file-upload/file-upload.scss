@@ -1,0 +1,174 @@
+:host {
+  display: block;
+}
+
+.file-upload__label {
+  margin-bottom: var(--slam-space-2);
+}
+
+// ── Empty state: the dropzone ───────────────────────────────────────────────
+// Surface-2 behind a dashed border, going red on hover/drag — the only red in
+// the control until something goes wrong.
+.file-upload__zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--slam-space-2);
+  padding: var(--slam-space-5);
+  text-align: center;
+  background-color: var(--slam-surface-2);
+  border: 2px dashed var(--slam-border);
+  border-radius: var(--slam-radius-lg);
+  transition:
+    border-color var(--slam-transition),
+    background-color var(--slam-transition);
+
+  &:hover:not(.file-upload__zone--disabled) {
+    border-color: var(--slam-primary);
+  }
+
+  &--dragging {
+    border-color: var(--slam-primary);
+    background-color: var(--slam-primary-soft);
+  }
+
+  &--disabled {
+    opacity: 0.6;
+  }
+}
+
+.file-upload__glyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--slam-icon-lg);
+  height: var(--slam-icon-lg);
+  border: 1px solid var(--slam-border-strong);
+  border-radius: var(--slam-radius-pill);
+  color: var(--slam-text-muted);
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+// The pre-upload preview, straight from the File object.
+.file-upload__local {
+  width: 88px;
+  height: 88px;
+  object-fit: cover;
+  border-radius: var(--slam-radius);
+  border: 1px solid var(--slam-border);
+}
+
+.file-upload__drag {
+  margin: 0;
+  color: var(--slam-text-muted);
+  font-size: 0.875rem;
+}
+
+.file-upload__choose {
+  margin-top: var(--slam-space-1);
+}
+
+// ── Filled state: the stored file ───────────────────────────────────────────
+.file-upload__card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--slam-space-4);
+  padding: var(--slam-space-4);
+  background-color: var(--slam-surface-2);
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius-lg);
+}
+
+.file-upload__thumb {
+  flex: 0 0 auto;
+  width: 88px;
+}
+
+.file-upload__doc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  background-color: var(--slam-surface-3);
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius);
+  font-size: 1.5rem;
+}
+
+.file-upload__meta {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.file-upload__name {
+  margin: 0 0 var(--slam-space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.file-upload__hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--slam-space-2);
+  margin: 0;
+  color: var(--slam-text-dim);
+  font-size: 0.8125rem;
+}
+
+// `menunggu`: medium/low are still being written server-side.
+.file-upload__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slam-space-1);
+  padding: 2px var(--slam-space-2);
+  background-color: var(--slam-primary-soft);
+  border-radius: var(--slam-radius-pill);
+  color: var(--slam-text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.file-upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slam-space-2);
+  margin-top: var(--slam-space-3);
+}
+
+// ── Focus, progress, error ──────────────────────────────────────────────────
+// The input is visually-hidden but still focusable, so the red ring has to
+// appear on the label standing in for it — never removed, only relocated.
+.file-upload__input:focus-visible + label,
+.file-upload__input:focus-visible ~ * label[for] {
+  outline: none;
+  border-color: var(--slam-primary);
+  box-shadow: var(--slam-shadow-focus);
+}
+
+.file-upload__progress {
+  height: 4px;
+  margin-top: var(--slam-space-3);
+  background-color: var(--slam-surface-3);
+
+  .progress-bar {
+    width: 100%;
+    background-color: var(--slam-primary);
+  }
+}
+
+.file-upload__error {
+  display: flex;
+  align-items: baseline;
+  gap: var(--slam-space-2);
+  margin: var(--slam-space-2) 0 0;
+  color: var(--slam-danger);
+  font-size: 0.8125rem;
+}

@@ -69,7 +69,9 @@
     "NOT_FOUND": "Record not found",
     "SESSION_EXPIRED": "Your session has expired, please sign in again",
     "NETWORK_ERROR": "Cannot reach the server",
-    "SERVER_ERROR": "A server error occurred"
+    "SERVER_ERROR": "A server error occurred",
+    "CHOOSE_FILE": "Choose file",
+    "REMOVE": "Remove"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required",
@@ -115,5 +117,20 @@
     "LOCKED_HINT": "Only a super admin can change this setting",
     "RESET_DEFAULT": "Reset to default",
     "NO_CHANGES": "No changes to save"
+  },
+  "FILE": {
+    "UPLOAD": "Upload file",
+    "CHOOSE": "Choose file",
+    "DRAG_HERE": "Drag a file here, or pick one from your device",
+    "HINT": "Up to {{max}} MB",
+    "UPLOADING": "Uploading...",
+    "PROCESSING": "Processing",
+    "REPLACE": "Replace",
+    "REMOVE": "Remove file",
+    "PREVIEW": "Preview",
+    "NO_IMAGE": "No image yet",
+    "TOO_LARGE": "File exceeds {{max}} MB",
+    "WRONG_TYPE": "Unsupported file type",
+    "FAILED": "Upload failed"
   }
 }

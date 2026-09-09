@@ -69,7 +69,9 @@
     "NOT_FOUND": "Data tidak ditemukan",
     "SESSION_EXPIRED": "Sesi Anda telah berakhir, silakan masuk kembali",
     "NETWORK_ERROR": "Tidak dapat terhubung ke server",
-    "SERVER_ERROR": "Terjadi kesalahan pada server"
+    "SERVER_ERROR": "Terjadi kesalahan pada server",
+    "CHOOSE_FILE": "Pilih berkas",
+    "REMOVE": "Hapus"
   },
   "VALIDATION": {
     "REQUIRED": "Wajib diisi",
@@ -115,5 +117,20 @@
     "LOCKED_HINT": "Hanya super admin yang dapat mengubah setelan ini",
     "RESET_DEFAULT": "Kembalikan ke bawaan",
     "NO_CHANGES": "Tidak ada perubahan untuk disimpan"
+  },
+  "FILE": {
+    "UPLOAD": "Unggah berkas",
+    "CHOOSE": "Pilih berkas",
+    "DRAG_HERE": "Tarik berkas ke sini atau pilih dari perangkat",
+    "HINT": "Maksimal {{max}} MB",
+    "UPLOADING": "Mengunggah...",
+    "PROCESSING": "Diproses",
+    "REPLACE": "Ganti",
+    "REMOVE": "Hapus berkas",
+    "PREVIEW": "Pratinjau",
+    "NO_IMAGE": "Belum ada gambar",
+    "TOO_LARGE": "Ukuran berkas melebihi {{max}} MB",
+    "WRONG_TYPE": "Tipe berkas tidak didukung",
+    "FAILED": "Berkas gagal diunggah"
   }
 }
