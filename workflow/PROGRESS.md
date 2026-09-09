@@ -2,7 +2,7 @@
 
 Tracker per-prompt untuk build SLAM Team. Satu baris = satu prompt yang di-paste ke Claude Code (API atau APP). Urutan = build order (`EXECUTION.md` §3). Tandai selesai setiap kali sebuah prompt tuntas + terverifikasi + ter-commit.
 
-**Progress: 3 / 49 selesai** · 🟡 0 proses · ⬜ 46 belum
+**Progress: 4 / 49 selesai** · 🟡 0 proses · ⬜ 45 belum
 
 Status: ⬜ Belum · 🟡 Proses · ✅ Selesai · ⛔ Terblokir
 
@@ -25,7 +25,7 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 | 1 | 01-foundation | API | Opus · high | ✅ | 2026-09-09 | `46e69f6` | envelope+`apperr`+`FromError`, `model.Audit`, `pagination`, tzdata, CORS config, `slamctl` + migrator |
 | 2 | 01-foundation | APP | Opus · high | ✅ | 2026-09-09 | `46e69f6` | `ApiService` + `Page<T>`, interceptor 401/403, design tokens (dark + merah), i18n `COMMON.*`/`VALIDATION.*` |
 | 3 | 03-pengaturan-log | API | Sonnet · high | ✅ | 2026-09-09 | `c90d083` | migrasi `0002` + seeder 24 baris idempoten, `shared/audit` (writer lintas modul), gate `RequireAdmin` + `is_terkunci` SA-only di service |
-| 4 | 03-pengaturan-log | APP | Sonnet · high | ⬜ |  |  |  |
+| 4 | 03-pengaturan-log | APP | Sonnet · high | ✅ | 2026-09-09 | `62f1a0d` | halaman self-generating per `tipe_nilai`, `adminGuard` meniru `RequireAdmin` (belum ada `pengaturan.*`), `User.role` ditambah (opsional — auth Fase 0 belum menerbitkan klaim peran) |
 | 5 | 02-file-management | API | Opus · high | ⬜ |  |  | butuh varian px (mst_pengaturan) + log_aktivitas |
 | 6 | 02-file-management | APP | Opus · high | ⬜ |  |  |  |
 | 7 | 04-auth-session | API | Opus · high | ⬜ |  |  |  |
@@ -124,3 +124,4 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 - **2026-09-09** — #1 `01-foundation` API selesai (Opus · high) — commit `46e69f6`.
 - **2026-09-09** — #2 `01-foundation` APP selesai (Opus · high) — commit `46e69f6` (satu commit bersama API, karena kerja API belum ter-commit saat APP dikerjakan).
 - **2026-09-09** — #3 `03-pengaturan-log` API selesai (Opus · high) — commit `c90d083`. Gate Fase 0 memakai `middleware.RequireAdmin` (peran), bukan `pengaturan.read/update`: tidak ada izin `pengaturan.*` yang di-seed karena pengaturan bukan salah satu dari 19 `mst_modul`. FK `modified_by`/`aktor_user_id` → `users.id` ditunda ke migrasi yang membuat tabel `users`.
+- **2026-09-09** — #4 `03-pengaturan-log` APP selesai (Sonnet · high) — commit `62f1a0d`. Mengikuti API: bukan `permissionGuard`, tapi `adminGuard` baru yang meniru `middleware.RequireAdmin` persis (`is_super OR level<=10`). Auth module (scaffold Fase 0) belum menerbitkan `role_id`/`role_level`/`is_super` di `LoginResponse` maupun `GET /auth/me` walau `pkg/jwt.Claims` sudah punya field-nya — jadi `User.role` di frontend opsional dan setiap akun hari ini otomatis ditolak `adminGuard`, sama seperti `RequireAdmin` menolak token tanpa klaim peran. Diverifikasi manual di Chrome dengan sesi & respons API dipalsukan (bukan lewat login sungguhan, karena belum ada user admin yang bisa lolos gate).
