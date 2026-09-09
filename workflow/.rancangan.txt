@@ -15,7 +15,7 @@ Go
 Database
 PostgreSQL — slamteam_db
 Stack sebelumnya
-Laravel · Angular versi lama · MySQL — tidak dilanjutkan
+Laravel · Angular versi lama · PostgreSQL — tidak dilanjutkan
 Jumlah tabel
 31
 Jumlah modul
@@ -32,7 +32,7 @@ TOC \h \o &quot;1-3&quot;
 Aplikasi SLAM Team adalah sistem pendataan keanggotaan klub airsoft SLAM (Scouting Legion Airsofter Malang), terdiri dari halaman publik berisi profil klub, artikel, kegiatan, dan pengecekan keanggotaan, serta panel administrasi untuk mengelola data anggota, unit, prestasi, jadwal, absensi, dan kartu tanda anggota.
 1.1 Sifat proyek
 DIBANGUN ULANG DARI NOL
-Rancangan ini bukan penyesuaian atas aplikasi yang sudah berjalan. Pengerjaan sebelumnya menggunakan Laravel, Angular versi lama, dan MySQL, dan tidak dilanjutkan. Seluruh basis kode ditulis ulang di atas Go, Angular 21, dan PostgreSQL.
+Rancangan ini bukan penyesuaian atas aplikasi yang sudah berjalan. Pengerjaan sebelumnya menggunakan Laravel, Angular versi lama, dan PostgreSQL, dan tidak dilanjutkan. Seluruh basis kode ditulis ulang di atas Go, Angular 21, dan PostgreSQL.
 Aplikasi lama hanya menjadi rujukan TAMPILAN. Rute API dan skema basis data berubah sepenuhnya, sehingga tidak ada kode, tabel, maupun data yang dipindahkan. Dokumen Rancangan Awal New diperlakukan sebagai rujukan kebutuhan, bukan sebagai keadaan awal yang harus dimigrasi.
 Karena itu tidak ada bab migrasi data pada dokumen ini. Bab 10 memuat pembuatan skema awal dan urutan pengisian data acuan.
 
@@ -1113,7 +1113,7 @@ POST /kta · POST /kta/bulk · GET /kta/anggota/{anggotaId} · POST /kta/{id}/ce
 Publik
 GET /public/kta/{token} · GET /public/profil · GET /public/artikel · GET /public/kegiatan
 10. Skema Awal dan Urutan Pembangunan
-Karena proyek dibangun dari nol, bab ini memuat pembuatan skema awal dan pengisian data acuan — bukan migrasi dari basis data lama. Tidak ada data yang dipindahkan dari sistem Laravel dan MySQL sebelumnya.
+Karena proyek dibangun dari nol, bab ini memuat pembuatan skema awal dan pengisian data acuan — bukan migrasi dari basis data lama. Tidak ada data yang dipindahkan dari sistem Laravel dan PostgreSQL sebelumnya.
 10.1 Prinsip
 Skema ditulis sebagai berkas migrasi bernomor sejak hari pertama. Meskipun basis datanya masih kosong, setiap perubahan tetap melalui berkas migrasi dengan pasangan rollback. Kebiasaan ini yang membuat perubahan skema di tengah pengerjaan tidak menjadi sumber perbedaan antara mesin pengembang.
 Berkas .dbml adalah acuan tunggal. Migrasi dibangkitkan mengikuti berkas tersebut. Bila kode dan ERD berbeda, ERD yang menang dan kodenya diperbaiki.
@@ -1163,7 +1163,7 @@ Jalan keluarnya adalah perintah CLI tersendiri pada aplikasi Go, misalnya &quot;
 Perintah ini tidak boleh berupa endpoint HTTP. Endpoint pembuatan super admin yang tidak terlindungi adalah celah yang paling sering ditemukan pada aplikasi sejenis.
 11. Metode Pengembangan
 11.1 Hubungan dengan aplikasi lama
-Aplikasi lama berbasis Laravel, Angular versi lama, dan MySQL dijadikan rujukan TAMPILAN saja: tata letak halaman, alur antar layar, dan susunan formulir. Rute API dan skema basis data berubah sepenuhnya karena backend berpindah ke Go dan basis data berpindah ke PostgreSQL.
+Aplikasi lama berbasis Laravel, Angular versi lama, dan PostgreSQL dijadikan rujukan TAMPILAN saja: tata letak halaman, alur antar layar, dan susunan formulir. Rute API dan skema basis data berubah sepenuhnya karena backend berpindah ke Go dan basis data berpindah ke PostgreSQL.
 Aturan praktisnya: ketika mengerjakan satu modul, tampilan lama boleh ditiru, tetapi nama endpoint, bentuk payload, dan nama kolom selalu mengikuti dokumen ini dan berkas .dbml. Menyalin bentuk respons API lama adalah sumber ketidakcocokan yang paling mudah terjadi dan paling sulit dilacak kemudian.
 11.2 Claude Code
 Implementasi dikerjakan bertahap satu modul demi satu modul dengan bantuan Claude Code. Pembagian pekerjaan berikut yang membedakan hasil yang dapat dirawat dari hasil yang harus ditulis ulang beberapa bulan kemudian.

@@ -1,7 +1,7 @@
 # SLAM Team — Database Schema Map (`slamteam_db`)
 
 Quick-reference map of all **31 tables** in `slamteam_db`, grouped into the 7 TableGroups (kelompok).
-Stack: PostgreSQL, accessed by Go + GORM. ERD Rev. 3 (greenfield rebuild — no migration from the old Laravel/MySQL app).
+Stack: PostgreSQL, accessed by Go + GORM. ERD Rev. 3 (greenfield rebuild — no migration from the old Laravel/PostgreSQL app).
 
 > **Source of truth:** `D:/xampp/htdocs/slam-team-apl/slamteam_db.dbml`. This file is a navigation aid only. If this map and the `.dbml` disagree, **the `.dbml` wins**. Column names / relations / enum labels are verbatim from the DBML.
 

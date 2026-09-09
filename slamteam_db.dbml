@@ -3,7 +3,7 @@
 //  ERD Rev. 3 — skema awal untuk pembangunan ulang (greenfield)
 //
 //  Stack baru : Angular 21 (PWA) · Go · PostgreSQL · slamteam.id
-//  Stack lama : Laravel · Angular versi lama · MySQL  (TIDAK dimigrasi)
+//  Stack lama : Laravel · Angular versi lama · PostgreSQL  (TIDAK dimigrasi)
 //
 //  Proyek dibangun ulang dari nol. Tidak ada modul yang diteruskan.
 //  Project lama hanya menjadi rujukan TAMPILAN; route API dan skema
