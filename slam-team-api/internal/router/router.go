@@ -8,6 +8,8 @@ import (
 	"slam-team-api/internal/config"
 	"slam-team-api/internal/middleware"
 	"slam-team-api/internal/modules/core/auth"
+	"slam-team-api/internal/modules/core/pengaturan"
+	"slam-team-api/internal/shared/audit"
 	"slam-team-api/pkg/jwt"
 
 	"github.com/gin-gonic/gin"
@@ -40,8 +42,13 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 
 	apiV1 := engine.Group("/api/v1")
 
+	// Shared audit writer: every module that changes state records a
+	// log_aktivitas row through it.
+	auditor := audit.NewWriter(db)
+
 	// --- Register feature modules here ---
 	auth.Initialize(db, jwtMgr).SetupRoutes(apiV1)
+	pengaturan.Initialize(db, jwtMgr, auditor).SetupRoutes(apiV1)
 
 	return engine
 }

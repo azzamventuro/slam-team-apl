@@ -24,10 +24,10 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 |---|-------|--------|----------------|--------|---------|--------|---------|
 | 1 | 01-foundation | API | Opus · high | ✅ | 2026-09-09 | `46e69f6` | envelope+`apperr`+`FromError`, `model.Audit`, `pagination`, tzdata, CORS config, `slamctl` + migrator |
 | 2 | 01-foundation | APP | Opus · high | ✅ | 2026-09-09 | `46e69f6` | `ApiService` + `Page<T>`, interceptor 401/403, design tokens (dark + merah), i18n `COMMON.*`/`VALIDATION.*` |
-| 3 | 02-file-management | API | Opus · high | ⬜ |  |  |  |
-| 4 | 02-file-management | APP | Opus · high | ⬜ |  |  |  |
-| 5 | 03-pengaturan-log | API | Sonnet · high | ⬜ |  |  |  |
-| 6 | 03-pengaturan-log | APP | Sonnet · high | ⬜ |  |  |  |
+| 3 | 03-pengaturan-log | API | Sonnet · high | ⬜ |  |  | sebelum file — sediakan mst_pengaturan + log_aktivitas |
+| 4 | 03-pengaturan-log | APP | Sonnet · high | ⬜ |  |  |  |
+| 5 | 02-file-management | API | Opus · high | ⬜ |  |  | butuh varian px (mst_pengaturan) + log_aktivitas |
+| 6 | 02-file-management | APP | Opus · high | ⬜ |  |  |  |
 | 7 | 04-auth-session | API | Opus · high | ⬜ |  |  |  |
 | 8 | 04-auth-session | APP | Opus · high | ⬜ |  |  |  |
 

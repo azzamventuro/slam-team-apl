@@ -50,7 +50,7 @@ For each module, **API prompt first, then APP prompt**:
 
 | Fase | Order |
 |------|-------|
-| 0 | `01-foundation` → `02-file-management` → `03-pengaturan-log` → `04-auth-session` |
+| 0 | `01-foundation` → `03-pengaturan-log` → `02-file-management` → `04-auth-session` |
 | 1 | `05-hak-akses` |
 | 2 | `08-instansi` → `06-anggota` → `07-user-management` → `09-unit` → `10-prestasi` → `11-inorga` → `12-medsos` → `13-dokumen` → `14-profile-club` |
 | 3 | `15-lokasi` → `16-jadwal` |
@@ -61,7 +61,7 @@ For each module, **API prompt first, then APP prompt**:
 | 8 | `22-kegiatan` → `23-artikel` → `24-landing-publik` |
 | 9 | `25-pwa` |
 
-Key ordering reasons: `instansi` before `anggota` (`anggota.instansi_id` FK restrict); `izin` before `absensi` (`absensi.izin_id`).
+Key ordering reasons: `pengaturan/log` before `file-management` (file layer reads variant px from `mst_pengaturan` and writes `log_aktivitas`); `instansi` before `anggota` (`anggota.instansi_id` FK restrict); `izin` before `absensi` (`absensi.izin_id`).
 
 ---
 

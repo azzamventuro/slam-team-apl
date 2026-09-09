@@ -72,6 +72,14 @@ func Conflict(c *gin.Context, msg string) {
 // context) and never pick status codes themselves. Anything unrecognised is an
 // Internal — which is also the single point where 500s are logged.
 func FromError(c *gin.Context, err error) {
+	// A field-level validation failure carries its own errors map, so it is
+	// matched before the plain sentinels it unwraps to.
+	var fieldsErr *apperr.FieldsError
+	if errors.As(err, &fieldsErr) {
+		Unprocess(c, fieldsErr.Error(), fieldsErr.Fields)
+		return
+	}
+
 	switch {
 	case errors.Is(err, apperr.ErrNotFound):
 		NotFound(c, err.Error())
