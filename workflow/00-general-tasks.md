@@ -120,12 +120,12 @@ Parallel track: 0 → 2 → 6 (KTA) can run alongside 3 → 4 → 5.
 
 ## 4. Progress table (seeded all-X per rancangan Bab 12.2)
 
-Legend: **V** selesai · **P** sedang dikerjakan · **X** belum dikerjakan. **Model** = tier to build the module with (see [`EXECUTION.md`](./EXECUTION.md); ★ = run at `xhigh` effort).
+Legend: **V** selesai · **P** sedang dikerjakan · **X** belum dikerjakan. **Model** = tier to build the module with (see [`EXECUTION.md`](./EXECUTION.md); Opus 4.8 for hard/domain-heavy, Sonnet 5 for CRUD; ★ = run at `xhigh` effort). Paste each prompt as-is — no preamble.
 
 | Modul | Fase | Model | C | R | U | D | Status | Catatan |
 |-------|------|-------|---|---|---|---|--------|---------|
-| Fondasi & manajemen berkas | 0 | Fable | X | X | X | X | X | Prasyarat seluruh modul |
-| Hak akses | 1 | Fable ★ | X | X | X | X | X | RBAC dinamis, bypass super admin |
+| Fondasi & manajemen berkas | 0 | Opus | X | X | X | X | X | Prasyarat seluruh modul |
+| Hak akses | 1 | Opus ★ | X | X | X | X | X | RBAC dinamis, bypass super admin |
 | Anggota | 2 | Sonnet | X | X | X | X | X | |
 | Instansi / Sekolah | 2 | Sonnet | X | X | X | X | X | |
 | Unit | 2 | Sonnet | X | X | X | X | X | |
@@ -134,14 +134,14 @@ Legend: **V** selesai · **P** sedang dikerjakan · **X** belum dikerjakan. **Mo
 | Medsos | 2 | Sonnet | X | X | X | X | X | |
 | Dokumen | 2 | Sonnet | X | X | X | X | X | |
 | Profile Club | 2 | Sonnet | X | X | X | X | X | |
-| User management (admin/moderator/user) | 2 | Fable | X | X | X | X | X | Surface atas `users` + `user_role` |
+| User management (admin/moderator/user) | 2 | Opus | X | X | X | X | X | Surface atas `users` + `user_role` |
 | Lokasi | 3 | Sonnet | X | X | X | X | X | Map picker |
-| Jadwal | 3 | Fable ★ | X | X | X | X | X | Generator sesi (recurrence) |
-| Penugasan jadwal | 4 | Fable | X | X | X | X | X | Single + bulk, `wajib_absen` |
-| Absensi | 5 | Fable ★ | X | X | X | X | X | Kamera + GPS, server-time authority |
-| Izin | 5 | Fable | X | X | X | X | X | approve / tolak, pulang cepat |
-| KTA & QR | 6 | Fable ★ | X | X | X | X | X | NRA sequence, public token page |
-| Laporan | 7 | Fable | X | X | X | X | X | Rekap + export Excel/PDF |
+| Jadwal | 3 | Opus ★ | X | X | X | X | X | Generator sesi (recurrence) |
+| Penugasan jadwal | 4 | Opus | X | X | X | X | X | Single + bulk, `wajib_absen` |
+| Absensi | 5 | Opus ★ | X | X | X | X | X | Kamera + GPS, server-time authority |
+| Izin | 5 | Opus | X | X | X | X | X | approve / tolak, pulang cepat |
+| KTA & QR | 6 | Opus ★ | X | X | X | X | X | NRA sequence, public token page |
+| Laporan | 7 | Opus | X | X | X | X | X | Rekap + export Excel/PDF |
 | Kegiatan | 8 | Sonnet | X | X | X | X | X | |
 | Artikel | 8 | Sonnet | X | X | X | X | X | |
 | Landing page | 8 | Sonnet | X | X | X | X | X | Public content |
