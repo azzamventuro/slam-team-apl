@@ -1,0 +1,15 @@
+<div class="slam-toast-host" role="status" aria-live="polite" aria-atomic="false">
+  @for (toast of toasts(); track toast.id) {
+    <div class="slam-toast" [class]="'slam-toast--' + toast.variant">
+      <span class="slam-toast__icon" aria-hidden="true">{{ icon(toast.variant) }}</span>
+      <span class="visually-hidden">{{ labelKey(toast.variant) | translate }}:</span>
+      <span class="slam-toast__text">{{ toast.text | translate }}</span>
+      <button
+        type="button"
+        class="slam-toast__close"
+        [attr.aria-label]="'COMMON.CLOSE' | translate"
+        (click)="dismiss(toast.id)"
+      >&times;</button>
+    </div>
+  }
+</div>

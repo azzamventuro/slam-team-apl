@@ -9,6 +9,11 @@ import (
 	"syscall"
 	"time"
 
+	// Embeds the IANA tz database in the binary so time.LoadLocation
+	// ("Asia/Jakarta", "Asia/Makassar", "Asia/Jayapura") resolves on minimal
+	// images (scratch/alpine) that ship no OS tz files.
+	_ "time/tzdata"
+
 	"slam-team-api/internal/config"
 	"slam-team-api/internal/database"
 	"slam-team-api/internal/router"
@@ -22,13 +27,13 @@ import (
 
 // main wires dependencies in order, then serves with graceful shutdown.
 //
-//	1. config.Load()      → env vars into typed structs
-//	2. logger.Initialize()→ Zap (JSON in prod, console+color in dev)
-//	3. validator.Register()→ custom go-playground rules on Gin
-//	4. jwt.New()          → HS256 issuer/verifier
-//	5. redis.Initialize() → optional, non-fatal if unavailable
-//	6. database.New()     → GORM PostgreSQL pool (fatal on failure)
-//	7. router.Setup()     → mounts /api/v1 and registers modules
+//  1. config.Load()      → env vars into typed structs
+//  2. logger.Initialize()→ Zap (JSON in prod, console+color in dev)
+//  3. validator.Register()→ custom go-playground rules on Gin
+//  4. jwt.New()          → HS256 issuer/verifier
+//  5. redis.Initialize() → optional, non-fatal if unavailable
+//  6. database.New()     → GORM PostgreSQL pool (fatal on failure)
+//  7. router.Setup()     → mounts /api/v1 and registers modules
 func main() {
 	cfg := config.Load()
 

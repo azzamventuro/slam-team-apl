@@ -1,3 +1,22 @@
 :host {
   display: block;
 }
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--slam-space-4);
+  margin-bottom: var(--slam-space-5);
+}
+
+.dashboard-name {
+  margin-bottom: var(--slam-space-1);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.dashboard-email {
+  color: var(--slam-text-muted);
+  font-size: 0.875rem;
+}

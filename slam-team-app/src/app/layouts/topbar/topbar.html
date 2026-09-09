@@ -1,14 +1,40 @@
-<nav class="navbar navbar-expand bg-white border-bottom px-3 py-2">
-  <span class="navbar-brand mb-0 h5">{{ 'APP.TITLE' | translate }}</span>
-  <div class="ms-auto d-flex align-items-center gap-3">
-    <div class="btn-group btn-group-sm" role="group">
-      <button type="button" class="btn btn-outline-secondary" (click)="switchLang('IND')">IND</button>
-      <button type="button" class="btn btn-outline-secondary" (click)="switchLang('ENG')">ENG</button>
+<nav class="topbar">
+  <button
+    type="button"
+    class="topbar__toggle d-lg-none"
+    aria-controls="app-sidebar"
+    [attr.aria-expanded]="menuOpen()"
+    [attr.aria-label]="'MENU.TOGGLE' | translate"
+    (click)="toggleMenu.emit()"
+  >
+    <span aria-hidden="true">☰</span>
+  </button>
+
+  <span class="topbar__title">{{ 'APP.TITLE' | translate }}</span>
+
+  <div class="topbar__actions">
+    <div class="btn-group" role="group" [attr.aria-label]="'COMMON.LANGUAGE' | translate">
+      @for (lang of languages; track lang) {
+        <button
+          type="button"
+          class="btn btn-sm topbar__lang"
+          [class.active]="currentLang() === lang"
+          [attr.aria-pressed]="currentLang() === lang"
+          (click)="switchLang(lang)"
+        >
+          {{ lang }}
+        </button>
+      }
     </div>
+
     @if (user(); as u) {
-      <span class="text-muted small">{{ u.name }}</span>
+      <span class="topbar__user">
+        <span class="topbar__avatar" aria-hidden="true">{{ initial(u.name) }}</span>
+        <span class="d-none d-sm-inline">{{ u.name }}</span>
+      </span>
     }
-    <button type="button" class="btn btn-sm btn-outline-danger" (click)="logout()">
+
+    <button type="button" class="btn btn-sm btn-outline-light" (click)="logout()">
       {{ 'MENU.LOGOUT' | translate }}
     </button>
   </div>

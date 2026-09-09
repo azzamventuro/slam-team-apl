@@ -3,6 +3,7 @@ package router
 
 import (
 	"net/http"
+	"time"
 
 	"slam-team-api/internal/config"
 	"slam-team-api/internal/middleware"
@@ -24,8 +25,17 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	engine := gin.New()
 	middleware.Global(engine, cfg)
 
+	// Liveness/readiness probe for load balancers and uptime monitors, not a
+	// business endpoint — deliberately flat JSON, outside /api/v1 and outside
+	// the {success,message,data} envelope.
 	engine.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"status": "ok", "redis": rdb != nil})
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "ok",
+			"time":    time.Now().UTC().Format(time.RFC3339),
+			"version": cfg.App.Version,
+			"env":     cfg.App.Env,
+			"redis":   rdb != nil,
+		})
 	})
 
 	apiV1 := engine.Group("/api/v1")

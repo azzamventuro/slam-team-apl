@@ -1,9 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
-import { ApiResponse, LoginResponse, User } from '../models/user.model';
+import { LoginResponse, User } from '../models/user.model';
+import { ApiService } from './api.service';
 
 const TOKEN_KEY = 'slam_token';
 const USER_KEY = 'slam_user';
@@ -11,27 +10,28 @@ const USER_KEY = 'slam_user';
 /**
  * AuthService owns authentication state: the JWT (persisted to localStorage)
  * and the current user (a signal, so zoneless change detection just works).
+ * HTTP goes through ApiService, which unwraps the envelope — `login` therefore
+ * emits the `data` payload, not the envelope.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  private api = inject(ApiService);
 
   private readonly _user = signal<User | null>(readStoredUser());
   readonly user = this._user.asReadonly();
   readonly isLoggedIn = computed(() => this._user() !== null);
 
-  login(email: string, password: string): Observable<ApiResponse<LoginResponse>> {
-    return this.http
-      .post<ApiResponse<LoginResponse>>(`${environment.apiURL}/auth/login`, { email, password })
-      .pipe(
-        tap((res) => {
-          if (res.success && res.data) {
-            localStorage.setItem(TOKEN_KEY, res.data.token);
-            localStorage.setItem(USER_KEY, JSON.stringify(res.data.user));
-            this._user.set(res.data.user);
-          }
-        }),
-      );
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.api
+      .post<LoginResponse>('/auth/login', { email, password })
+      .pipe(tap((data) => this.setSession(data.token, data.user)));
+  }
+
+  /** Persists a session. Also the seam for refresh-token flows (modul 04). */
+  setSession(token: string, user: User): void {
+    localStorage.setItem(TOKEN_KEY, token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this._user.set(user);
   }
 
   logout(): void {
@@ -47,5 +47,13 @@ export class AuthService {
 
 function readStoredUser(): User | null {
   const raw = localStorage.getItem(USER_KEY);
-  return raw ? (JSON.parse(raw) as User) : null;
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as User;
+  } catch {
+    // A corrupted entry would otherwise throw during service construction and
+    // take the whole app down at bootstrap.
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
 }

@@ -1,0 +1,83 @@
+:host {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-3);
+  min-height: var(--slam-topbar-h);
+  padding: var(--slam-space-2) var(--slam-space-5);
+  background: var(--slam-surface);
+  border-bottom: 1px solid var(--slam-border);
+}
+
+.topbar__toggle {
+  display: grid;
+  place-items: center;
+  min-width: var(--slam-tap-min);
+  min-height: var(--slam-tap-min);
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius-sm);
+  background: transparent;
+  color: var(--slam-text);
+  font-size: 1.125rem;
+}
+
+.topbar__title {
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slam-text);
+}
+
+.topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-3);
+  margin-left: auto;
+}
+
+.topbar__lang {
+  min-width: 3rem;
+  border: 1px solid var(--slam-border);
+  color: var(--slam-text-muted);
+  background: transparent;
+}
+
+.topbar__lang:hover {
+  color: var(--slam-text);
+  background: var(--slam-surface-2);
+}
+
+// Active language is marked by weight and colour, plus aria-pressed — not by
+// colour alone.
+.topbar__lang.active {
+  background: var(--slam-primary-soft);
+  border-color: var(--slam-primary);
+  color: var(--slam-primary);
+  font-weight: 700;
+}
+
+.topbar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-2);
+  font-size: 0.875rem;
+  color: var(--slam-text-muted);
+}
+
+.topbar__avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--slam-radius-pill);
+  background: var(--slam-surface-3);
+  color: var(--slam-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}

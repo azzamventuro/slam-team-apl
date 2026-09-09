@@ -1,12 +1,4 @@
-// Shared API/domain models.
-
-/** Standard response envelope returned by slam-team-api. */
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data?: T;
-  errors?: unknown;
-}
+// Auth/domain models. The API envelope and paging shapes live in api.model.ts.
 
 export interface User {
   id: number;

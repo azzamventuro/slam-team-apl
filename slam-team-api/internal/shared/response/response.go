@@ -3,8 +3,10 @@
 package response
 
 import (
+	"errors"
 	"net/http"
 
+	"slam-team-api/internal/shared/apperr"
 	"slam-team-api/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -48,4 +50,40 @@ func Unauthorized(c *gin.Context, msg string) {
 func Internal(c *gin.Context, err error) {
 	logger.Error("internal error", zap.Error(err))
 	c.JSON(http.StatusInternalServerError, Body{Success: false, Message: "internal server error"})
+}
+
+// Forbidden writes 403 — permission (RBAC) denials.
+func Forbidden(c *gin.Context, msg string) {
+	c.JSON(http.StatusForbidden, Body{Success: false, Message: msg})
+}
+
+// NotFound writes 404.
+func NotFound(c *gin.Context, msg string) {
+	c.JSON(http.StatusNotFound, Body{Success: false, Message: msg})
+}
+
+// Conflict writes 409 — uniqueness/state conflicts.
+func Conflict(c *gin.Context, msg string) {
+	c.JSON(http.StatusConflict, Body{Success: false, Message: msg})
+}
+
+// FromError maps a service error to its HTTP status. This is the only place
+// the mapping lives: services return apperr sentinels (optionally wrapped for
+// context) and never pick status codes themselves. Anything unrecognised is an
+// Internal — which is also the single point where 500s are logged.
+func FromError(c *gin.Context, err error) {
+	switch {
+	case errors.Is(err, apperr.ErrNotFound):
+		NotFound(c, err.Error())
+	case errors.Is(err, apperr.ErrForbidden):
+		Forbidden(c, err.Error())
+	case errors.Is(err, apperr.ErrConflict):
+		Conflict(c, err.Error())
+	case errors.Is(err, apperr.ErrValidation):
+		Unprocess(c, err.Error(), nil)
+	case errors.Is(err, apperr.ErrUnauthorized):
+		Unauthorized(c, err.Error())
+	default:
+		Internal(c, err)
+	}
 }

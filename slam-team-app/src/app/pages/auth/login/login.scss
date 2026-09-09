@@ -1,3 +1,70 @@
 .login-page {
-  background: #f5f6f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--slam-space-5);
+  background: var(--slam-bg);
+  // A single red bloom behind the card — the only large use of the accent
+  // outside the KTA itself.
+  background-image: radial-gradient(
+    60rem 30rem at 50% -10%,
+    var(--slam-primary-soft),
+    transparent 70%
+  );
+}
+
+.login-card {
+  width: 100%;
+  max-width: 24rem;
+  box-shadow: var(--slam-shadow-lg);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-3);
+}
+
+.login-mark {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--slam-radius-sm);
+  background: var(--slam-primary);
+  color: var(--slam-on-primary);
+  font-weight: 800;
+}
+
+.login-wordmark {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.login-rule {
+  margin: var(--slam-space-4) 0 var(--slam-space-5);
+}
+
+.login-title {
+  margin-bottom: var(--slam-space-1);
+}
+
+.login-subtitle {
+  margin-bottom: var(--slam-space-5);
+  color: var(--slam-text-muted);
+  font-size: 0.875rem;
+}
+
+// Status is not colour-only: the alert carries a glyph and its own text.
+.login-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--slam-space-2);
+  padding: var(--slam-space-3) var(--slam-space-4);
+  border-color: var(--slam-danger);
+  background: var(--slam-primary-soft);
+  color: var(--slam-text);
+  font-size: 0.875rem;
 }

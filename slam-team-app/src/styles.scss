@@ -1,4 +1,162 @@
-/* Global styles. Bootstrap 5 is loaded via angular.json "styles". */
+// ─────────────────────────────────────────────────────────────────────────────
+// SLAM Team — global stylesheet
+//
+// Single source of truth for the values here:
+//   workflow/_shared/design-tokens.md  (tokens win over any framework default)
+//
+// Order matters: Bootstrap's SCSS $variables must be assigned BEFORE the
+// Bootstrap import, so its generated components (.btn-primary, focus rings,
+// radii) are built from SLAM values instead of being patched afterwards.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── 1. Bootstrap theme variables → SLAM values ──────────────────────────────
+$primary: #e11d2a; // SLAM red
+$success: #2fb56b;
+$warning: #e7a417;
+$danger: #e11d2a; // shares SLAM red
+$info: #3b82c4;
+
+// Light surfaces (public pages, KTA print preview)
+$body-bg: #f5f6f8;
+$body-color: #141418;
+$border-color: #dcdee4;
+
+// Dark surfaces — the app default
+$body-bg-dark: #0b0b0d;
+$body-color-dark: #f5f5f7;
+$border-color-dark: #2c2c34;
+
+// Typography — system stack, no webfont dependency
+$font-family-sans-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+$font-family-monospace: "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+$font-size-base: 1rem;
+$headings-font-weight: 800;
+$headings-line-height: 1.15;
+
+// Shape / sizing
+$border-radius: 0.625rem; // 10px
+$border-radius-sm: 0.375rem; // 6px
+$border-radius-lg: 0.75rem; // 12px
+$input-btn-padding-y: 0.5rem;
+$input-btn-padding-x: 1rem;
+$input-btn-font-size: 1rem;
+
+// Focus ring is SLAM red, everywhere, always
+$focus-ring-width: 3px;
+$focus-ring-color: rgba(225, 29, 42, 0.35);
+$focus-ring-opacity: 1;
+$btn-focus-width: 3px;
+
+@import "bootstrap/scss/bootstrap";
+
+// ── 2. SLAM tokens as CSS custom properties ─────────────────────────────────
+// Components reference these, never a literal hex.
+:root {
+  // colour — dark (default)
+  --slam-bg: #0b0b0d;
+  --slam-surface: #141418;
+  --slam-surface-2: #1e1e24;
+  --slam-surface-3: #2a2a32;
+  --slam-primary: #e11d2a;
+  --slam-primary-hover: #c2151f;
+  --slam-primary-soft: rgba(225, 29, 42, 0.14);
+  --slam-on-primary: #ffffff; // text/icon on a red fill (same in both themes)
+  --slam-text: #f5f5f7;
+  --slam-text-muted: #9a9aa6;
+  --slam-text-dim: #6b6b76;
+  --slam-border: #2c2c34;
+  --slam-border-strong: #3a3a44;
+  --slam-success: #2fb56b;
+  --slam-warning: #e7a417;
+  --slam-danger: #e11d2a;
+  --slam-info: #3b82c4;
+
+  // type
+  --slam-font-sans: #{$font-family-sans-serif};
+  --slam-font-heading: var(--slam-font-sans);
+  --slam-font-mono: #{$font-family-monospace};
+
+  // spacing — 4px grid
+  --slam-space-0: 0;
+  --slam-space-1: 4px;
+  --slam-space-2: 8px;
+  --slam-space-3: 12px;
+  --slam-space-4: 16px;
+  --slam-space-5: 24px;
+  --slam-space-6: 32px;
+  --slam-space-7: 48px;
+  --slam-space-8: 64px;
+  --slam-space-9: 96px;
+
+  // radius
+  --slam-radius-sm: 6px;
+  --slam-radius: 10px;
+  --slam-radius-lg: 12px;
+  --slam-radius-xl: 16px;
+  --slam-radius-pill: 999px;
+
+  // elevation
+  --slam-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --slam-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --slam-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --slam-shadow-focus: 0 0 0 3px rgba(225, 29, 42, 0.35);
+  --slam-glow-primary: 0 0 0 1px rgba(225, 29, 42, 0.5), 0 4px 16px rgba(225, 29, 42, 0.25);
+
+  // motion
+  --slam-transition-fast: 120ms ease;
+  --slam-transition: 180ms ease;
+  --slam-transition-slow: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // controls & shell
+  --slam-control-h-sm: 32px;
+  --slam-control-h: 40px;
+  --slam-control-h-lg: 48px;
+  --slam-tap-min: 44px;
+  --slam-icon: 20px;
+  --slam-icon-lg: 24px;
+  --slam-focus-w: 3px;
+  --slam-sidebar-w: 264px;
+  --slam-topbar-h: 60px;
+  --slam-container-max: 1320px;
+}
+
+// Light is the secondary surface: public pages and print/preview.
+[data-bs-theme="light"] {
+  --slam-bg: #f5f6f8;
+  --slam-surface: #ffffff;
+  --slam-surface-2: #f0f1f4;
+  --slam-surface-3: #e7e9ee;
+  --slam-text: #141418;
+  --slam-text-muted: #5a5a66;
+  --slam-text-dim: #8a8a96;
+  --slam-border: #dcdee4;
+  --slam-border-strong: #c4c7d0;
+  --slam-shadow-sm: 0 1px 2px rgba(16, 18, 24, 0.08);
+  --slam-shadow: 0 4px 12px rgba(16, 18, 24, 0.1);
+  --slam-shadow-lg: 0 12px 32px rgba(16, 18, 24, 0.14);
+}
+
+// ── 3. Bridge Bootstrap's runtime vars to the SLAM tokens ───────────────────
+// So Bootstrap components and hand-written components agree on every surface.
+[data-bs-theme="dark"],
+[data-bs-theme="light"] {
+  --bs-body-bg: var(--slam-bg);
+  --bs-body-color: var(--slam-text);
+  --bs-body-font-family: var(--slam-font-sans);
+  --bs-border-color: var(--slam-border);
+  --bs-secondary-color: var(--slam-text-muted);
+  --bs-tertiary-color: var(--slam-text-dim);
+  --bs-tertiary-bg: var(--slam-surface);
+  --bs-emphasis-color: var(--slam-text);
+  --bs-link-color: var(--slam-primary);
+  --bs-link-hover-color: var(--slam-primary-hover);
+  --bs-focus-ring-color: rgba(225, 29, 42, 0.35);
+  --bs-border-radius: var(--slam-radius);
+  --bs-border-radius-sm: var(--slam-radius-sm);
+  --bs-border-radius-lg: var(--slam-radius-lg);
+}
+
+// ── 4. Base ─────────────────────────────────────────────────────────────────
 html,
 body {
   height: 100%;
@@ -6,5 +164,280 @@ body {
 
 body {
   margin: 0;
-  background: #f5f6f8;
+  background: var(--slam-bg);
+  color: var(--slam-text);
+  font-family: var(--slam-font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+// Headings speak in the KTA card's voice: bold, wide-tracked, UPPERCASE.
+h1,
+h2,
+h3,
+.h1,
+.h2,
+.h3 {
+  text-transform: uppercase;
+  font-weight: 800;
+}
+h1,
+.h1 {
+  letter-spacing: 0.05em;
+}
+h2,
+.h2 {
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+h3,
+.h3 {
+  letter-spacing: 0.03em;
+  font-weight: 700;
+}
+h4,
+.h4 {
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+// Small uppercase label — the card's "NAMA / TTL / NRA" style.
+.slam-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slam-text-muted);
+}
+
+// The card's thin red rule.
+.slam-divider {
+  height: 2px;
+  border: 0;
+  margin: 0;
+  background: var(--slam-primary);
+  opacity: 1;
+}
+
+// NRA / token / QR payload.
+.slam-mono {
+  font-family: var(--slam-font-mono);
+  letter-spacing: 0.02em;
+}
+
+// ── 5. Focus — the red ring is the accessibility baseline, never removed ────
+:focus-visible {
+  outline: none;
+  box-shadow: var(--slam-shadow-focus);
+  border-radius: var(--slam-radius-sm);
+}
+
+.btn:focus-visible,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+.nav-link:focus-visible,
+.page-link:focus {
+  outline: none;
+  border-color: var(--slam-primary);
+  box-shadow: var(--slam-shadow-focus);
+}
+
+// ── 6. Surfaces & components ────────────────────────────────────────────────
+.card,
+.dropdown-menu,
+.modal-content,
+.offcanvas,
+.list-group {
+  background-color: var(--slam-surface);
+  border-color: var(--slam-border);
+  border-radius: var(--slam-radius-lg);
+  color: var(--slam-text);
+}
+
+.card {
+  --bs-card-bg: var(--slam-surface);
+  --bs-card-border-color: var(--slam-border);
+  --bs-card-cap-bg: var(--slam-surface-2);
+  --bs-card-spacer-x: var(--slam-space-5);
+  --bs-card-spacer-y: var(--slam-space-5);
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--slam-surface-2);
+  --bs-dropdown-link-color: var(--slam-text);
+  --bs-dropdown-link-hover-bg: var(--slam-surface-3);
+  --bs-dropdown-link-active-bg: var(--slam-primary-soft);
+  --bs-dropdown-link-active-color: var(--slam-primary);
+}
+
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--slam-text);
+  --bs-table-border-color: var(--slam-border);
+  --bs-table-hover-bg: var(--slam-surface-2);
+  --bs-table-hover-color: var(--slam-text);
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent;
+}
+
+.table thead th {
+  background-color: var(--slam-surface-2);
+  color: var(--slam-text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-bottom-color: var(--slam-border);
+}
+
+// Selected/active row uses the red tint, not a red fill.
+.table tbody tr.active > * {
+  background-color: var(--slam-primary-soft);
+}
+
+// ── 7. Forms & buttons ──────────────────────────────────────────────────────
+.form-control,
+.form-select {
+  min-height: var(--slam-control-h);
+  background-color: var(--slam-surface-3);
+  border-color: var(--slam-border);
+  color: var(--slam-text);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--slam-surface-3);
+  color: var(--slam-text);
+}
+
+.form-control::placeholder {
+  color: var(--slam-text-dim);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  background-color: var(--slam-surface-2);
+  color: var(--slam-text-muted);
+}
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--slam-danger);
+}
+
+.form-label {
+  color: var(--slam-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: var(--slam-space-2);
+}
+
+.form-check-input:checked {
+  background-color: var(--slam-primary);
+  border-color: var(--slam-primary);
+}
+
+.btn {
+  min-height: var(--slam-control-h);
+  transition:
+    background-color var(--slam-transition),
+    border-color var(--slam-transition),
+    color var(--slam-transition);
+}
+.btn-lg {
+  min-height: var(--slam-control-h-lg);
+}
+.btn-sm {
+  min-height: var(--slam-control-h-sm);
+}
+
+.btn-primary,
+.btn-danger {
+  --bs-btn-bg: var(--slam-primary);
+  --bs-btn-border-color: var(--slam-primary);
+  --bs-btn-hover-bg: var(--slam-primary-hover);
+  --bs-btn-hover-border-color: var(--slam-primary-hover);
+  --bs-btn-active-bg: var(--slam-primary-hover);
+  --bs-btn-active-border-color: var(--slam-primary-hover);
+  --bs-btn-color: var(--slam-on-primary);
+  --bs-btn-hover-color: var(--slam-on-primary);
+  --bs-btn-disabled-bg: var(--slam-primary);
+  --bs-btn-disabled-border-color: var(--slam-primary);
+}
+
+.btn-outline-light {
+  --bs-btn-color: var(--slam-text);
+  --bs-btn-border-color: var(--slam-border-strong);
+  --bs-btn-hover-bg: var(--slam-surface-3);
+  --bs-btn-hover-border-color: var(--slam-border-strong);
+  --bs-btn-hover-color: var(--slam-text);
+}
+
+// ── 8. Navigation ───────────────────────────────────────────────────────────
+.nav-link {
+  color: var(--slam-text-muted);
+}
+.nav-link:hover {
+  color: var(--slam-text);
+}
+.nav-link.active,
+.list-group-item.active {
+  color: var(--slam-primary);
+  background-color: var(--slam-primary-soft);
+  border-color: transparent;
+}
+
+.pagination {
+  --bs-pagination-bg: var(--slam-surface);
+  --bs-pagination-color: var(--slam-text-muted);
+  --bs-pagination-border-color: var(--slam-border);
+  --bs-pagination-hover-bg: var(--slam-surface-2);
+  --bs-pagination-hover-color: var(--slam-text);
+  --bs-pagination-active-bg: var(--slam-primary);
+  --bs-pagination-active-border-color: var(--slam-primary);
+}
+
+// ── 9. Skip link — keyboard users reach content without tabbing the sidebar ─
+.slam-skip-link {
+  position: absolute;
+  left: var(--slam-space-4);
+  top: -4rem;
+  z-index: 1100;
+  padding: var(--slam-space-2) var(--slam-space-4);
+  background: var(--slam-primary);
+  color: var(--slam-on-primary);
+  border-radius: var(--slam-radius-sm);
+  text-decoration: none;
+  transition: top var(--slam-transition);
+}
+.slam-skip-link:focus {
+  top: var(--slam-space-4);
+  color: var(--slam-on-primary);
+}
+
+// ── 10. Accessibility baselines ─────────────────────────────────────────────
+// Touch targets reach 44px where fingers are the input device (absen, mobile).
+@media (max-width: 767.98px) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select,
+  .page-link {
+    min-height: var(--slam-tap-min);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

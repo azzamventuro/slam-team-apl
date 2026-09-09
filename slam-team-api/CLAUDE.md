@@ -13,9 +13,26 @@ Go REST API built with **Go 1.24**, **Gin**, **GORM (PostgreSQL)**, **JWT (HS256
 cp .env.example .env     # configure DB_* and JWT_SECRET
 make run                 # go run ./cmd/api      (or: make dev — hot reload via Air)
 make build               # → bin/slam-team-api
+make build-cli           # → bin/slamctl
 make test                # go test ./...
 make vet                 # go vet ./...
 make tidy                # go mod tidy
+
+make migrate-up          # apply pending SQL migrations
+make migrate-down N=1    # roll back n migrations (N=all for everything)
+make migrate-version     # current schema version
+make seed NAME=rbac      # idempotent reference-data seeders
+```
+
+Operational tasks live in the `slamctl` binary (`cmd/slamctl`), never behind an
+HTTP endpoint:
+
+```bash
+go run ./cmd/slamctl migrate up|down [n|all]|version
+go run ./cmd/slamctl seed [name]
+go run ./cmd/slamctl create-superadmin --nama … --username … --email … --tanggal-lahir YYYY-MM-DD
+# password comes from --password or $SLAMCTL_SUPERADMIN_PASSWORD; refuses to run
+# once any super admin exists
 ```
 
 Air hot reload needs: `go install github.com/air-verse/air@latest`.
@@ -35,12 +52,19 @@ Air hot reload needs: `go install github.com/air-verse/air@latest`.
 
 ```
 cmd/api/main.go                entry point + bootstrap
+cmd/slamctl/                   operational CLI (migrate / seed / create-superadmin)
+migrations/                    numbered .up.sql/.down.sql, embedded via embed.FS
 internal/
   config/                      typed env config
   database/                    GORM PostgreSQL open + pool + ping
   middleware/                  Global (CORS/recovery), JWTAuth, context helpers
+  migrator/                    golang-migrate runner over the embedded SQL
   router/                      engine + /api/v1 + module registration
   shared/response/             JSON envelope helpers
+  shared/apperr/               service sentinel errors
+  shared/model/                Audit embed + soft-delete scope
+  shared/pagination/           ListQuery + Paginated[T]
+  shared/timeutil/             IANA zone helpers (UTC in services)
   shared/redis/                optional Redis client
   modules/core/<feature>/      feature modules (see pattern below)
 pkg/
@@ -64,14 +88,21 @@ pkg/
 
 Request flow: **router → middleware → handler → service → repository → GORM**.
 
-`auth` is the reference implementation (login + me).
+`auth` shows the layout (login + me), but its entity is a placeholder — see
+Gotchas.
 
 ## Conventions
 
 - **Responses** — always use `internal/shared/response`: `OK`, `Created`,
-  `BadRequest`, `Unprocess`, `Unauthorized`, `Internal`. Envelope shape:
+  `BadRequest`, `Unprocess`, `Unauthorized`, `Forbidden`, `NotFound`,
+  `Conflict`, `Internal`. Envelope shape:
   `{ "success": bool, "message": string, "data"?: any, "errors"?: any }`.
   `Internal` logs the real error and returns a generic 500 (no leak).
+- **Errors** — services return `internal/shared/apperr` sentinels; handlers call
+  `response.FromError(c, err)`. Status codes never appear in service code.
+- **Soft delete** — explicit `is_deleted/deleted_at/deleted_by` via
+  `internal/shared/model.Audit`, not `gorm.DeletedAt`. Reads apply the
+  `model.NotDeleted` scope.
 - **Logging** — `pkg/logger` (Zap): `logger.Info("msg", zap.String("k", v))`.
 - **Validation** — Gin `binding` tags on DTOs; register custom rules in
   `pkg/validator`.
@@ -91,8 +122,11 @@ Request flow: **router → middleware → handler → service → repository →
 
 ## Gotchas
 
-- **No `AutoMigrate`.** Create the `users` table yourself; `password` is a
-  bcrypt hash (see README for generating one).
+- **No `AutoMigrate`.** The schema is the numbered SQL files in `migrations/`,
+  applied with `slamctl migrate up`. A committed migration is never edited — add
+  a new, higher-numbered `.up.sql`/`.down.sql` pair.
+- **The scaffold `auth` module is a placeholder** (`users(id,name,email,password)`)
+  and does not match `slamteam_db.dbml`. Don't build on its `domain.User`.
 - **PostgreSQL is required to boot** — `main.go` fatals if the DB is
   unreachable. Use `docker-compose up` or set `DB_*` (default port 5432).
 - **Redis is optional** — empty `REDIS_ADDR` disables it (non-fatal).

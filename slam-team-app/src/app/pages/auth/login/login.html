@@ -1,28 +1,71 @@
-<div class="login-page d-flex align-items-center justify-content-center min-vh-100">
-  <div class="card shadow-sm" style="width: 22rem">
+<div class="login-page">
+  <div class="login-card card">
     <div class="card-body">
-      <h4 class="card-title text-center mb-4">{{ 'LOGIN.TITLE' | translate }}</h4>
+      <div class="login-brand">
+        <span class="login-mark" aria-hidden="true">S</span>
+        <span class="login-wordmark">{{ 'APP.TITLE' | translate }}</span>
+      </div>
+      <hr class="slam-divider login-rule" />
+
+      <h1 class="h4 login-title">{{ 'LOGIN.TITLE' | translate }}</h1>
+      <p class="login-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
 
       @if (error(); as err) {
-        <div class="alert alert-danger py-2">{{ err | translate }}</div>
+        <div class="alert alert-danger login-alert" role="alert">
+          <span aria-hidden="true">✕</span>
+          <span>{{ err | translate }}</span>
+        </div>
       }
 
-      <form [formGroup]="form" (ngSubmit)="submit()">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <div class="mb-3">
-          <label class="form-label">{{ 'LOGIN.EMAIL' | translate }}</label>
-          <input type="email" class="form-control" formControlName="email" autocomplete="username" />
-        </div>
-        <div class="mb-3">
-          <label class="form-label">{{ 'LOGIN.PASSWORD' | translate }}</label>
+          <label class="form-label" for="login-email">{{ 'LOGIN.EMAIL' | translate }}</label>
           <input
+            id="login-email"
+            type="email"
+            class="form-control"
+            [class.is-invalid]="invalid('email')"
+            formControlName="email"
+            autocomplete="username"
+            [attr.aria-invalid]="invalid('email')"
+            aria-describedby="login-email-error"
+          />
+          @if (invalid('email')) {
+            <div id="login-email-error" class="invalid-feedback d-block">
+              @if (form.controls.email.hasError('required')) {
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              } @else {
+                {{ 'VALIDATION.EMAIL' | translate }}
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label" for="login-password">{{ 'LOGIN.PASSWORD' | translate }}</label>
+          <input
+            id="login-password"
             type="password"
             class="form-control"
+            [class.is-invalid]="invalid('password')"
             formControlName="password"
             autocomplete="current-password"
+            [attr.aria-invalid]="invalid('password')"
+            aria-describedby="login-password-error"
           />
+          @if (invalid('password')) {
+            <div id="login-password-error" class="invalid-feedback d-block">
+              @if (form.controls.password.hasError('required')) {
+                {{ 'VALIDATION.REQUIRED' | translate }}
+              } @else {
+                {{ 'VALIDATION.MIN_LENGTH' | translate: { min: 6 } }}
+              }
+            </div>
+          }
         </div>
-        <button type="submit" class="btn btn-primary w-100" [disabled]="loading()">
-          {{ 'LOGIN.SUBMIT' | translate }}
+
+        <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="loading()">
+          {{ (loading() ? 'COMMON.LOADING' : 'LOGIN.SUBMIT') | translate }}
         </button>
       </form>
     </div>

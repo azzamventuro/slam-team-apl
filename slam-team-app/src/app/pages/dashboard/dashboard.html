@@ -1,12 +1,18 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="mb-0">{{ 'DASHBOARD.TITLE' | translate }}</h3>
-</div>
+<header class="page-head">
+  <div>
+    <p class="slam-eyebrow">{{ 'MENU.GROUP.MAIN' | translate }}</p>
+    <h1 class="h3 mb-0">{{ 'DASHBOARD.TITLE' | translate }}</h1>
+  </div>
+</header>
 
-<div class="card shadow-sm">
+<div class="card">
   <div class="card-body">
     @if (user(); as u) {
-      <p class="mb-1">{{ 'DASHBOARD.WELCOME' | translate }}, <strong>{{ u.name }}</strong></p>
-      <p class="text-muted mb-0">{{ u.email }}</p>
+      <p class="slam-eyebrow mb-2">{{ 'DASHBOARD.WELCOME' | translate }}</p>
+      <p class="dashboard-name">{{ u.name }}</p>
+      <p class="dashboard-email mb-0">{{ u.email }}</p>
+    } @else {
+      <p class="text-secondary mb-0">{{ 'COMMON.EMPTY' | translate }}</p>
     }
   </div>
 </div>

@@ -1,10 +1,15 @@
-<div class="layout-wrapper d-flex">
-  <app-sidebar />
-  <div class="content-wrapper flex-grow-1 d-flex flex-column min-vh-100">
-    <app-topbar />
-    <main class="flex-grow-1 p-4">
+<a class="slam-skip-link" href="#main-content">{{ 'COMMON.SKIP_TO_CONTENT' | translate }}</a>
+
+<div class="layout-wrapper">
+  <app-sidebar [open]="menuOpen()" (dismiss)="menuOpen.set(false)" />
+
+  <div class="content-wrapper">
+    <app-topbar [menuOpen]="menuOpen()" (toggleMenu)="toggleMenu()" />
+
+    <main id="main-content" class="content" tabindex="-1">
       <router-outlet />
     </main>
+
     <app-footer />
   </div>
 </div>

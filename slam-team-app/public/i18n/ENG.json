@@ -1,12 +1,103 @@
 {
-  "APP": { "TITLE": "Slam Team" },
-  "MENU": { "DASHBOARD": "Dashboard", "LOGOUT": "Logout" },
+  "APP": {
+    "TITLE": "Slam Team"
+  },
+  "MENU": {
+    "PRIMARY": "Primary navigation",
+    "TOGGLE": "Toggle menu",
+    "DASHBOARD": "Dashboard",
+    "LOGOUT": "Logout",
+    "GROUP": {
+      "MAIN": "Main",
+      "MASTER": "Master Data",
+      "KONTEN": "Content",
+      "OPERASIONAL": "Operations",
+      "SISTEM": "System"
+    }
+  },
+  "COMMON": {
+    "ADD": "Add",
+    "EDIT": "Edit",
+    "DELETE": "Delete",
+    "DETAIL": "Detail",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "CLOSE": "Close",
+    "BACK": "Back",
+    "SEARCH": "Search",
+    "FILTER": "Filter",
+    "RESET": "Reset",
+    "REFRESH": "Refresh",
+    "EXPORT": "Export",
+    "IMPORT": "Import",
+    "UPLOAD": "Upload",
+    "DOWNLOAD": "Download",
+    "PRINT": "Print",
+    "SUBMIT": "Submit",
+    "CONFIRM": "Confirm",
+    "YES": "Yes",
+    "NO": "No",
+    "ALL": "All",
+    "ACTIONS": "Actions",
+    "LOADING": "Loading...",
+    "SAVING": "Saving...",
+    "EMPTY": "No data yet",
+    "NO_RESULTS": "No matching results",
+    "LANGUAGE": "Language",
+    "SKIP_TO_CONTENT": "Skip to content",
+    "PAGE": "Page",
+    "PER_PAGE": "Per page",
+    "TOTAL": "Total",
+    "OF": "of",
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "CREATED_AT": "Created",
+    "UPDATED_AT": "Updated",
+    "STATUS": {
+      "SUCCESS": "Success",
+      "WARNING": "Warning",
+      "DANGER": "Error",
+      "INFO": "Information",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "CONFIRM_DELETE": "Delete this record?",
+    "SAVED": "Saved successfully",
+    "DELETED": "Deleted successfully",
+    "FORBIDDEN": "You do not have permission for this action",
+    "NOT_FOUND": "Record not found",
+    "SESSION_EXPIRED": "Your session has expired, please sign in again",
+    "NETWORK_ERROR": "Cannot reach the server",
+    "SERVER_ERROR": "A server error occurred"
+  },
+  "VALIDATION": {
+    "REQUIRED": "This field is required",
+    "EMAIL": "Invalid email format",
+    "MIN_LENGTH": "At least {{min}} characters",
+    "MAX_LENGTH": "At most {{max}} characters",
+    "MIN": "Minimum value is {{min}}",
+    "MAX": "Maximum value is {{max}}",
+    "PATTERN": "Invalid format",
+    "NUMERIC": "Must be a number",
+    "PHONE": "Invalid phone number",
+    "URL": "Invalid URL",
+    "DATE": "Invalid date",
+    "PASSWORD_MISMATCH": "Password confirmation does not match",
+    "UNIQUE": "This value is already taken",
+    "FILE_TOO_LARGE": "File exceeds {{max}} MB",
+    "FILE_TYPE": "Unsupported file type",
+    "INVALID": "Invalid input"
+  },
   "LOGIN": {
     "TITLE": "Sign In",
+    "SUBTITLE": "Enter your credentials to continue",
     "EMAIL": "Email",
     "PASSWORD": "Password",
     "SUBMIT": "Sign In",
     "ERROR": "Invalid email or password"
   },
-  "DASHBOARD": { "TITLE": "Dashboard", "WELCOME": "Welcome" }
+  "DASHBOARD": {
+    "TITLE": "Dashboard",
+    "WELCOME": "Welcome"
+  }
 }

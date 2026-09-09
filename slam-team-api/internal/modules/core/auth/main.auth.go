@@ -1,5 +1,10 @@
 // Package auth is the authentication feature module. It follows the standard
 // module layout: domain / dto / repository / service / handler, wired here.
+//
+// PLACEHOLDER: this is the scaffold's toy login (users: id/name/email/password)
+// and is replaced by the real auth module, which works against the schema in
+// slamteam_db.dbml (users + sesi_login, refresh tokens, role_id/perm_version
+// claims). It stands only as the reference for the module layout.
 package auth
 
 import (

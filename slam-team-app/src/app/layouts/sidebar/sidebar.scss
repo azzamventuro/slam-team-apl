@@ -1,9 +1,111 @@
-.sidebar {
-  width: 240px;
-  min-height: 100vh;
+:host {
+  display: contents;
 }
 
-.nav-link.active {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.25rem;
+.sidebar {
+  position: sticky;
+  top: 0;
+  flex: 0 0 var(--slam-sidebar-w);
+  width: var(--slam-sidebar-w);
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--slam-space-5) var(--slam-space-4);
+  background: var(--slam-surface);
+  border-right: 1px solid var(--slam-border);
+}
+
+.sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-3);
+  min-height: calc(var(--slam-topbar-h) - var(--slam-space-5));
+}
+
+.sidebar__mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  border-radius: var(--slam-radius-sm);
+  background: var(--slam-primary);
+  color: var(--slam-on-primary);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.sidebar__wordmark {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slam-text);
+}
+
+.sidebar__rule {
+  margin: var(--slam-space-4) 0 var(--slam-space-5);
+}
+
+.sidebar__group {
+  margin-bottom: var(--slam-space-2);
+  padding-inline: var(--slam-space-3);
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-3);
+  min-height: var(--slam-tap-min);
+  padding: var(--slam-space-2) var(--slam-space-3);
+  border-radius: var(--slam-radius-sm);
+  // Room for the 3px active bar, so text never shifts when a link activates.
+  border-left: 3px solid transparent;
+  color: var(--slam-text-muted);
+  transition: background-color var(--slam-transition), color var(--slam-transition);
+}
+
+.sidebar__link:hover {
+  background: var(--slam-surface-2);
+  color: var(--slam-text);
+}
+
+.sidebar__link.active {
+  border-left-color: var(--slam-primary);
+  background: var(--slam-primary-soft);
+  color: var(--slam-primary);
+  font-weight: 600;
+}
+
+.sidebar__glyph {
+  width: var(--slam-icon);
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+// Below `lg` the sidebar is an overlay drawer, toggled from the topbar.
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 1045;
+    transform: translateX(-100%);
+    transition: transform var(--slam-transition-slow);
+    box-shadow: var(--slam-shadow-lg);
+  }
+
+  .sidebar--open {
+    transform: none;
+  }
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
 }

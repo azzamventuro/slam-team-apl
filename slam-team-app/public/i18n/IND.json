@@ -1,12 +1,103 @@
 {
-  "APP": { "TITLE": "Slam Team" },
-  "MENU": { "DASHBOARD": "Dasbor", "LOGOUT": "Keluar" },
+  "APP": {
+    "TITLE": "Slam Team"
+  },
+  "MENU": {
+    "PRIMARY": "Navigasi utama",
+    "TOGGLE": "Buka/tutup menu",
+    "DASHBOARD": "Dasbor",
+    "LOGOUT": "Keluar",
+    "GROUP": {
+      "MAIN": "Utama",
+      "MASTER": "Data Master",
+      "KONTEN": "Konten",
+      "OPERASIONAL": "Operasional",
+      "SISTEM": "Sistem"
+    }
+  },
+  "COMMON": {
+    "ADD": "Tambah",
+    "EDIT": "Ubah",
+    "DELETE": "Hapus",
+    "DETAIL": "Detail",
+    "SAVE": "Simpan",
+    "CANCEL": "Batal",
+    "CLOSE": "Tutup",
+    "BACK": "Kembali",
+    "SEARCH": "Cari",
+    "FILTER": "Saring",
+    "RESET": "Atur ulang",
+    "REFRESH": "Muat ulang",
+    "EXPORT": "Ekspor",
+    "IMPORT": "Impor",
+    "UPLOAD": "Unggah",
+    "DOWNLOAD": "Unduh",
+    "PRINT": "Cetak",
+    "SUBMIT": "Kirim",
+    "CONFIRM": "Konfirmasi",
+    "YES": "Ya",
+    "NO": "Tidak",
+    "ALL": "Semua",
+    "ACTIONS": "Aksi",
+    "LOADING": "Memuat...",
+    "SAVING": "Menyimpan...",
+    "EMPTY": "Belum ada data",
+    "NO_RESULTS": "Tidak ada hasil yang cocok",
+    "LANGUAGE": "Bahasa",
+    "SKIP_TO_CONTENT": "Lewati ke konten",
+    "PAGE": "Halaman",
+    "PER_PAGE": "Per halaman",
+    "TOTAL": "Total",
+    "OF": "dari",
+    "PREVIOUS": "Sebelumnya",
+    "NEXT": "Berikutnya",
+    "CREATED_AT": "Dibuat",
+    "UPDATED_AT": "Diperbarui",
+    "STATUS": {
+      "SUCCESS": "Berhasil",
+      "WARNING": "Peringatan",
+      "DANGER": "Kesalahan",
+      "INFO": "Informasi",
+      "ACTIVE": "Aktif",
+      "INACTIVE": "Nonaktif"
+    },
+    "CONFIRM_DELETE": "Yakin ingin menghapus data ini?",
+    "SAVED": "Data berhasil disimpan",
+    "DELETED": "Data berhasil dihapus",
+    "FORBIDDEN": "Anda tidak memiliki izin untuk tindakan ini",
+    "NOT_FOUND": "Data tidak ditemukan",
+    "SESSION_EXPIRED": "Sesi Anda telah berakhir, silakan masuk kembali",
+    "NETWORK_ERROR": "Tidak dapat terhubung ke server",
+    "SERVER_ERROR": "Terjadi kesalahan pada server"
+  },
+  "VALIDATION": {
+    "REQUIRED": "Wajib diisi",
+    "EMAIL": "Format email tidak valid",
+    "MIN_LENGTH": "Minimal {{min}} karakter",
+    "MAX_LENGTH": "Maksimal {{max}} karakter",
+    "MIN": "Nilai minimal {{min}}",
+    "MAX": "Nilai maksimal {{max}}",
+    "PATTERN": "Format tidak sesuai",
+    "NUMERIC": "Harus berupa angka",
+    "PHONE": "Format nomor telepon tidak valid",
+    "URL": "Format URL tidak valid",
+    "DATE": "Format tanggal tidak valid",
+    "PASSWORD_MISMATCH": "Konfirmasi kata sandi tidak cocok",
+    "UNIQUE": "Nilai ini sudah digunakan",
+    "FILE_TOO_LARGE": "Ukuran berkas melebihi {{max}} MB",
+    "FILE_TYPE": "Tipe berkas tidak didukung",
+    "INVALID": "Isian tidak valid"
+  },
   "LOGIN": {
     "TITLE": "Masuk",
+    "SUBTITLE": "Masukkan kredensial Anda untuk melanjutkan",
     "EMAIL": "Email",
     "PASSWORD": "Kata Sandi",
     "SUBMIT": "Masuk",
     "ERROR": "Email atau kata sandi salah"
   },
-  "DASHBOARD": { "TITLE": "Dasbor", "WELCOME": "Selamat datang" }
+  "DASHBOARD": {
+    "TITLE": "Dasbor",
+    "WELCOME": "Selamat datang"
+  }
 }

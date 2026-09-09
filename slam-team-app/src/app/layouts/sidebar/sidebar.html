@@ -1,10 +1,37 @@
-<aside class="sidebar bg-dark text-white p-3">
-  <h6 class="text-uppercase text-secondary mb-3">{{ 'APP.TITLE' | translate }}</h6>
-  <ul class="nav flex-column">
-    <li class="nav-item">
-      <a class="nav-link text-white" routerLink="/dashboard" routerLinkActive="active">
-        {{ 'MENU.DASHBOARD' | translate }}
-      </a>
-    </li>
-  </ul>
+@if (open()) {
+  <div class="sidebar-backdrop d-lg-none" (click)="dismiss.emit()" aria-hidden="true"></div>
+}
+
+<aside
+  id="app-sidebar"
+  class="sidebar"
+  [class.sidebar--open]="open()"
+  [attr.aria-label]="'MENU.PRIMARY' | translate"
+>
+  <div class="sidebar__brand">
+    <span class="sidebar__mark" aria-hidden="true">S</span>
+    <span class="sidebar__wordmark">{{ 'APP.TITLE' | translate }}</span>
+  </div>
+  <hr class="slam-divider sidebar__rule" />
+
+  <nav class="sidebar__nav">
+    <p class="slam-eyebrow sidebar__group">{{ 'MENU.GROUP.MAIN' | translate }}</p>
+    <ul class="nav flex-column">
+      @for (item of items(); track item.route) {
+        <li class="nav-item">
+          <a
+            class="nav-link sidebar__link"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            #link="routerLinkActive"
+            [attr.aria-current]="link.isActive ? 'page' : null"
+            (click)="dismiss.emit()"
+          >
+            <span class="sidebar__glyph" aria-hidden="true">{{ item.glyph }}</span>
+            <span>{{ item.label | translate }}</span>
+          </a>
+        </li>
+      }
+    </ul>
+  </nav>
 </aside>
