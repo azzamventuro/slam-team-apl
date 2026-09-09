@@ -1,4 +1,5 @@
 /bin/
+/storage/
 /tmp/
 build-errors.log
 .env

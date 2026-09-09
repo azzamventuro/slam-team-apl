@@ -56,9 +56,14 @@ type CORSConfig struct {
 	AllowCredentials bool
 }
 
-// FileConfig holds limits for the upload layer.
+// FileConfig holds the upload layer's limits and where the bytes live.
 type FileConfig struct {
 	MaxUploadMB int
+	// StorageRoot is the directory the disk layout hangs under:
+	// {StorageRoot}/{kategori}/{tahun}/{bulan}/{uuid}/{varian}.{ext}. It must
+	// be writable by the API process — an unwritable root is the classic
+	// "upload reported success but the file is gone" (rancangan Bab 6.6).
+	StorageRoot string
 }
 
 // Load reads configuration from the environment. A .env file is loaded when
@@ -98,6 +103,7 @@ func Load() *Config {
 		},
 		File: FileConfig{
 			MaxUploadMB: getenvInt("FILE_MAX_UPLOAD_MB", 15),
+			StorageRoot: getenv("STORAGE_ROOT", "./storage"),
 		},
 	}
 }

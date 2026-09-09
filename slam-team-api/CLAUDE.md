@@ -66,6 +66,7 @@ internal/
   shared/pagination/           ListQuery + Paginated[T]
   shared/timeutil/             IANA zone helpers (UTC in services)
   shared/redis/                optional Redis client
+  shared/audit/                log_aktivitas writer (every state change)
   modules/core/<feature>/      feature modules (see pattern below)
 pkg/
   jwt/                         HS256 issue/verify
@@ -130,6 +131,13 @@ Gotchas.
 - **PostgreSQL is required to boot** — `main.go` fatals if the DB is
   unreachable. Use `docker-compose up` or set `DB_*` (default port 5432).
 - **Redis is optional** — empty `REDIS_ADDR` disables it (non-fatal).
+- **`STORAGE_ROOT` must be writable** — the file layer probes it at boot, so
+  `router.Setup` (and therefore `cmd/api`) fails fast rather than accepting an
+  upload whose bytes go nowhere. Disk layout:
+  `{STORAGE_ROOT}/{kategori}/{tahun}/{bulan}/{uuid}/{varian}.{ext}`.
+- **Never serve a private file from a static folder** — `is_publik = false`
+  means `GET /api/v1/files/{uuid}/{varian}` only; the handler checks the caller
+  before streaming. Modules store `*_file_id` (→ `mst_file.id`), never a path.
 - **`JWT_SECRET` must be stable** across restarts, or issued tokens stop
   verifying.
 - **Endpoints live under `/api/v1`** (e.g. `POST /api/v1/auth/login`).

@@ -8,6 +8,7 @@ import (
 	"slam-team-api/internal/config"
 	"slam-team-api/internal/middleware"
 	"slam-team-api/internal/modules/core/auth"
+	"slam-team-api/internal/modules/core/file"
 	"slam-team-api/internal/modules/core/pengaturan"
 	"slam-team-api/internal/shared/audit"
 	"slam-team-api/pkg/jwt"
@@ -19,7 +20,11 @@ import (
 
 // Setup builds the engine, attaches global middleware, exposes /health, and
 // registers every feature module under /api/v1.
-func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Client) *gin.Engine {
+//
+// It returns an error when a module cannot be constructed — the file layer
+// refuses to start on an unwritable STORAGE_ROOT — so a misconfiguration stops
+// the process at boot instead of surfacing as a failed upload later.
+func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Client) (*gin.Engine, error) {
 	if cfg.App.Env == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -50,5 +55,13 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	auth.Initialize(db, jwtMgr).SetupRoutes(apiV1)
 	pengaturan.Initialize(db, jwtMgr, auditor).SetupRoutes(apiV1)
 
-	return engine
+	// The file layer reads its variant sizes from mst_pengaturan, so it is
+	// registered after it.
+	fileModule, err := file.Initialize(db, jwtMgr, cfg, auditor)
+	if err != nil {
+		return nil, err
+	}
+	fileModule.SetupRoutes(apiV1)
+
+	return engine, nil
 }

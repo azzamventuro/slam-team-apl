@@ -51,7 +51,10 @@ func main() {
 		logger.Fatal("database connect failed", zap.Error(err))
 	}
 
-	engine := router.Setup(cfg, db, jwtMgr, rdb)
+	engine, err := router.Setup(cfg, db, jwtMgr, rdb)
+	if err != nil {
+		logger.Fatal("router setup failed", zap.Error(err))
+	}
 
 	srv := &http.Server{Addr: ":" + cfg.App.Port, Handler: engine}
 
