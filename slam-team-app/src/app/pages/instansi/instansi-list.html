@@ -1,0 +1,158 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'INSTANSI.TITLE' | translate }}</h1>
+    <a routerLink="create" class="btn btn-danger" *hasPermission="'instansi.create'">
+      {{ 'COMMON.ADD' | translate }} {{ 'INSTANSI.LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-4 col-sm-6">
+      <label class="form-label form-label-sm text-muted">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'INSTANSI.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="col-md-3 col-sm-4">
+      <label class="form-label form-label-sm text-muted">{{ 'INSTANSI.STATUS' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="statusFilter() ?? ''"
+        (ngModelChange)="onStatusChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        <option value="1">{{ 'COMMON.STATUS.ACTIVE' | translate }}</option>
+        <option value="0">{{ 'COMMON.STATUS.INACTIVE' | translate }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="onSearch()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="slam-skeleton">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="slam-skeleton__row">
+          <div class="slam-skeleton__cell slam-skeleton__cell--avatar"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--lg"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--md"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle">
+        <thead>
+          <tr>
+            <th class="text-center" style="width:56px">{{ 'INSTANSI.TABLE.LOGO' | translate }}</th>
+            <th>{{ 'INSTANSI.TABLE.KODE' | translate }}</th>
+            <th>{{ 'INSTANSI.TABLE.NAMA' | translate }}</th>
+            <th>{{ 'INSTANSI.TABLE.NAMA_CLUB' | translate }}</th>
+            <th>{{ 'INSTANSI.TABLE.ALAMAT' | translate }}</th>
+            <th>{{ 'INSTANSI.TABLE.NO_TELEPON' | translate }}</th>
+            <th>{{ 'INSTANSI.TABLE.TANGGAL_BERGABUNG' | translate }}</th>
+            <th class="text-center">{{ 'INSTANSI.TABLE.STATUS' | translate }}</th>
+            <th class="text-center">{{ 'INSTANSI.TABLE.JUMLAH_ANGGOTA' | translate }}</th>
+            <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.id) {
+            <tr>
+              <!-- Logo thumbnail -->
+              <td class="text-center">
+                @if (item.logo_utama_uuid) {
+                  @if (logos().has(item.id)) {
+                    <img [src]="logos().get(item.id)" alt="logo" class="instansi-logo" />
+                  } @else {
+                    <div class="instansi-logo placeholder-glow" (mouseenter)="loadLogo(item.id, item.logo_utama_uuid)"></div>
+                  }
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td><code>{{ item.kode }}</code></td>
+              <td>{{ item.nama }}</td>
+              <td>{{ item.nama_club }}</td>
+              <td class="text-truncate instansi-addr" [attr.title]="item.alamat">{{ item.alamat }}</td>
+              <td>{{ item.no_telepon }}</td>
+              <td>{{ item.tanggal_bergabung }}</td>
+              <td class="text-center">
+                <span [class]="statusClass(item.status)">{{ statusLabel(item.status) }}</span>
+              </td>
+              <td class="text-center">{{ item.jumlah_anggota }}</td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a
+                    [routerLink]="[item.id, 'edit']"
+                    class="btn btn-outline-warning"
+                    [attr.title]="'COMMON.EDIT' | translate"
+                    *hasPermission="'instansi.update'"
+                  >
+                    <slam-icon name="pencil" [size]="14" />
+                  </a>
+                  <button
+                    class="btn btn-outline-danger"
+                    [attr.title]="'COMMON.DELETE' | translate"
+                    (click)="delete(item)"
+                    *hasPermission="'instansi.delete'"
+                  >
+                    <slam-icon name="trash" [size]="14" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="10" class="text-center py-4">
+                <div class="slam-empty">
+                  <slam-icon name="shield" [size]="32" cssClass="slam-empty__icon" />
+                  <p class="slam-empty__text mb-0">{{ 'COMMON.EMPTY' | translate }}</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages() > 1) {
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <span class="text-muted small">
+          {{ 'COMMON.TOTAL' | translate }}: {{ total() }}
+        </span>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+            {{ 'COMMON.PREVIOUS' | translate }}
+          </button>
+          <span class="btn btn-outline-light disabled">
+            {{ currentPage() }} / {{ totalPages() }}
+          </span>
+          <button class="btn btn-outline-light" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+            {{ 'COMMON.NEXT' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  }
+</div>

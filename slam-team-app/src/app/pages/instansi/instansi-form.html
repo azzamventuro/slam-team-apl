@@ -1,0 +1,174 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex align-items-center mb-4">
+    <a routerLink="/instansi" class="btn btn-outline-light me-3">{{ 'COMMON.BACK' | translate }}</a>
+    <h1 class="slam-heading mb-0">
+      @if (isEdit()) {
+        {{ 'COMMON.EDIT' | translate }} {{ 'INSTANSI.LABEL' | translate }}
+      } @else {
+        {{ 'COMMON.ADD' | translate }} {{ 'INSTANSI.LABEL' | translate }}
+      }
+    </h1>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-card slam-card--wide">
+    <!-- Kode -->
+    <div class="mb-3">
+      <label for="kode" class="form-label">{{ 'INSTANSI.FORM.KODE' | translate }}</label>
+      <input
+        id="kode"
+        formControlName="kode"
+        class="form-control"
+        [class.is-invalid]="hasError('kode', 'required') || hasError('kode', 'maxLength') || hasError('kode', 'server')"
+        placeholder="SLAM"
+      />
+      @if (hasError('kode', 'required')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.REQUIRED' | translate }}</div>
+      }
+      @if (hasError('kode', 'maxLength')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.MAX_LENGTH' | translate }}</div>
+      }
+      @if (hasError('kode', 'server')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.UNIQUE' | translate }}</div>
+      }
+    </div>
+
+    <!-- Nama -->
+    <div class="mb-3">
+      <label for="nama" class="form-label">{{ 'INSTANSI.FORM.NAMA' | translate }}</label>
+      <input
+        id="nama"
+        formControlName="nama"
+        class="form-control"
+        [class.is-invalid]="hasError('nama', 'required') || hasError('nama', 'server')"
+      />
+      @if (hasError('nama', 'required')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.REQUIRED' | translate }}</div>
+      }
+    </div>
+
+    <!-- Nama Club -->
+    <div class="mb-3">
+      <label for="nama_club" class="form-label">{{ 'INSTANSI.FORM.NAMA_CLUB' | translate }}</label>
+      <input
+        id="nama_club"
+        formControlName="nama_club"
+        class="form-control"
+        [class.is-invalid]="hasError('nama_club', 'server')"
+      />
+    </div>
+
+    <!-- Alamat -->
+    <div class="mb-3">
+      <label for="alamat" class="form-label">{{ 'INSTANSI.FORM.ALAMAT' | translate }}</label>
+      <textarea
+        id="alamat"
+        formControlName="alamat"
+        class="form-control"
+        rows="2"
+        [class.is-invalid]="hasError('alamat', 'server')"
+      ></textarea>
+    </div>
+
+    <!-- No Telepon -->
+    <div class="mb-3">
+      <label for="no_telepon" class="form-label">{{ 'INSTANSI.FORM.NO_TELEPON' | translate }}</label>
+      <input
+        id="no_telepon"
+        formControlName="no_telepon"
+        class="form-control"
+        placeholder="0812xxxx"
+        [class.is-invalid]="hasError('no_telepon', 'pattern') || hasError('no_telepon', 'server')"
+      />
+      @if (hasError('no_telepon', 'pattern')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.PHONE' | translate }}</div>
+      }
+    </div>
+
+    <!-- Tanggal Bergabung -->
+    <div class="mb-3">
+      <label for="tanggal_bergabung" class="form-label">{{ 'INSTANSI.FORM.TANGGAL_BERGABUNG' | translate }}</label>
+      <input
+        id="tanggal_bergabung"
+        type="date"
+        formControlName="tanggal_bergabung"
+        class="form-control"
+        [class.is-invalid]="hasError('tanggal_bergabung', 'server')"
+      />
+    </div>
+
+    <!-- Status -->
+    <div class="mb-3">
+      <label class="form-label">{{ 'INSTANSI.FORM.STATUS' | translate }}</label>
+      <div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" formControlName="status" [value]="1" id="status-active" />
+          <label class="form-check-label" for="status-active">{{ 'COMMON.STATUS.ACTIVE' | translate }}</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" formControlName="status" [value]="0" id="status-inactive" />
+          <label class="form-check-label" for="status-inactive">{{ 'COMMON.STATUS.INACTIVE' | translate }}</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logo Utama -->
+    <div class="mb-3">
+      <label class="form-label">{{ 'INSTANSI.FORM.LOGO_UTAMA' | translate }}</label>
+      <div class="d-flex align-items-center gap-3">
+        @if (logoUtamaPreview(); as url) {
+          <img [src]="url" alt="Logo Utama" class="logo-preview" />
+        } @else {
+          <div class="logo-preview logo-placeholder"></div>
+        }
+        <div>
+          <input
+            type="file"
+            accept="image/*"
+            class="d-none"
+            #logoUtamaInput
+            (change)="onLogoUtamaPicked($event)"
+          />
+          <button type="button" class="btn btn-outline-light btn-sm" (click)="logoUtamaInput.click()">
+            {{ 'COMMON.UPLOAD' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Logo Tambahan -->
+    <div class="mb-4">
+      <label class="form-label">{{ 'INSTANSI.FORM.LOGO_TAMBAHAN' | translate }}</label>
+      <div class="d-flex align-items-center gap-3">
+        @if (logoTambahanPreview(); as url) {
+          <img [src]="url" alt="Logo Tambahan" class="logo-preview" />
+        } @else {
+          <div class="logo-preview logo-placeholder"></div>
+        }
+        <div>
+          <input
+            type="file"
+            accept="image/*"
+            class="d-none"
+            #logoTambahanInput
+            (change)="onLogoTambahanPicked($event)"
+          />
+          <button type="button" class="btn btn-outline-light btn-sm" (click)="logoTambahanInput.click()">
+            {{ 'COMMON.UPLOAD' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <a routerLink="/instansi" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

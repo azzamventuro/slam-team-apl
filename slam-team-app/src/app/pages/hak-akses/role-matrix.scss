@@ -1,0 +1,53 @@
+.slam-matrix {
+  font-size: 0.85rem;
+
+  th, td {
+    white-space: nowrap;
+  }
+
+  &__modul-col {
+    min-width: 200px;
+  }
+
+  &__aksi-col {
+    min-width: 80px;
+  }
+
+  &__modul-name {
+    font-weight: 600;
+  }
+}
+
+.slam-checkbox {
+  width: 1.1em;
+  height: 1.1em;
+  cursor: pointer;
+
+  &:checked {
+    background-color: var(--slam-primary);
+    border-color: var(--slam-primary);
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(225, 29, 42, 0.25);
+    border-color: var(--slam-primary);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.slam-cakupan-select {
+  font-size: 0.72rem;
+  max-width: 110px;
+  background-color: var(--slam-surface-2);
+  border-color: var(--slam-border);
+  color: var(--slam-text);
+
+  &:focus {
+    border-color: var(--slam-primary);
+    box-shadow: 0 0 0 0.15rem rgba(225, 29, 42, 0.2);
+  }
+}
