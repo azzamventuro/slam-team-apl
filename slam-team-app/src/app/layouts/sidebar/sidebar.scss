@@ -75,10 +75,17 @@
   font-weight: 600;
 }
 
-.sidebar__glyph {
+.sidebar__icon {
   width: var(--slam-icon);
-  text-align: center;
-  font-size: 0.875rem;
+  height: var(--slam-icon);
+  flex: 0 0 var(--slam-icon);
+  color: inherit;
+  opacity: 0.7;
+}
+
+.sidebar__link.active .sidebar__icon,
+.sidebar__link:hover .sidebar__icon {
+  opacity: 1;
 }
 
 // Below `lg` the sidebar is an overlay drawer, toggled from the topbar.

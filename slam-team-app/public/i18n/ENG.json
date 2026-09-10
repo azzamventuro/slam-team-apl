@@ -7,10 +7,12 @@
     "TOGGLE": "Toggle menu",
     "DASHBOARD": "Dashboard",
     "PENGATURAN": "Settings",
+    "HAK_AKSES": "Access Control",
     "LOGOUT": "Logout",
     "GROUP": {
       "MAIN": "Main",
       "MASTER": "Master Data",
+      "MASTER_DATA": "Master Data",
       "KONTEN": "Content",
       "OPERASIONAL": "Operations",
       "SISTEM": "System"
@@ -69,9 +71,11 @@
     "NOT_FOUND": "Record not found",
     "SESSION_EXPIRED": "Your session has expired, please sign in again",
     "NETWORK_ERROR": "Cannot reach the server",
-    "SERVER_ERROR": "A server error occurred",
-    "CHOOSE_FILE": "Choose file",
-    "REMOVE": "Remove"
+    "SERVER_ERROR": "A server error occurred"
+  },
+  "FORBIDDEN": {
+    "TITLE": "Access Denied",
+    "MESSAGE": "You do not have permission to access this page"
   },
   "VALIDATION": {
     "REQUIRED": "This field is required",
@@ -118,19 +122,76 @@
     "RESET_DEFAULT": "Reset to default",
     "NO_CHANGES": "No changes to save"
   },
-  "FILE": {
-    "UPLOAD": "Upload file",
-    "CHOOSE": "Choose file",
-    "DRAG_HERE": "Drag a file here, or pick one from your device",
-    "HINT": "Up to {{max}} MB",
-    "UPLOADING": "Uploading...",
-    "PROCESSING": "Processing",
-    "REPLACE": "Replace",
-    "REMOVE": "Remove file",
-    "PREVIEW": "Preview",
-    "NO_IMAGE": "No image yet",
-    "TOO_LARGE": "File exceeds {{max}} MB",
-    "WRONG_TYPE": "Unsupported file type",
-    "FAILED": "Upload failed"
+  "HAK_AKSES": {
+    "TITLE": "Access Control",
+    "LOAD_ERROR": "Failed to load access control data",
+    "ROLE_LABEL": "Role",
+    "ROLE": {
+      "": "Role",
+      "KODE": "Code",
+      "NAMA": "Name",
+      "LEVEL": "Level",
+      "SUPER": "Super Admin",
+      "KETERANGAN": "Description",
+      "KODE_PATTERN": "Lowercase letters and underscores only"
+    },
+    "ROLE_LEVEL": {
+      "0": "Super Admin",
+      "10": "Admin",
+      "20": "Moderator",
+      "30": "User"
+    },
+    "MATRIX": {
+      "TITLE": "Permission Matrix",
+      "MODUL": "Module",
+      "AKSI": {
+        "CREATE": "C",
+        "READ": "R",
+        "UPDATE": "U",
+        "DELETE": "D",
+        "APPROVE": "Appr",
+        "ASSIGN": "Asn",
+        "EXPORT": "Exp",
+        "OVERRIDE": "Ovd",
+        "PRINT": "Prt",
+        "CABUT": "Cbt",
+        "BATAL_SESI": "Cancel"
+      },
+      "CAKUPAN": {
+        "SEMUA": "All",
+        "INSTANSI_SENDIRI": "Org only",
+        "MILIK_SENDIRI": "Self only"
+      }
+    }
+  },
+  "INSTANSI": {
+    "TITLE": "Institution",
+    "LABEL": "Institution",
+    "LOAD_ERROR": "Failed to load institution data",
+    "SEARCH_PLACEHOLDER": "Search code / name...",
+    "STATUS": "Status",
+    "DELETE_CONFIRM": "Delete this institution?",
+    "TABLE": {
+      "LOGO": "Logo",
+      "KODE": "Code",
+      "NAMA": "Name",
+      "NAMA_CLUB": "Club Name",
+      "ALAMAT": "Address",
+      "NO_TELEPON": "Phone",
+      "TANGGAL_BERGABUNG": "Joined",
+      "STATUS": "Status",
+      "JUMLAH_ANGGOTA": "Members"
+    },
+    "FORM": {
+      "KODE": "Institution Code",
+      "NAMA": "Institution Name",
+      "NAMA_CLUB": "Club Name",
+      "ALAMAT": "Address",
+      "NO_TELEPON": "Phone",
+      "TANGGAL_BERGABUNG": "Join Date",
+      "STATUS": "Status",
+      "LOGO_UTAMA": "Main Logo",
+      "LOGO_TAMBAHAN": "Secondary Logo"
+    }
   }
 }

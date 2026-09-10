@@ -10,11 +10,9 @@ import (
 
 // Claims is the token payload issued and verified by this service.
 //
-// The role fields are what the authorisation middleware reads. They are
-// omitempty because the scaffold auth module does not issue them yet; a token
-// without them is treated as having no role at all (RoleLevel 0 + IsSuper
-// false), which every role gate denies. The real auth module fills them from
-// users.role_id.
+// The role fields are filled during login from the user's primary role in
+// user_role → mst_role. PermVersion is bumped whenever the role_permission
+// matrix changes, so the frontend can detect stale cached permissions.
 type Claims struct {
 	UserID uint   `json:"user_id"`
 	Email  string `json:"email"`
@@ -25,6 +23,10 @@ type Claims struct {
 	RoleLevel int   `json:"role_level,omitempty"`
 	// IsSuper mirrors mst_role.is_super: bypasses every permission check.
 	IsSuper bool `json:"is_super,omitempty"`
+	// PermVersion is a monotonically increasing counter from mst_pengaturan
+	// "rbac.perm_version". The frontend stores this and re-fetches /me/permissions
+	// when it changes, so permission changes propagate without re-login.
+	PermVersion int64 `json:"perm_version,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -40,13 +42,27 @@ func New(secret, issuer string, ttl time.Duration) *Manager {
 	return &Manager{secret: []byte(secret), issuer: issuer, ttl: ttl}
 }
 
-// Issue signs a token for the given user.
+// Issue signs a token for the given user without role claims. This is the
+// legacy signature kept for backward compatibility during the transition.
+// New callers should use IssueWithRole.
 func (m *Manager) Issue(userID uint, email, name string) (string, error) {
+	return m.IssueWithRole(userID, email, name, 0, 0, false, 0)
+}
+
+// IssueWithRole signs a token with the full set of RBAC claims. The role
+// fields come from user_role → mst_role during login. permVersion is the
+// current value of mst_pengaturan "rbac.perm_version" and lets the frontend
+// detect stale permission caches.
+func (m *Manager) IssueWithRole(userID uint, email, name string, roleID int64, roleLevel int, isSuper bool, permVersion int64) (string, error) {
 	now := time.Now()
 	claims := Claims{
-		UserID: userID,
-		Email:  email,
-		Name:   name,
+		UserID:      userID,
+		Email:       email,
+		Name:        name,
+		RoleID:      roleID,
+		RoleLevel:   roleLevel,
+		IsSuper:     isSuper,
+		PermVersion: permVersion,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    m.issuer,
 			IssuedAt:  jwt.NewNumericDate(now),

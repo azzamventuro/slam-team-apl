@@ -15,23 +15,25 @@
   <hr class="slam-divider sidebar__rule" />
 
   <nav class="sidebar__nav">
-    <p class="slam-eyebrow sidebar__group">{{ 'MENU.GROUP.MAIN' | translate }}</p>
-    <ul class="nav flex-column">
-      @for (item of items(); track item.route) {
-        <li class="nav-item">
-          <a
-            class="nav-link sidebar__link"
-            [routerLink]="item.route"
-            routerLinkActive="active"
-            #link="routerLinkActive"
-            [attr.aria-current]="link.isActive ? 'page' : null"
-            (click)="dismiss.emit()"
-          >
-            <span class="sidebar__glyph" aria-hidden="true">{{ item.glyph }}</span>
-            <span>{{ item.label | translate }}</span>
-          </a>
-        </li>
-      }
-    </ul>
+    @for (group of groups(); track group.name) {
+      <p class="slam-eyebrow sidebar__group">{{ group.name | translate }}</p>
+      <ul class="nav flex-column">
+        @for (item of group.items; track item.route) {
+          <li class="nav-item">
+            <a
+              class="nav-link sidebar__link"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              #link="routerLinkActive"
+              [attr.aria-current]="link.isActive ? 'page' : null"
+              (click)="dismiss.emit()"
+            >
+              <slam-icon [name]="item.icon" [size]="18" cssClass="sidebar__icon" />
+              <span>{{ item.label | translate }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
   </nav>
 </aside>
