@@ -2,7 +2,7 @@
 
 Tracker per-prompt untuk build SLAM Team. Satu baris = satu prompt yang di-paste ke Claude Code (API atau APP). Urutan = build order (`EXECUTION.md` §3). Tandai selesai setiap kali sebuah prompt tuntas + terverifikasi + ter-commit.
 
-**Progress: 6 / 49 selesai** · 🟡 0 proses · ⬜ 43 belum
+**Progress: 9 / 49 selesai** · 🟡 0 proses · ⬜ 40 belum
 
 Status: ⬜ Belum · 🟡 Proses · ✅ Selesai · ⛔ Terblokir
 
@@ -35,15 +35,15 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 
 | # | Modul | Bagian | Model · Effort | Status | Tanggal | Commit | Catatan |
 |---|-------|--------|----------------|--------|---------|--------|---------|
-| 9 | 05-hak-akses | API | Opus · xhigh ★ | ⬜ |  |  |  |
-| 10 | 05-hak-akses | APP | Opus · xhigh ★ | ⬜ |  |  | RBAC grid — layar tersulit |
+| 9 | 05-hak-akses | API | Opus · xhigh ★ | ✅ | 2026-09-10 | `6d46005` | RBAC penuh: role CRUD, permission matrix, `middleware.RequirePermission`, seeder 19 modul + 3 file permissions |
+| 10 | 05-hak-akses | APP | Opus · xhigh ★ | ✅ | 2026-09-10 | `6d46005` | RBAC grid, role-form, role-matrix, `adminGuard`, `PermissionService`, `HasPermissionDirective` |
 
 ## Fase 2 — Anggota + master data
 
 | # | Modul | Bagian | Model · Effort | Status | Tanggal | Commit | Catatan |
 |---|-------|--------|----------------|--------|---------|--------|---------|
-| 11 | 08-instansi | API | Sonnet · high | ⬜ |  |  | migrasi sebelum anggota |
-| 12 | 08-instansi | APP | Sonnet · high | ⬜ |  |  |  |
+| 11 | 08-instansi | API | Sonnet · high | ✅ | 2026-09-10 | `6d46005` | migrasi `0005_mst_instansi`, CRUD lengkap, logo upload via file-management |
+| 12 | 08-instansi | APP | Sonnet · high | ✅ | 2026-09-10 | `6d46005` | list + form + pagination + search + status filter + logo lazy-load |
 | 13 | 06-anggota | API | Sonnet · high | ⬜ |  |  |  |
 | 14 | 06-anggota | APP | Sonnet · high | ⬜ |  |  |  |
 | 15 | 07-user-management | API | Opus · high | ⬜ |  |  | anti-eskalasi |
@@ -120,6 +120,12 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 ---
 
 ## Riwayat
+
+- **2026-09-10** — #9 `05-hak-akses` API selesai (Opus · xhigh) — commit `6d46005`. RBAC penuh: role CRUD (4 endpoint), permission matrix read/write, `middleware.RequirePermission` baru yang query `role_permissions` + `role_modul_permissions`, `slamctl seed-rbac` (55 izin per 19 modul + 3 file permissions, idempoten). Migrasi `0004_rbac` (3 tabel: `roles`, `role_permissions`, `role_modul_permissions`). Auth service diperbarui: `LoginResponse` + `GET /auth/me` kini terbitkan `role_id`, `role_level`, `is_super` + daftar permission. Verifikasi: `go build`/`go vet`/`go test` bersih.
+- **2026-09-10** — #10 `05-hak-akses` APP selesai (Opus · xhigh) — commit `6d46005`. Role list (tabel + aksi), role form (create/edit), role matrix (permission grid), `adminGuard` (gates pengaturan), `PermissionService` (load + cache permissions dari `/auth/me`), `HasPermissionDirective` (structural directive `[hasPermission]`). I18n `HAK_AKSES.*` + `MENU.*` ditambah. Verifikasi: `npx ng build` bersih.
+- **2026-09-10** — #11 `08-instansi` API selesai (Sonnet · high) — commit `6d46005`. Migrasi `0005_mst_instansi` (22 kolom, FK ke `mst_file` via `logo_utama_uuid`/`logo_club_uuid`). CRUD: list (paginasi + search + filter status), create, read, update, delete (soft). Logo upload reuses file-management module. Verifikasi: `go build`/`go vet`/`go test` bersih.
+- **2026-09-10** — #12 `08-instansi` APP selesai (Sonnet · high) — commit `6d46005`. Instansi list (tabel + paginasi + search + status filter + logo lazy-load via mouseenter), instansi form (create/edit + dual logo upload + preview). `InstansiService`, `Instansi` model, i18n `INSTANSI.*`. Verifikasi: `npx ng build` bersih.
+- **2026-09-10** — **UI Revamp** (Taste Skill integration) — commit `6d46005`. 13 Taste Skills diinstal, `SlamIcon` component (inline SVG, 30+ icons), semua emoji diganti (sidebar, topbar, role-list, instansi-list), `.slam-heading`/`.slam-card` diglobalisasi, skeleton loaders, empty states, micro-interactions (hover/active), inline styles dipindah ke CSS classes.
 
 - **2026-09-09** — #1 `01-foundation` API selesai (Opus · high) — commit `46e69f6`.
 - **2026-09-09** — #2 `01-foundation` APP selesai (Opus · high) — commit `46e69f6` (satu commit bersama API, karena kerja API belum ter-commit saat APP dikerjakan).
