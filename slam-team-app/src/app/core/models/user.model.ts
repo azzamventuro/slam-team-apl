@@ -1,4 +1,4 @@
-// Auth/domain models. The API envelope and paging shapes live in api.model.ts.
+// Auth/domain models. The API envelope and paging shapes are in api.model.ts.
 
 /** Mirrors pkg/jwt.Claims' role fields (mst_role). */
 export interface Role {
@@ -11,16 +11,20 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  /**
-   * Present once the auth module issues real RBAC claims — the current
-   * scaffold's login response carries no role yet, so this is undefined for
-   * everyone. Every role-based check must treat "no role" as denied, the same
-   * way the backend's RequireAdmin denies a claims-less token.
-   */
+  /** Populated from JWT claims via GET /auth/me. */
   role?: Role;
+  /** Monotonic counter from mst_pengaturan "rbac.perm_version". */
+  perm_version?: number;
 }
 
 export interface LoginResponse {
   token: string;
   user: User;
+}
+
+/** Response from GET /auth/me/permissions. */
+export interface MePermissions {
+  permissions: string[]; // ["anggota.read", "file.delete"] or ["*"] for super
+  perm_version: number;
+  is_super: boolean;
 }

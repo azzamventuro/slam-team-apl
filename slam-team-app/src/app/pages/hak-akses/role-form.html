@@ -1,0 +1,84 @@
+<div class="container-fluid py-4">
+  <div class="d-flex align-items-center mb-4">
+    <a routerLink="/hak-akses" class="btn btn-outline-light me-3">{{ 'COMMON.BACK' | translate }}</a>
+    <h1 class="slam-heading mb-0">
+      @if (isEdit()) {
+        {{ 'COMMON.EDIT' | translate }} {{ 'HAK_AKSES.ROLE_LABEL' | translate }}
+      } @else {
+        {{ 'COMMON.ADD' | translate }} {{ 'HAK_AKSES.ROLE_LABEL' | translate }}
+      }
+    </h1>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-card">
+    <!-- Kode -->
+    <div class="mb-3">
+      <label for="kode" class="form-label">{{ 'HAK_AKSES.ROLE.KODE' | translate }}</label>
+      <input
+        id="kode"
+        formControlName="kode"
+        class="form-control"
+        [class.is-invalid]="hasError('kode', 'required') || hasError('kode', 'pattern') || hasError('kode', 'server')"
+        placeholder="contoh: koordinator"
+      />
+      @if (hasError('kode', 'required')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.REQUIRED' | translate }}</div>
+      }
+      @if (hasError('kode', 'pattern')) {
+        <div class="invalid-feedback">{{ 'HAK_AKSES.ROLE.KODE_PATTERN' | translate }}</div>
+      }
+    </div>
+
+    <!-- Nama -->
+    <div class="mb-3">
+      <label for="nama" class="form-label">{{ 'HAK_AKSES.ROLE.NAMA' | translate }}</label>
+      <input
+        id="nama"
+        formControlName="nama"
+        class="form-control"
+        [class.is-invalid]="hasError('nama', 'required') || hasError('nama', 'server')"
+      />
+      @if (hasError('nama', 'required')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.REQUIRED' | translate }}</div>
+      }
+    </div>
+
+    <!-- Level -->
+    <div class="mb-3">
+      <label for="level" class="form-label">{{ 'HAK_AKSES.ROLE.LEVEL' | translate }}</label>
+      <input
+        id="level"
+        type="number"
+        formControlName="level"
+        class="form-control"
+        [class.is-invalid]="hasError('level', 'required') || hasError('level', 'server')"
+      />
+      <div class="form-text">{{ 'HAK_AKSES.ROLE.LEVEL_HELP' | translate }}</div>
+      @if (hasError('level', 'required')) {
+        <div class="invalid-feedback">{{ 'VALIDATION.REQUIRED' | translate }}</div>
+      }
+    </div>
+
+    <!-- Keterangan -->
+    <div class="mb-4">
+      <label for="keterangan" class="form-label">{{ 'HAK_AKSES.ROLE.KETERANGAN' | translate }}</label>
+      <textarea
+        id="keterangan"
+        formControlName="keterangan"
+        class="form-control"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <!-- Actions -->
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm me-1"></span>
+        }
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+      <a routerLink="/hak-akses" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

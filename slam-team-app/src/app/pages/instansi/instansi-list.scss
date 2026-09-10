@@ -1,0 +1,15 @@
+.instansi-logo {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: var(--slam-surface-2);
+
+  &.placeholder-glow {
+    cursor: pointer;
+  }
+}
+
+.instansi-addr {
+  max-width: 200px;
+}

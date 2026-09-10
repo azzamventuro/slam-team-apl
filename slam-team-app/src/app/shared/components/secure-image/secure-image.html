@@ -1,0 +1,25 @@
+<div class="secure-image" [style.aspect-ratio]="ratio()">
+  @if (src(); as url) {
+    <img
+      class="secure-image__img"
+      [class.secure-image__img--contain]="fit() === 'contain'"
+      [src]="url"
+      [alt]="alt()"
+    />
+  } @else if (state() === 'loading') {
+    <span class="secure-image__state" role="status">
+      <span class="secure-image__spinner" aria-hidden="true"></span>
+      <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+    </span>
+  } @else if (state() === 'error') {
+    <span class="secure-image__state secure-image__state--error">
+      <span class="secure-image__glyph" aria-hidden="true">&#9888;</span>
+      <span class="visually-hidden">{{ 'FILE.FAILED' | translate }}</span>
+    </span>
+  } @else {
+    <span class="secure-image__state">
+      <span class="secure-image__glyph" aria-hidden="true">&#9635;</span>
+      <span class="visually-hidden">{{ 'FILE.NO_IMAGE' | translate }}</span>
+    </span>
+  }
+</div>

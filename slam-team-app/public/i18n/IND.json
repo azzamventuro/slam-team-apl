@@ -7,10 +7,12 @@
     "TOGGLE": "Buka/tutup menu",
     "DASHBOARD": "Dasbor",
     "PENGATURAN": "Pengaturan",
+    "HAK_AKSES": "Hak Akses",
     "LOGOUT": "Keluar",
     "GROUP": {
       "MAIN": "Utama",
       "MASTER": "Data Master",
+      "MASTER_DATA": "Data Master",
       "KONTEN": "Konten",
       "OPERASIONAL": "Operasional",
       "SISTEM": "Sistem"
@@ -71,6 +73,10 @@
     "NETWORK_ERROR": "Tidak dapat terhubung ke server",
     "SERVER_ERROR": "Terjadi kesalahan pada server"
   },
+  "FORBIDDEN": {
+    "TITLE": "Akses Ditolak",
+    "MESSAGE": "Anda tidak memiliki izin untuk mengakses halaman ini"
+  },
   "VALIDATION": {
     "REQUIRED": "Wajib diisi",
     "EMAIL": "Format email tidak valid",
@@ -115,5 +121,77 @@
     "LOCKED_HINT": "Hanya super admin yang dapat mengubah setelan ini",
     "RESET_DEFAULT": "Kembalikan ke bawaan",
     "NO_CHANGES": "Tidak ada perubahan untuk disimpan"
+  },
+  "HAK_AKSES": {
+    "TITLE": "Hak Akses",
+    "LOAD_ERROR": "Gagal memuat data hak akses",
+    "ROLE_LABEL": "Role",
+    "ROLE": {
+      "": "Role",
+      "KODE": "Kode",
+      "NAMA": "Nama",
+      "LEVEL": "Level",
+      "SUPER": "Super Admin",
+      "KETERANGAN": "Keterangan",
+      "KODE_PATTERN": "Hanya huruf kecil dan underscore"
+    },
+    "ROLE_LEVEL": {
+      "0": "Super Admin",
+      "10": "Admin",
+      "20": "Moderator",
+      "30": "User"
+    },
+    "MATRIX": {
+      "TITLE": "Matriks Permission",
+      "MODUL": "Modul",
+      "AKSI": {
+        "CREATE": "C",
+        "READ": "R",
+        "UPDATE": "U",
+        "DELETE": "D",
+        "APPROVE": "Appr",
+        "ASSIGN": "Asn",
+        "EXPORT": "Exp",
+        "OVERRIDE": "Ovd",
+        "PRINT": "Prt",
+        "CABUT": "Cbt",
+        "BATAL_SESI": "Batal"
+      },
+      "CAKUPAN": {
+        "SEMUA": "Semua",
+        "INSTANSI_SENDIRI": "Instansi",
+        "MILIK_SENDIRI": "Pribadi"
+      }
+    }
+  },
+  "INSTANSI": {
+    "TITLE": "Instansi",
+    "LABEL": "Instansi",
+    "LOAD_ERROR": "Gagal memuat data instansi",
+    "SEARCH_PLACEHOLDER": "Cari kode / nama instansi...",
+    "STATUS": "Status",
+    "DELETE_CONFIRM": "Yakin ingin menghapus instansi ini?",
+    "TABLE": {
+      "LOGO": "Logo",
+      "KODE": "Kode",
+      "NAMA": "Nama",
+      "NAMA_CLUB": "Nama Club",
+      "ALAMAT": "Alamat",
+      "NO_TELEPON": "No. Telepon",
+      "TANGGAL_BERGABUNG": "Tanggal Bergabung",
+      "STATUS": "Status",
+      "JUMLAH_ANGGOTA": "Anggota"
+    },
+    "FORM": {
+      "KODE": "Kode Instansi",
+      "NAMA": "Nama Instansi",
+      "NAMA_CLUB": "Nama Club",
+      "ALAMAT": "Alamat",
+      "NO_TELEPON": "No. Telepon",
+      "TANGGAL_BERGABUNG": "Tanggal Bergabung",
+      "STATUS": "Status",
+      "LOGO_UTAMA": "Logo Utama",
+      "LOGO_TAMBAHAN": "Logo Tambahan"
+    }
   }
 }

@@ -1,0 +1,11 @@
+.logo-preview {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--slam-border);
+}
+
+.logo-placeholder {
+  background: var(--slam-surface-2);
+}

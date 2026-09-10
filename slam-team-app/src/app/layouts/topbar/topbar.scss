@@ -23,7 +23,12 @@
   border-radius: var(--slam-radius-sm);
   background: transparent;
   color: var(--slam-text);
-  font-size: 1.125rem;
+  transition: background-color var(--slam-transition-fast), border-color var(--slam-transition-fast);
+}
+
+.topbar__toggle:hover {
+  background: var(--slam-surface-2);
+  border-color: var(--slam-border-strong);
 }
 
 .topbar__title {

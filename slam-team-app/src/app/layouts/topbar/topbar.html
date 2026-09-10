@@ -7,7 +7,7 @@
     [attr.aria-label]="'MENU.TOGGLE' | translate"
     (click)="toggleMenu.emit()"
   >
-    <span aria-hidden="true">☰</span>
+    <slam-icon name="list-dashes" [size]="20" />
   </button>
 
   <span class="topbar__title">{{ 'APP.TITLE' | translate }}</span>

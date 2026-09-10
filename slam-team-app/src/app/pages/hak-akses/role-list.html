@@ -1,0 +1,96 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'HAK_AKSES.TITLE' | translate }}</h1>
+    <a routerLink="create" class="btn btn-danger">
+      {{ 'COMMON.ADD' | translate }} {{ 'HAK_AKSES.ROLE_LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="slam-skeleton">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="slam-skeleton__row">
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--lg"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--md"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Roles table -->
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle">
+        <thead>
+          <tr>
+            <th>{{ 'HAK_AKSES.ROLE.KODE' | translate }}</th>
+            <th>{{ 'HAK_AKSES.ROLE.NAMA' | translate }}</th>
+            <th class="text-center">{{ 'HAK_AKSES.ROLE.LEVEL' | translate }}</th>
+            <th class="text-center">{{ 'HAK_AKSES.ROLE.SUPER' | translate }}</th>
+            <th>{{ 'HAK_AKSES.ROLE.KETERANGAN' | translate }}</th>
+            <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (role of roles(); track role.id) {
+            <tr>
+              <td><code>{{ role.kode }}</code></td>
+              <td>{{ role.nama }}</td>
+              <td class="text-center">
+                <span [class]="levelClass(role.level)">{{ role.level }}</span>
+              </td>
+              <td class="text-center">
+                @if (role.is_super) {
+                  <span class="badge bg-danger">SA</span>
+                }
+              </td>
+              <td class="text-muted">{{ role.keterangan }}</td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm">
+                  <a
+                    [routerLink]="[role.id, 'matrix']"
+                    class="btn btn-outline-light"
+                    [attr.title]="'HAK_AKSES.MATRIX.TITLE' | translate"
+                  >
+                    <slam-icon name="list-dashes" [size]="14" />
+                  </a>
+                  @if (canEdit(role)) {
+                    <a
+                      [routerLink]="[role.id, 'edit']"
+                      class="btn btn-outline-warning"
+                      [attr.title]="'COMMON.EDIT' | translate"
+                    >
+                      <slam-icon name="pencil" [size]="14" />
+                    </a>
+                  }
+                  @if (canDelete(role)) {
+                    <button
+                      class="btn btn-outline-danger"
+                      [attr.title]="'COMMON.DELETE' | translate"
+                      (click)="delete(role)"
+                    >
+                      <slam-icon name="trash" [size]="14" />
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center py-4">
+                <div class="slam-empty">
+                  <slam-icon name="list-numbers" [size]="32" cssClass="slam-empty__icon" />
+                  <p class="slam-empty__text mb-0">{{ 'COMMON.EMPTY' | translate }}</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

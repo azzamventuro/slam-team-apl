@@ -9,6 +9,8 @@ import (
 	"slam-team-api/internal/middleware"
 	"slam-team-api/internal/modules/core/auth"
 	"slam-team-api/internal/modules/core/file"
+	"slam-team-api/internal/modules/core/hakakses"
+	"slam-team-api/internal/modules/core/instansi"
 	"slam-team-api/internal/modules/core/pengaturan"
 	"slam-team-api/internal/shared/audit"
 	"slam-team-api/pkg/jwt"
@@ -51,8 +53,22 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	// log_aktivitas row through it.
 	auditor := audit.NewWriter(db)
 
+	// Shared PermGuard: dynamic RBAC permission cache. Created once, passed
+	// to every module that needs route-level permission checks.
+	permGuard := middleware.NewPermGuard(db)
+
 	// --- Register feature modules here ---
-	auth.Initialize(db, jwtMgr).SetupRoutes(apiV1)
+
+	// Hakakses (RBAC): role CRUD, permission matrix, permission catalogue.
+	// Registered FIRST because auth depends on hakakses repo for role claims
+	// in login tokens and the /me/permissions endpoint.
+	hakaksesModule := hakakses.Initialize(db, jwtMgr, permGuard, auditor)
+	hakaksesModule.SetupRoutes(apiV1)
+
+	// Auth: depends on hakakses repo (for GetUserPrimaryRole / GetPermVersion)
+	// and permGuard (for Effective in /me/permissions).
+	auth.Initialize(db, jwtMgr, hakaksesModule.Repository(), permGuard).SetupRoutes(apiV1)
+
 	pengaturan.Initialize(db, jwtMgr, auditor).SetupRoutes(apiV1)
 
 	// The file layer reads its variant sizes from mst_pengaturan, so it is
@@ -62,6 +78,10 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 		return nil, err
 	}
 	fileModule.SetupRoutes(apiV1)
+
+	// Instansi (Master Data Instansi / Sekolah): CRUD with RBAC permission guards.
+	// Registered after file (logo uploads) and hakakses (permission checks).
+	instansi.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
 
 	return engine, nil
 }

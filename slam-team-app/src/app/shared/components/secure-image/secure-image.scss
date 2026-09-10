@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.secure-image {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: var(--slam-surface-2);
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius);
+  color: var(--slam-text-dim);
+}
+
+.secure-image__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  &--contain {
+    object-fit: contain;
+  }
+}
+
+.secure-image__state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--slam-space-3);
+
+  &--error {
+    color: var(--slam-danger);
+  }
+}
+
+.secure-image__glyph {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+// Elevation on near-black comes from surface lightness; the ring is the only
+// moving part, so reduced-motion drops it to a static arc.
+.secure-image__spinner {
+  width: var(--slam-icon);
+  height: var(--slam-icon);
+  border: 2px solid var(--slam-border-strong);
+  border-top-color: var(--slam-primary);
+  border-radius: var(--slam-radius-pill);
+  animation: secure-image-spin 700ms linear infinite;
+}
+
+@keyframes secure-image-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
