@@ -1,0 +1,121 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">
+      {{ (isEdit() ? 'UNIT.FORM.TITLE_EDIT' : 'UNIT.FORM.TITLE_CREATE') | translate }}
+    </h1>
+    <a routerLink="/unit" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-form-card">
+    <div class="row g-3">
+      <!-- Anggota (required) -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'UNIT.FORM.ANGGOTA_ID' | translate }} *</label>
+        <select class="form-select" formControlName="anggota_id">
+          <option [ngValue]="null" disabled>{{ 'UNIT.FORM.PLACEHOLDER_ANGGOTA' | translate }}</option>
+          @for (a of anggotaList(); track a.id) {
+            <option [ngValue]="a.id">{{ a.nama_lengkap }}</option>
+          }
+        </select>
+        @if (hasError('anggota_id', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Kode -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'UNIT.FORM.KODE' | translate }}</label>
+        <input type="text" class="form-control" formControlName="kode" maxlength="50" />
+      </div>
+
+      <!-- Model -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'UNIT.FORM.MODEL' | translate }}</label>
+        <input type="text" class="form-control" formControlName="model" maxlength="100" />
+      </div>
+
+      <hr class="my-3" />
+      <h5 class="slam-heading-sm">{{ 'UNIT.FORM.SPEC_HEADING' | translate }}</h5>
+
+      <!-- Panjang -->
+      <div class="col-md-2 col-4">
+        <label class="form-label">{{ 'UNIT.FORM.PANJANG' | translate }}</label>
+        <input type="number" step="0.01" class="form-control" formControlName="panjang" />
+      </div>
+
+      <!-- Panjang Inbar -->
+      <div class="col-md-2 col-4">
+        <label class="form-label">{{ 'UNIT.FORM.PANJANG_INBAR' | translate }}</label>
+        <input type="number" step="0.01" class="form-control" formControlName="panjang_inbar" />
+      </div>
+
+      <!-- Lebar -->
+      <div class="col-md-2 col-4">
+        <label class="form-label">{{ 'UNIT.FORM.LEBAR' | translate }}</label>
+        <input type="number" step="0.01" class="form-control" formControlName="lebar" />
+      </div>
+
+      <!-- Berat -->
+      <div class="col-md-2 col-4">
+        <label class="form-label">{{ 'UNIT.FORM.BERAT' | translate }}</label>
+        <input type="number" step="0.01" class="form-control" formControlName="berat" />
+      </div>
+
+      <!-- Berat BB -->
+      <div class="col-md-2 col-4">
+        <label class="form-label">{{ 'UNIT.FORM.BERAT_BB' | translate }}</label>
+        <input type="number" step="0.001" class="form-control" formControlName="berat_bb" />
+      </div>
+
+      <!-- FPS -->
+      <div class="col-md-2 col-4">
+        <label class="form-label">{{ 'UNIT.FORM.FPS' | translate }}</label>
+        <input type="number" step="0.01" class="form-control" formControlName="fps" />
+      </div>
+
+      <hr class="my-3" />
+
+      <!-- Deskripsi Warna -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'UNIT.FORM.WARNA' | translate }}</label>
+        <input type="text" class="form-control" formControlName="deskripsi_warna" maxlength="150" />
+      </div>
+
+      <!-- Foto Sampul -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'UNIT.FORM.FOTO' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onFotoPicked($event)" />
+        @if (fotoPreview()) {
+          <div class="mt-2">
+            <img [src]="fotoPreview()" class="img-thumbnail slam-img-sm" alt="foto_sampul" />
+          </div>
+        }
+      </div>
+
+      <!-- Disetujui (approval) — only on edit, gated by permission -->
+      @if (isEdit()) {
+        <div class="col-md-3" *hasPermission="'unit.approve'">
+          <label class="form-label">{{ 'UNIT.DISETUJUI' | translate }}</label>
+          <div class="form-check form-switch mt-2">
+            <input class="form-check-input" type="checkbox" formControlName="disetujui" id="disetujuiCheck" />
+            <label class="form-check-label" for="disetujuiCheck">
+              {{ (form.get('disetujui')?.value ? 'UNIT.APPROVED' : 'UNIT.PENDING') | translate }}
+            </label>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/unit" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

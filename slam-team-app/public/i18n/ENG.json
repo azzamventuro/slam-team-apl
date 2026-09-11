@@ -24,6 +24,7 @@
     "DELETE": "Delete",
     "DETAIL": "Detail",
     "SAVE": "Save",
+    "UPDATE": "Update",
     "CANCEL": "Cancel",
     "CLOSE": "Close",
     "BACK": "Back",
@@ -71,7 +72,12 @@
     "NOT_FOUND": "Record not found",
     "SESSION_EXPIRED": "Your session has expired, please sign in again",
     "NETWORK_ERROR": "Cannot reach the server",
-    "SERVER_ERROR": "A server error occurred"
+    "SERVER_ERROR": "A server error occurred",
+    "NO_DATA": "No data",
+    "SHOWING": "Showing",
+    "ENTRIES": "entries",
+    "RECORDS": "records",
+    "PREV": "Previous"
   },
   "FORBIDDEN": {
     "TITLE": "Access Denied",
@@ -192,6 +198,298 @@
       "STATUS": "Status",
       "LOGO_UTAMA": "Main Logo",
       "LOGO_TAMBAHAN": "Secondary Logo"
+    }
+  },
+  "ANGGOTA": {
+    "TITLE": "Members",
+    "LABEL": "Member",
+    "LOAD_ERROR": "Failed to load member data",
+    "SEARCH_PLACEHOLDER": "Search name / NRA / member no...",
+    "DELETE_CONFIRM": "Are you sure you want to delete this member?",
+    "DELETE_SUCCESS": "Member deleted successfully",
+    "DELETE_ERROR": "Failed to delete member",
+    "CREATE_SUCCESS": "Member created successfully",
+    "UPDATE_SUCCESS": "Member updated successfully",
+    "SAVE_ERROR": "Failed to save member",
+    "STATUS_AKTIF": "Active",
+    "STATUS_NON_AKTIF": "Inactive",
+    "JENIS": {
+      "SISWA": "Student",
+      "DEWASA": "Adult",
+      "SISWA_KE_DEWASA": "Student to Adult"
+    },
+    "JK": {
+      "LAKI": "Male",
+      "PEREMPUAN": "Female"
+    },
+    "FILTER": {
+      "JENIS": "Type",
+      "STATUS": "Status"
+    },
+    "TABLE": {
+      "NO_INDUK": "NRA",
+      "NAMA": "Full Name",
+      "JENIS": "Type",
+      "STATUS": "Status",
+      "INSTANSI": "Institution",
+      "TANGGAL_LAHIR": "Birth Date"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Add Member",
+      "TITLE_EDIT": "Edit Member",
+      "INSTANSI_ID": "Institution",
+      "NAMA_LENGKAP": "Full Name",
+      "NAMA_PANGGILAN": "Nickname",
+      "JENIS_ANGGOTA": "Member Type",
+      "JENIS_KELAMIN": "Gender",
+      "JENIS_IDENTITAS": "ID Type",
+      "NO_IDENTITAS": "ID Number",
+      "PEKERJAAN": "Occupation",
+      "ALAMAT": "Address",
+      "KODE_POS": "Postal Code",
+      "TEMPAT_LAHIR": "Place of Birth",
+      "TANGGAL_LAHIR": "Date of Birth",
+      "TANGGAL_BERGABUNG": "Join Date",
+      "STATUS_ANGGOTA": "Status",
+      "FOTO_PROFIL": "Profile Photo",
+      "FOTO_FORMAL": "Formal Photo",
+      "FILE_IDENTITAS": "ID Document",
+      "FILES": "Files & Photos",
+      "PLACEHOLDER_INSTANSI": "Select institution...",
+      "PLACEHOLDER_JENIS": "Select member type...",
+      "PLACEHOLDER_JK": "Select gender...",
+      "PLACEHOLDER_JENIS_ID": "Select ID type..."
+    },
+    "DETAIL": {
+      "INFO_BIODATA": "Member Biodata",
+      "INFO_FILES": "Files & Photos"
+    }
+  },
+  "UNIT": {
+    "TITLE": "Units",
+    "LABEL": "Unit",
+    "LOAD_ERROR": "Failed to load unit data",
+    "DELETE_SUCCESS": "Unit deleted successfully",
+    "DELETE_ERROR": "Failed to delete unit",
+    "CREATE_SUCCESS": "Unit created successfully",
+    "UPDATE_SUCCESS": "Unit updated successfully",
+    "SAVE_ERROR": "Failed to save unit",
+    "APPROVED": "Approved",
+    "PENDING": "Pending",
+    "DISETUJUI": "Approved",
+    "SEARCH_PLACEHOLDER": "Search code / model...",
+    "FILTER": {
+      "ANGGOTA": "Member",
+      "DISETUJUI": "Approval Status"
+    },
+    "TABLE": {
+      "KODE": "Code",
+      "MODEL": "Model",
+      "ANGGOTA": "Member",
+      "FPS": "FPS",
+      "BERAT": "Weight",
+      "STATUS": "Status"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Add Unit",
+      "TITLE_EDIT": "Edit Unit",
+      "ANGGOTA_ID": "Member",
+      "KODE": "Code",
+      "MODEL": "Model",
+      "PANJANG": "Length",
+      "PANJANG_INBAR": "Inbar Length",
+      "LEBAR": "Width",
+      "BERAT": "Weight",
+      "BERAT_BB": "BB Weight",
+      "FPS": "FPS",
+      "WARNA": "Color Description",
+      "FOTO": "Cover Photo",
+      "SPEC_HEADING": "Specifications",
+      "PLACEHOLDER_ANGGOTA": "Select member..."
+    }
+  },
+  "PRESTASI": {
+    "TITLE": "Achievements",
+    "LABEL": "Achievement",
+    "LOAD_ERROR": "Failed to load achievement data",
+    "DELETE_SUCCESS": "Achievement deleted successfully",
+    "DELETE_ERROR": "Failed to delete achievement",
+    "CREATE_SUCCESS": "Achievement created successfully",
+    "UPDATE_SUCCESS": "Achievement updated successfully",
+    "SAVE_ERROR": "Failed to save achievement",
+    "SEARCH_PLACEHOLDER": "Search competition title...",
+    "FILTER": {
+      "ANGGOTA": "Member",
+      "TINGKAT": "Level"
+    },
+    "TINGKAT": {
+      "LOKAL": "Local",
+      "KABUPATEN": "Regency",
+      "PROVINSI": "Province",
+      "NASIONAL": "National",
+      "INTERNASIONAL": "International"
+    },
+    "TABLE": {
+      "JUDUL": "Competition Title",
+      "ANGGOTA": "Member",
+      "PERINGKAT": "Rank",
+      "TINGKAT": "Level",
+      "TANGGAL": "Date"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Add Achievement",
+      "TITLE_EDIT": "Edit Achievement",
+      "ANGGOTA": "Member",
+      "JUDUL": "Competition Title",
+      "KODE": "Code",
+      "PERINGKAT": "Rank",
+      "TINGKAT": "Level",
+      "TANGGAL": "Competition Date",
+      "ALAMAT": "Competition Location",
+      "KETERANGAN": "Description",
+      "FLYER": "Flyer",
+      "FOTO": "Cover Photo",
+      "FILES_HEADING": "Attachments",
+      "PLACEHOLDER_ANGGOTA": "Select member...",
+      "PLACEHOLDER_TINGKAT": "Select level..."
+    }
+  },
+  "INORGA": {
+    "TITLE": "Organization Periods",
+    "LABEL": "Organization",
+    "LOAD_ERROR": "Failed to load organization data",
+    "DELETE_SUCCESS": "Organization period deleted successfully",
+    "DELETE_ERROR": "Failed to delete organization period",
+    "CREATE_SUCCESS": "Organization period created successfully",
+    "UPDATE_SUCCESS": "Organization period updated successfully",
+    "SAVE_ERROR": "Failed to save organization period",
+    "SK_UPLOAD_SUCCESS": "SK document uploaded successfully",
+    "SEARCH_PLACEHOLDER": "Search organization name...",
+    "FILTER": {
+      "AKTIF": "Status"
+    },
+    "STATUS": {
+      "AKTIF": "Active",
+      "NONAKTIF": "Inactive"
+    },
+    "TABLE": {
+      "KODE": "Code",
+      "NAMA": "Organization Name",
+      "PERIODE": "Period",
+      "STATUS": "Status"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Add Organization Period",
+      "TITLE_EDIT": "Edit Organization Period",
+      "KODE": "Code",
+      "NAMA": "Organization Name",
+      "TANGGAL_MULAI": "Start Date",
+      "TANGGAL_SELESAI": "End Date",
+      "KONTEN": "Content / Board Structure",
+      "LOGO": "Logo",
+      "BANNER": "Banner",
+      "FILE_SK": "SK Document",
+      "SK_UPLOADED": "SK has been uploaded",
+      "FILES_HEADING": "Attachments",
+      "PLACEHOLDER_KONTEN": "Board structure, positions, description..."
+    }
+  },
+  "MEDSOS": {
+    "TITLE": "Social Media",
+    "LABEL": "Social Media",
+    "LOAD_ERROR": "Failed to load social media data",
+    "DELETE_SUCCESS": "Social media link deleted successfully",
+    "DELETE_ERROR": "Failed to delete social media link",
+    "CREATE_SUCCESS": "Social media link created successfully",
+    "UPDATE_SUCCESS": "Social media link updated successfully",
+    "SAVE_ERROR": "Failed to save social media link",
+    "SEARCH_PLACEHOLDER": "Search social media type...",
+    "FILTER": {
+      "JENIS": "Media Type",
+      "ANGGOTA": "Member",
+      "PLACEHOLDER_JENIS": "Filter type..."
+    },
+    "TABLE": {
+      "JENIS": "Type",
+      "KONTEN": "Content / URL",
+      "ICON": "Icon",
+      "ANGGOTA": "Member",
+      "KODE": "Code"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Add Social Media Link",
+      "TITLE_EDIT": "Edit Social Media Link",
+      "ANGGOTA": "Member",
+      "PLACEHOLDER_ANGGOTA": "Select member...",
+      "JENIS": "Media Type",
+      "PLACEHOLDER_JENIS": "instagram, tiktok, youtube...",
+      "KONTEN": "Content / URL",
+      "PLACEHOLDER_KONTEN": "https://instagram.com/username",
+      "ICON": "Icon",
+      "PLACEHOLDER_ICON": "icon name (e.g. instagram)",
+      "KODE": "Code",
+      "TIPE": "Type"
+    }
+  },
+  "DOKUMEN": {
+    "TITLE": "Documents",
+    "LABEL": "Document",
+    "LOAD_ERROR": "Failed to load documents",
+    "DELETE_SUCCESS": "Document deleted successfully",
+    "DELETE_ERROR": "Failed to delete document",
+    "CREATE_SUCCESS": "Document created successfully",
+    "UPDATE_SUCCESS": "Document updated successfully",
+    "SAVE_ERROR": "Failed to save document",
+    "UPLOAD_ERROR": "Failed to upload file",
+    "DOWNLOAD": "Download",
+    "DOWNLOAD_ERROR": "Failed to download file",
+    "FILE_REQUIRED": "File must be uploaded",
+    "SEARCH_PLACEHOLDER": "Search code or description...",
+    "FILTER": {
+      "REFF_TYPE": "Reference Type",
+      "TIPE": "Document Type",
+      "PLACEHOLDER_TIPE": "Filter type..."
+    },
+    "TABLE": {
+      "KODE": "Code",
+      "NAMA_FILE": "File Name",
+      "TIPE": "Type",
+      "FORMAT": "Format",
+      "REFF": "Reference",
+      "KETERANGAN": "Description"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Add Document",
+      "TITLE_EDIT": "Edit Document",
+      "FILE": "Document File",
+      "FILE_REQUIRED": "File must be uploaded",
+      "REFF_TYPE": "Reference Type",
+      "PLACEHOLDER_REFF_TYPE": "Select reference type...",
+      "REFF_ID": "Reference ID",
+      "PLACEHOLDER_REFF_ID": "Owner entity ID",
+      "REFF_ID_MIN": "Reference ID must be at least 1",
+      "KODE": "Code",
+      "PLACEHOLDER_KODE": "SK-2024-01",
+      "TIPE": "Type",
+      "PLACEHOLDER_TIPE": "sk, certificate, letter...",
+      "JENIS": "Category",
+      "PLACEHOLDER_JENIS": "1=SK, 2=certificate, 3=letter",
+      "KETERANGAN": "Description",
+      "PLACEHOLDER_KETERANGAN": "Brief document description..."
+    }
+  },
+  "PROFILE_CLUB": {
+    "TITLE": "Club Profile",
+    "LOAD_ERROR": "Failed to load club profile",
+    "FORM": {
+      "NAMA": "Club Name",
+      "SINGKATAN": "Abbreviation",
+      "ALAMAT": "Address",
+      "KETERANGAN": "Description",
+      "FILES_HEADING": "Club Images",
+      "BANNER": "Banner",
+      "LOGO_SIMPLE": "Simple Logo",
+      "LOGO_BESAR": "Full Logo"
     }
   }
 }

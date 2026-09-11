@@ -70,7 +70,7 @@ func (h *InstansiHandler) List(c *gin.Context) {
 func (h *InstansiHandler) Detail(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 
@@ -103,7 +103,7 @@ func (h *InstansiHandler) Create(c *gin.Context) {
 func (h *InstansiHandler) Update(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 
@@ -126,7 +126,7 @@ func (h *InstansiHandler) Update(c *gin.Context) {
 func (h *InstansiHandler) Delete(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 

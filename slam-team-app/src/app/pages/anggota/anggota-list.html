@@ -1,0 +1,137 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'ANGGOTA.TITLE' | translate }}</h1>
+    <a routerLink="create" class="btn btn-danger" *hasPermission="'anggota.create'">
+      {{ 'COMMON.ADD' | translate }} {{ 'ANGGOTA.LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3 col-sm-6">
+      <label class="form-label form-label-sm text-muted">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'ANGGOTA.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'ANGGOTA.FILTER.JENIS' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="jenisFilter()"
+        (ngModelChange)="onJenisChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        <option value="siswa">{{ 'ANGGOTA.JENIS.SISWA' | translate }}</option>
+        <option value="dewasa">{{ 'ANGGOTA.JENIS.DEWASA' | translate }}</option>
+        <option value="siswa_ke_dewasa">{{ 'ANGGOTA.JENIS.SISWA_KE_DEWASA' | translate }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'ANGGOTA.FILTER.STATUS' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        <option value="aktif">{{ 'ANGGOTA.STATUS_AKTIF' | translate }}</option>
+        <option value="non_aktif">{{ 'ANGGOTA.STATUS_NON_AKTIF' | translate }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="onSearch()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="slam-skeleton">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="slam-skeleton__row">
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--lg"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--md"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--md"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+          <div class="slam-skeleton__cell slam-skeleton__cell--sm"></div>
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle">
+        <thead>
+          <tr>
+            <th>{{ 'ANGGOTA.TABLE.NO_INDUK' | translate }}</th>
+            <th>{{ 'ANGGOTA.TABLE.NAMA' | translate }}</th>
+            <th>{{ 'ANGGOTA.TABLE.JENIS' | translate }}</th>
+            <th>{{ 'ANGGOTA.TABLE.STATUS' | translate }}</th>
+            <th>{{ 'ANGGOTA.TABLE.INSTANSI' | translate }}</th>
+            <th>{{ 'ANGGOTA.TABLE.TANGGAL_LAHIR' | translate }}</th>
+            <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item.id) {
+            <tr>
+              <td><code>{{ noInduk(item) }}</code></td>
+              <td>
+                {{ item.nama_lengkap }}
+                @if (item.nama_panggilan) {
+                  <span class="text-muted ms-1">({{ item.nama_panggilan }})</span>
+                }
+              </td>
+              <td>{{ jenisLabel(item.jenis_anggota) }}</td>
+              <td><span [class]="statusClass(item.status_anggota)">{{ item.status_anggota }}</span></td>
+              <td>{{ item.instansi_nama ?? '—' }}</td>
+              <td>{{ item.tanggal_lahir }}</td>
+              <td class="text-end text-nowrap">
+                <a [routerLink]="['/anggota', item.id]" class="btn btn-sm btn-outline-info me-1" title="Detail">
+                  <slam-icon name="eye" [size]="14" />
+                </a>
+                <a [routerLink]="['/anggota', item.id, 'edit']" class="btn btn-sm btn-outline-warning me-1" title="Edit" *hasPermission="'anggota.update'">
+                  <slam-icon name="pencil" [size]="14" />
+                </a>
+                <button class="btn btn-sm btn-outline-danger" title="Hapus" *hasPermission="'anggota.delete'" (click)="deleteItem(item)">
+                  <slam-icon name="trash" [size]="14" />
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center slam-empty">{{ 'COMMON.NO_DATA' | translate }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <span class="text-muted">
+        {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }} {{ total() }} {{ 'COMMON.RECORDS' | translate }}
+      </span>
+      <div class="btn-group">
+        <button class="btn btn-sm btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+          {{ 'COMMON.PREV' | translate }}
+        </button>
+        <span class="btn btn-sm btn-outline-light disabled">
+          {{ currentPage() }} / {{ totalPages() }}
+        </span>
+        <button class="btn btn-sm btn-outline-light" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+          {{ 'COMMON.NEXT' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

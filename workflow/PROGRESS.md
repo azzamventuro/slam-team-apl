@@ -2,7 +2,7 @@
 
 Tracker per-prompt untuk build SLAM Team. Satu baris = satu prompt yang di-paste ke Claude Code (API atau APP). Urutan = build order (`EXECUTION.md` §3). Tandai selesai setiap kali sebuah prompt tuntas + terverifikasi + ter-commit.
 
-**Progress: 9 / 49 selesai** · 🟡 0 proses · ⬜ 40 belum
+**Progress: 14 / 49 selesai** · 🟡 0 proses · ⬜ 35 belum
 
 Status: ⬜ Belum · 🟡 Proses · ✅ Selesai · ⛔ Terblokir
 
@@ -44,12 +44,12 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 |---|-------|--------|----------------|--------|---------|--------|---------|
 | 11 | 08-instansi | API | Sonnet · high | ✅ | 2026-09-10 | `6d46005` | migrasi `0005_mst_instansi`, CRUD lengkap, logo upload via file-management |
 | 12 | 08-instansi | APP | Sonnet · high | ✅ | 2026-09-10 | `6d46005` | list + form + pagination + search + status filter + logo lazy-load |
-| 13 | 06-anggota | API | Sonnet · high | ⬜ |  |  |  |
-| 14 | 06-anggota | APP | Sonnet · high | ⬜ |  |  |  |
-| 15 | 07-user-management | API | Opus · high | ⬜ |  |  | anti-eskalasi |
+| 13 | 06-anggota | API | Sonnet · high | ✅ | 2026-09-10 | `—` | migrasi `0006_anggota` (+ `mst_wilayah`), 5 CRUD endpoints, FK validators, audit log, soft-delete guards (active KTA/user account) |
+| 14 | 06-anggota | APP | Sonnet · high | ✅ | 2026-09-10 | `—` | list (search+jenis/status filter+pagination), form (reactive+3 file upload+preview), detail (blob image load), i18n `ANGGOTA.*` |
+| 15 | 07-user-management | API | Opus · high | ✅ | 2026-09-10 | `—` | anti-eskalasi, 7 endpoints, anti-escalation rules, dual-band handler |
 | 16 | 07-user-management | APP | Opus · high | ⬜ |  |  |  |
-| 17 | 09-unit | API | Sonnet · high | ⬜ |  |  |  |
-| 18 | 09-unit | APP | Sonnet · high | ⬜ |  |  |  |
+| 17 | 09-unit | API | Sonnet · high | ✅ | 2026-09-10 | `—` | migrasi `0007_unit`, 6 endpoints CRUD, approval flow via PUT, scope enforcement, anggota tersedia, foto UUID→file_id resolve |
+| 18 | 09-unit | APP | Sonnet · high | ✅ | 2026-09-10 | `—` | unit-list (signal, filter, pagination), unit-form (anggota picker, spec fields, foto upload, approval toggle), routing, i18n IND/ENG |
 | 19 | 10-prestasi | API | Sonnet · high | ⬜ |  |  |  |
 | 20 | 10-prestasi | APP | Sonnet · high | ⬜ |  |  |  |
 | 21 | 11-inorga | API | Sonnet · high | ⬜ |  |  |  |
@@ -126,6 +126,8 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 - **2026-09-10** — #11 `08-instansi` API selesai (Sonnet · high) — commit `6d46005`. Migrasi `0005_mst_instansi` (22 kolom, FK ke `mst_file` via `logo_utama_uuid`/`logo_club_uuid`). CRUD: list (paginasi + search + filter status), create, read, update, delete (soft). Logo upload reuses file-management module. Verifikasi: `go build`/`go vet`/`go test` bersih.
 - **2026-09-10** — #12 `08-instansi` APP selesai (Sonnet · high) — commit `6d46005`. Instansi list (tabel + paginasi + search + status filter + logo lazy-load via mouseenter), instansi form (create/edit + dual logo upload + preview). `InstansiService`, `Instansi` model, i18n `INSTANSI.*`. Verifikasi: `npx ng build` bersih.
 - **2026-09-10** — **UI Revamp** (Taste Skill integration) — commit `6d46005`. 13 Taste Skills diinstal, `SlamIcon` component (inline SVG, 30+ icons), semua emoji diganti (sidebar, topbar, role-list, instansi-list), `.slam-heading`/`.slam-card` diglobalisasi, skeleton loaders, empty states, micro-interactions (hover/active), inline styles dipindah ke CSS classes.
+- **2026-09-10** — #13 `06-anggota` API selesai (Sonnet · high) — belum commit. Migrasi `0006_anggota` (buat `mst_wilayah` + `anggota` table 22 kolom, indeks unik `no_induk`, FK 5 tabel). CRUD: list (search ILIKE nama/NRA + filter instansi/jenis/status + sort whitelist), create, read, update, delete (soft). `no_induk` absen dari DTO (read-only, diisi modul KTA). Audit log `nilai_lama`/`nilai_baru`. Guard soft-delete: active KTA + user account existence. Permission seed idempotent (anggota CRUD 4 izin).
+- **2026-09-10** — #14 `06-anggota` APP selesai (Sonnet · high) — belum commit. `AnggotaList` (signal-based, search, jenis/status filter, pagination, skeleton, `*hasPermission` gates), `AnggotaFormComponent` (reactive form, instansi dropdown, 3 file upload via FileService + preview, foto blob revoke), `AnggotaDetail` (profile card, biodata grid, private image blob load). Routes `/anggota` (list/create/:id/edit/:id). i18n `ANGGOTA.*` IND+ENG. Verifikasi: `ng build` bersih (3 lazy chunks). Backend tidak jalan Docker → tidak bisa uji live data.
 
 - **2026-09-09** — #1 `01-foundation` API selesai (Opus · high) — commit `46e69f6`.
 - **2026-09-09** — #2 `01-foundation` APP selesai (Opus · high) — commit `46e69f6` (satu commit bersama API, karena kerja API belum ter-commit saat APP dikerjakan).

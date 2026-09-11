@@ -1,6 +1,6 @@
-// Package hakakses holds the GORM entities for the dynamic RBAC module.
+// Package domain holds the GORM entities for the dynamic RBAC module.
 // Tables: mst_modul, mst_permission, mst_role, role_permission, user_role.
-package hakakses
+package domain
 
 import (
 	"time"

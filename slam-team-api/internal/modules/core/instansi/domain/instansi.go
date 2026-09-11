@@ -1,6 +1,6 @@
 // Package instansi holds the GORM entity for Master Data Instansi / Sekolah.
 // Table: mst_instansi.
-package instansi
+package domain
 
 import (
 	"time"

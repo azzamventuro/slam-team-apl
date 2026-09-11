@@ -1,0 +1,118 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">
+      {{ (isEdit() ? 'DOKUMEN.FORM.TITLE_EDIT' : 'DOKUMEN.FORM.TITLE_CREATE') | translate }}
+    </h1>
+    <a routerLink="/dokumen" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-form-card">
+    <div class="row g-3">
+      <!-- File Upload (required) -->
+      <div class="col-md-12">
+        <label class="form-label">{{ 'DOKUMEN.FORM.FILE' | translate }} *</label>
+        <div class="input-group">
+          <input
+            type="file"
+            class="form-control"
+            #fileInput
+            (change)="onFilePicked($event)"
+            [disabled]="uploading()"
+          />
+          @if (uploading()) {
+            <span class="input-group-text bg-dark text-light">
+              <span class="spinner-border spinner-border-sm"></span>
+            </span>
+          }
+        </div>
+        @if (uploadedFileName()) {
+          <div class="form-text text-info">
+            {{ uploadedFileName() }}
+            @if (uploadedFileSize()) {
+              <span class="text-muted ms-1">({{ uploadedFileSize() }})</span>
+            }
+          </div>
+        }
+        @if (!isEdit() && hasError('file_uuid', 'required') && form.get('file_uuid')?.touched) {
+          <small class="text-danger">{{ 'DOKUMEN.FORM.FILE_REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Reff Type (required) -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'DOKUMEN.FORM.REFF_TYPE' | translate }} *</label>
+        <select class="form-select" formControlName="reff_type">
+          <option value="" disabled>{{ 'DOKUMEN.FORM.PLACEHOLDER_REFF_TYPE' | translate }}</option>
+          @for (rt of reffTypes; track rt) {
+            <option [value]="rt">{{ rt }}</option>
+          }
+        </select>
+        @if (hasError('reff_type', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Reff ID (required) -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'DOKUMEN.FORM.REFF_ID' | translate }} *</label>
+        <input type="number" class="form-control" formControlName="reff_id" min="1"
+          [placeholder]="'DOKUMEN.FORM.PLACEHOLDER_REFF_ID' | translate" />
+        @if (hasError('reff_id', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('reff_id', 'min')) {
+          <small class="text-danger">{{ 'DOKUMEN.FORM.REFF_ID_MIN' | translate }}</small>
+        }
+      </div>
+
+      <!-- Kode -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'DOKUMEN.FORM.KODE' | translate }}</label>
+        <input type="text" class="form-control" formControlName="kode" maxlength="50"
+          [placeholder]="'DOKUMEN.FORM.PLACEHOLDER_KODE' | translate" />
+        @if (hasError('kode', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 50 } }}</small>
+        }
+      </div>
+
+      <!-- Tipe -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'DOKUMEN.FORM.TIPE' | translate }}</label>
+        <input type="text" class="form-control" formControlName="tipe" maxlength="50"
+          [placeholder]="'DOKUMEN.FORM.PLACEHOLDER_TIPE' | translate" />
+        @if (hasError('tipe', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 50 } }}</small>
+        }
+      </div>
+
+      <!-- Jenis -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'DOKUMEN.FORM.JENIS' | translate }}</label>
+        <input type="number" class="form-control" formControlName="jenis"
+          [placeholder]="'DOKUMEN.FORM.PLACEHOLDER_JENIS' | translate" />
+      </div>
+
+      <!-- Keterangan -->
+      <div class="col-md-12">
+        <label class="form-label">{{ 'DOKUMEN.FORM.KETERANGAN' | translate }}</label>
+        <textarea class="form-control" formControlName="keterangan" rows="3" maxlength="255"
+          [placeholder]="'DOKUMEN.FORM.PLACEHOLDER_KETERANGAN' | translate"></textarea>
+        @if (hasError('keterangan', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 255 } }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving() || uploading()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/dokumen" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>
