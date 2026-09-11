@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, switchMap, tap } from 'rxjs';
+import { Observable, map, switchMap, tap } from 'rxjs';
 
 import { LoginResponse, User } from '../models/user.model';
 import { ApiService } from './api.service';
@@ -49,8 +49,9 @@ export class AuthService {
           this._user.set({ ...current, ...me });
           this.persistUser(this._user()!);
         }
-        this.perms.load().subscribe();
       }),
+      switchMap(() => this.perms.load()),
+      map(() => this._user()!),
     );
   }
 

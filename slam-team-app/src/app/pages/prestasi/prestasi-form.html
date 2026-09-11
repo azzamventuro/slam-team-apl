@@ -1,0 +1,118 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">
+      {{ (isEdit() ? 'PRESTASI.FORM.TITLE_EDIT' : 'PRESTASI.FORM.TITLE_CREATE') | translate }}
+    </h1>
+    <a routerLink="/prestasi" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-form-card">
+    <div class="row g-3">
+      <!-- Anggota (required) -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'PRESTASI.FORM.ANGGOTA' | translate }} *</label>
+        <select class="form-select" formControlName="anggota_id">
+          <option [ngValue]="null" disabled>{{ 'PRESTASI.FORM.PLACEHOLDER_ANGGOTA' | translate }}</option>
+          @for (a of anggotaList(); track a.id) {
+            <option [ngValue]="a.id">{{ a.nama_lengkap }}</option>
+          }
+        </select>
+        @if (hasError('anggota_id', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Judul Kompetisi (required) -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'PRESTASI.FORM.JUDUL' | translate }} *</label>
+        <input type="text" class="form-control" formControlName="judul_kompetisi" maxlength="200" />
+        @if (hasError('judul_kompetisi', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('judul_kompetisi', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 200 } }}</small>
+        }
+      </div>
+
+      <!-- Kode -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'PRESTASI.FORM.KODE' | translate }}</label>
+        <input type="text" class="form-control" formControlName="kode" maxlength="50" />
+      </div>
+
+      <!-- Peringkat -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'PRESTASI.FORM.PERINGKAT' | translate }}</label>
+        <input type="text" class="form-control" formControlName="peringkat" maxlength="50" />
+      </div>
+
+      <!-- Tingkat -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'PRESTASI.FORM.TINGKAT' | translate }}</label>
+        <select class="form-select" formControlName="tingkat">
+          <option value="">{{ 'PRESTASI.FORM.PLACEHOLDER_TINGKAT' | translate }}</option>
+          <option value="Lokal">{{ 'PRESTASI.TINGKAT.LOKAL' | translate }}</option>
+          <option value="Kabupaten">{{ 'PRESTASI.TINGKAT.KABUPATEN' | translate }}</option>
+          <option value="Provinsi">{{ 'PRESTASI.TINGKAT.PROVINSI' | translate }}</option>
+          <option value="Nasional">{{ 'PRESTASI.TINGKAT.NASIONAL' | translate }}</option>
+          <option value="Internasional">{{ 'PRESTASI.TINGKAT.INTERNASIONAL' | translate }}</option>
+        </select>
+      </div>
+
+      <!-- Tanggal Kompetisi -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'PRESTASI.FORM.TANGGAL' | translate }}</label>
+        <input type="date" class="form-control" formControlName="tanggal_kompetisi" />
+      </div>
+
+      <!-- Alamat Kompetisi -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'PRESTASI.FORM.ALAMAT' | translate }}</label>
+        <input type="text" class="form-control" formControlName="alamat_kompetisi" />
+      </div>
+
+      <!-- Keterangan -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'PRESTASI.FORM.KETERANGAN' | translate }}</label>
+        <textarea class="form-control" formControlName="keterangan" rows="3"></textarea>
+      </div>
+
+      <hr class="my-3" />
+      <h5 class="slam-heading-sm">{{ 'PRESTASI.FORM.FILES_HEADING' | translate }}</h5>
+
+      <!-- Flyer -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'PRESTASI.FORM.FLYER' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onFlyerPicked($event)" />
+        @if (flyerPreview()) {
+          <div class="mt-2">
+            <img [src]="flyerPreview()" class="img-thumbnail slam-img-sm" alt="flyer" />
+          </div>
+        }
+      </div>
+
+      <!-- Foto Sampul -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'PRESTASI.FORM.FOTO' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onFotoPicked($event)" />
+        @if (fotoPreview()) {
+          <div class="mt-2">
+            <img [src]="fotoPreview()" class="img-thumbnail slam-img-sm" alt="foto_sampul" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/prestasi" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

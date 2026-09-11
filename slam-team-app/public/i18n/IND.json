@@ -24,6 +24,7 @@
     "DELETE": "Hapus",
     "DETAIL": "Detail",
     "SAVE": "Simpan",
+    "UPDATE": "Perbarui",
     "CANCEL": "Batal",
     "CLOSE": "Tutup",
     "BACK": "Kembali",
@@ -71,7 +72,15 @@
     "NOT_FOUND": "Data tidak ditemukan",
     "SESSION_EXPIRED": "Sesi Anda telah berakhir, silakan masuk kembali",
     "NETWORK_ERROR": "Tidak dapat terhubung ke server",
-    "SERVER_ERROR": "Terjadi kesalahan pada server"
+    "SERVER_ERROR": "Terjadi kesalahan pada server",
+    "NO_DATA": "Tidak ada data",
+    "SHOWING": "Menampilkan",
+    "ENTRIES": "data",
+    "RECORDS": "data",
+    "PREV": "Sebelumnya",
+    "ACTIVE": "Aktif",
+    "INACTIVE": "Nonaktif",
+    "CREATE": "Buat"
   },
   "FORBIDDEN": {
     "TITLE": "Akses Ditolak",
@@ -192,6 +201,361 @@
       "STATUS": "Status",
       "LOGO_UTAMA": "Logo Utama",
       "LOGO_TAMBAHAN": "Logo Tambahan"
+    }
+  },
+  "ANGGOTA": {
+    "TITLE": "Anggota",
+    "LABEL": "Anggota",
+    "LOAD_ERROR": "Gagal memuat data anggota",
+    "SEARCH_PLACEHOLDER": "Cari nama / NRA / no induk...",
+    "DELETE_CONFIRM": "Yakin ingin menghapus anggota ini?",
+    "DELETE_SUCCESS": "Anggota berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus anggota",
+    "CREATE_SUCCESS": "Anggota berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Anggota berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan anggota",
+    "STATUS_AKTIF": "Aktif",
+    "STATUS_NON_AKTIF": "Non-Aktif",
+    "JENIS": {
+      "SISWA": "Siswa",
+      "DEWASA": "Dewasa",
+      "SISWA_KE_DEWASA": "Siswa ke Dewasa"
+    },
+    "JK": {
+      "LAKI": "Laki-laki",
+      "PEREMPUAN": "Perempuan"
+    },
+    "FILTER": {
+      "JENIS": "Jenis",
+      "STATUS": "Status"
+    },
+    "TABLE": {
+      "NO_INDUK": "NRA",
+      "NAMA": "Nama Lengkap",
+      "JENIS": "Jenis",
+      "STATUS": "Status",
+      "INSTANSI": "Instansi",
+      "TANGGAL_LAHIR": "Tgl. Lahir"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Tambah Anggota",
+      "TITLE_EDIT": "Edit Anggota",
+      "INSTANSI_ID": "Instansi",
+      "NAMA_LENGKAP": "Nama Lengkap",
+      "NAMA_PANGGILAN": "Nama Panggilan",
+      "JENIS_ANGGOTA": "Jenis Anggota",
+      "JENIS_KELAMIN": "Jenis Kelamin",
+      "JENIS_IDENTITAS": "Jenis Identitas",
+      "NO_IDENTITAS": "No. Identitas",
+      "PEKERJAAN": "Pekerjaan",
+      "ALAMAT": "Alamat",
+      "KODE_POS": "Kode Pos",
+      "TEMPAT_LAHIR": "Tempat Lahir",
+      "TANGGAL_LAHIR": "Tanggal Lahir",
+      "TANGGAL_BERGABUNG": "Tanggal Bergabung",
+      "STATUS_ANGGOTA": "Status",
+      "FOTO_PROFIL": "Foto Profil",
+      "FOTO_FORMAL": "Foto Formal",
+      "FILE_IDENTITAS": "File Identitas",
+      "FILES": "File & Foto",
+      "PLACEHOLDER_INSTANSI": "Pilih instansi...",
+      "PLACEHOLDER_JENIS": "Pilih jenis anggota...",
+      "PLACEHOLDER_JK": "Pilih jenis kelamin...",
+      "PLACEHOLDER_JENIS_ID": "Pilih jenis identitas..."
+    },
+    "DETAIL": {
+      "INFO_BIODATA": "Biodata Anggota",
+      "INFO_FILES": "File & Foto"
+    }
+  },
+  "UNIT": {
+    "TITLE": "Unit",
+    "LABEL": "Unit",
+    "LOAD_ERROR": "Gagal memuat data unit",
+    "DELETE_SUCCESS": "Unit berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus unit",
+    "CREATE_SUCCESS": "Unit berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Unit berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan unit",
+    "APPROVED": "Disetujui",
+    "PENDING": "Menunggu",
+    "DISETUJUI": "Disetujui",
+    "SEARCH_PLACEHOLDER": "Cari kode / model...",
+    "FILTER": {
+      "ANGGOTA": "Anggota",
+      "DISETUJUI": "Status Setuju"
+    },
+    "TABLE": {
+      "KODE": "Kode",
+      "MODEL": "Model",
+      "ANGGOTA": "Anggota",
+      "FPS": "FPS",
+      "BERAT": "Berat",
+      "STATUS": "Status"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Tambah Unit",
+      "TITLE_EDIT": "Edit Unit",
+      "ANGGOTA_ID": "Anggota",
+      "KODE": "Kode",
+      "MODEL": "Model",
+      "PANJANG": "Panjang",
+      "PANJANG_INBAR": "Panjang Inbar",
+      "LEBAR": "Lebar",
+      "BERAT": "Berat",
+      "BERAT_BB": "Berat BB",
+      "FPS": "FPS",
+      "WARNA": "Deskripsi Warna",
+      "FOTO": "Foto Sampul",
+      "SPEC_HEADING": "Spesifikasi",
+      "PLACEHOLDER_ANGGOTA": "Pilih anggota..."
+    }
+  },
+  "PRESTASI": {
+    "TITLE": "Prestasi",
+    "LABEL": "Prestasi",
+    "LOAD_ERROR": "Gagal memuat data prestasi",
+    "DELETE_SUCCESS": "Prestasi berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus prestasi",
+    "CREATE_SUCCESS": "Prestasi berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Prestasi berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan prestasi",
+    "SEARCH_PLACEHOLDER": "Cari judul kompetisi...",
+    "FILTER": {
+      "ANGGOTA": "Anggota",
+      "TINGKAT": "Tingkat"
+    },
+    "TINGKAT": {
+      "LOKAL": "Lokal",
+      "KABUPATEN": "Kabupaten",
+      "PROVINSI": "Provinsi",
+      "NASIONAL": "Nasional",
+      "INTERNASIONAL": "Internasional"
+    },
+    "TABLE": {
+      "JUDUL": "Judul Kompetisi",
+      "ANGGOTA": "Anggota",
+      "PERINGKAT": "Peringkat",
+      "TINGKAT": "Tingkat",
+      "TANGGAL": "Tanggal"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Tambah Prestasi",
+      "TITLE_EDIT": "Edit Prestasi",
+      "ANGGOTA": "Anggota",
+      "JUDUL": "Judul Kompetisi",
+      "KODE": "Kode",
+      "PERINGKAT": "Peringkat",
+      "TINGKAT": "Tingkat",
+      "TANGGAL": "Tanggal Kompetisi",
+      "ALAMAT": "Alamat Kompetisi",
+      "KETERANGAN": "Keterangan",
+      "FLYER": "Flyer",
+      "FOTO": "Foto Sampul",
+      "FILES_HEADING": "Lampiran",
+      "PLACEHOLDER_ANGGOTA": "Pilih anggota...",
+      "PLACEHOLDER_TINGKAT": "Pilih tingkat..."
+    }
+  },
+  "INORGA": {
+    "TITLE": "Kepengurusan",
+    "LABEL": "Kepengurusan",
+    "LOAD_ERROR": "Gagal memuat data kepengurusan",
+    "DELETE_SUCCESS": "Periode kepengurusan berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus periode kepengurusan",
+    "CREATE_SUCCESS": "Periode kepengurusan berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Periode kepengurusan berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan periode kepengurusan",
+    "SK_UPLOAD_SUCCESS": "Berkas SK berhasil diunggah",
+    "SEARCH_PLACEHOLDER": "Cari nama kepengurusan...",
+    "FILTER": {
+      "AKTIF": "Status"
+    },
+    "STATUS": {
+      "AKTIF": "Aktif",
+      "NONAKTIF": "Nonaktif"
+    },
+    "TABLE": {
+      "KODE": "Kode",
+      "NAMA": "Nama Kepengurusan",
+      "PERIODE": "Periode",
+      "STATUS": "Status"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Tambah Kepengurusan",
+      "TITLE_EDIT": "Edit Kepengurusan",
+      "KODE": "Kode",
+      "NAMA": "Nama Kepengurusan",
+      "TANGGAL_MULAI": "Tanggal Mulai",
+      "TANGGAL_SELESAI": "Tanggal Selesai",
+      "KONTEN": "Konten / Susunan Pengurus",
+      "LOGO": "Logo",
+      "BANNER": "Banner",
+      "FILE_SK": "Berkas SK",
+      "SK_UPLOADED": "SK sudah diunggah",
+      "FILES_HEADING": "Lampiran",
+      "PLACEHOLDER_KONTEN": "Susunan pengurus, jabatan, deskripsi..."
+    }
+  },
+  "MEDSOS": {
+    "TITLE": "Media Sosial",
+    "LABEL": "Media Sosial",
+    "LOAD_ERROR": "Gagal memuat data media sosial",
+    "DELETE_SUCCESS": "Media sosial berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus media sosial",
+    "CREATE_SUCCESS": "Media sosial berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Media sosial berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan media sosial",
+    "SEARCH_PLACEHOLDER": "Cari jenis media sosial...",
+    "FILTER": {
+      "JENIS": "Jenis Medsos",
+      "ANGGOTA": "Anggota",
+      "PLACEHOLDER_JENIS": "Filter jenis..."
+    },
+    "TABLE": {
+      "JENIS": "Jenis",
+      "KONTEN": "Konten / URL",
+      "ICON": "Ikon",
+      "ANGGOTA": "Anggota",
+      "KODE": "Kode"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Tambah Media Sosial",
+      "TITLE_EDIT": "Edit Media Sosial",
+      "ANGGOTA": "Anggota",
+      "PLACEHOLDER_ANGGOTA": "Pilih anggota...",
+      "JENIS": "Jenis Medsos",
+      "PLACEHOLDER_JENIS": "instagram, tiktok, youtube...",
+      "KONTEN": "Konten / URL",
+      "PLACEHOLDER_KONTEN": "https://instagram.com/username",
+      "ICON": "Ikon",
+      "PLACEHOLDER_ICON": "nama ikon (mis. instagram)",
+      "KODE": "Kode",
+      "TIPE": "Tipe"
+    }
+  },
+  "DOKUMEN": {
+    "TITLE": "Dokumen",
+    "LABEL": "Dokumen",
+    "LOAD_ERROR": "Gagal memuat data dokumen",
+    "DELETE_SUCCESS": "Dokumen berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus dokumen",
+    "CREATE_SUCCESS": "Dokumen berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Dokumen berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan dokumen",
+    "UPLOAD_ERROR": "Gagal mengunggah file",
+    "DOWNLOAD": "Unduh",
+    "DOWNLOAD_ERROR": "Gagal mengunduh file",
+    "FILE_REQUIRED": "File harus diunggah",
+    "SEARCH_PLACEHOLDER": "Cari kode atau keterangan...",
+    "FILTER": {
+      "REFF_TYPE": "Tipe Referensi",
+      "TIPE": "Tipe Dokumen",
+      "PLACEHOLDER_TIPE": "Filter tipe..."
+    },
+    "TABLE": {
+      "KODE": "Kode",
+      "NAMA_FILE": "Nama File",
+      "TIPE": "Tipe",
+      "FORMAT": "Format",
+      "REFF": "Referensi",
+      "KETERANGAN": "Keterangan"
+    },
+    "FORM": {
+      "TITLE_CREATE": "Tambah Dokumen",
+      "TITLE_EDIT": "Edit Dokumen",
+      "FILE": "File Dokumen",
+      "FILE_REQUIRED": "File harus diunggah",
+      "REFF_TYPE": "Tipe Referensi",
+      "PLACEHOLDER_REFF_TYPE": "Pilih tipe referensi...",
+      "REFF_ID": "ID Referensi",
+      "PLACEHOLDER_REFF_ID": "ID entitas pemilik",
+      "REFF_ID_MIN": "ID Referensi minimal 1",
+      "KODE": "Kode",
+      "PLACEHOLDER_KODE": "SK-2024-01",
+      "TIPE": "Tipe",
+      "PLACEHOLDER_TIPE": "sk, sertifikat, surat...",
+      "JENIS": "Jenis",
+      "PLACEHOLDER_JENIS": "1=SK, 2=sertifikat, 3=surat",
+      "KETERANGAN": "Keterangan",
+      "PLACEHOLDER_KETERANGAN": "Deskripsi singkat dokumen..."
+    }
+  },
+  "PROFILE_CLUB": {
+    "TITLE": "Profil Klub",
+    "LOAD_ERROR": "Gagal memuat data profil klub",
+    "FORM": {
+      "NAMA": "Nama Klub",
+      "SINGKATAN": "Singkatan",
+      "ALAMAT": "Alamat",
+      "KETERANGAN": "Keterangan / Deskripsi",
+      "FILES_HEADING": "Gambar Klub",
+      "BANNER": "Banner",
+      "LOGO_SIMPLE": "Logo Simple",
+      "LOGO_BESAR": "Logo Besar"
+    }
+  },
+  "USERMGMT": {
+    "LOAD_ERROR": "Gagal memuat data pengguna",
+    "DELETE_SUCCESS": "Pengguna berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus pengguna",
+    "ROLES_ERROR": "Gagal memuat daftar peran",
+    "ANGGOTA_ERROR": "Gagal memuat daftar anggota",
+    "CREATE_SUCCESS": "Pengguna baru berhasil dibuat",
+    "UPDATE_SUCCESS": "Data pengguna berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan data pengguna",
+    "ADMIN": {
+      "TITLE": "Manajemen Pengguna (Admin)",
+      "CREATE_TITLE": "Tambah Pengguna Admin",
+      "EDIT_TITLE": "Edit Pengguna Admin"
+    },
+    "MODERATOR": {
+      "TITLE": "Manajemen Pengguna (Moderator)",
+      "CREATE_TITLE": "Tambah Pengguna Moderator",
+      "EDIT_TITLE": "Edit Pengguna Moderator"
+    },
+    "USER": {
+      "TITLE": "Manajemen Pengguna (User)",
+      "CREATE_TITLE": "Tambah Pengguna",
+      "EDIT_TITLE": "Edit Pengguna"
+    },
+    "FILTER": {
+      "ALL_STATUS": "Semua Status",
+      "ACTIVE": "Aktif",
+      "INACTIVE": "Nonaktif"
+    },
+    "TABLE": {
+      "COLUMN": {
+        "NO": "No",
+        "ANGGOTA": "Anggota",
+        "USERNAME": "Username",
+        "EMAIL": "Email",
+        "ROLE": "Peran",
+        "LEVEL": "Level",
+        "STATUS": "Status",
+        "ACTIONS": "Aksi"
+      }
+    },
+    "FORM": {
+      "ANGGOTA": "Pilih Anggota",
+      "SELECT_ANGGOTA": "-- Pilih Anggota --",
+      "ANGGOTA_REQUIRED": "Anggota wajib dipilih",
+      "USERNAME": "Username",
+      "USERNAME_REQUIRED": "Username wajib diisi (minimal 3 karakter)",
+      "EMAIL": "Email",
+      "EMAIL_INVALID": "Format email tidak valid",
+      "PASSWORD": "Password",
+      "PASSWORD_LEAVE_EMPTY": "kosongkan jika tidak ingin mengubah",
+      "PASSWORD_REQUIRED": "Password wajib diisi",
+      "PASSWORD_MIN": "Password minimal 6 karakter",
+      "ROLE": "Peran",
+      "SELECT_ROLE": "-- Pilih Peran --",
+      "ROLE_REQUIRED": "Peran wajib dipilih",
+      "LEVEL_RESTRICTED": "Tidak dapat dipilih",
+      "TIMEZONE": "Zona Waktu",
+      "STATUS": "Status Aktif",
+      "UNLOCK": "Buka Kunci Akun",
+      "UNLOCK_HELP": "Aktifkan untuk membuka akun yang terkunci"
     }
   }
 }

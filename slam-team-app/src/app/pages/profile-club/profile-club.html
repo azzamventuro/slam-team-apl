@@ -1,0 +1,178 @@
+<div class="container-fluid py-4">
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+      <h1 class="slam-heading mb-0">
+        {{ 'PROFILE_CLUB.TITLE' | translate }}
+      </h1>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="slam-card slam-card--wide">
+      <!-- Nama -->
+      <div class="mb-3">
+        <label for="nama" class="form-label">{{ 'PROFILE_CLUB.FORM.NAMA' | translate }}</label>
+        <input
+          id="nama"
+          formControlName="nama"
+          class="form-control"
+          [class.is-invalid]="hasError('nama', 'required') || hasError('nama', 'server')"
+          placeholder="Scouting Legion Airsofter Malang"
+        />
+        @if (hasError('nama', 'required')) {
+          <div class="invalid-feedback">{{ 'VALIDATION.REQUIRED' | translate }}</div>
+        }
+        @if (hasError('nama', 'server')) {
+          <div class="invalid-feedback">{{ form.get('nama')?.getError('server') }}</div>
+        }
+      </div>
+
+      <!-- Singkatan -->
+      <div class="mb-3">
+        <label for="singkatan" class="form-label">{{ 'PROFILE_CLUB.FORM.SINGKATAN' | translate }}</label>
+        <input
+          id="singkatan"
+          formControlName="singkatan"
+          class="form-control"
+          [class.is-invalid]="hasError('singkatan', 'maxLength') || hasError('singkatan', 'server')"
+          placeholder="SLAM"
+        />
+        @if (hasError('singkatan', 'maxLength')) {
+          <div class="invalid-feedback">{{ 'VALIDATION.MAX_LENGTH' | translate }}</div>
+        }
+        @if (hasError('singkatan', 'server')) {
+          <div class="invalid-feedback">{{ form.get('singkatan')?.getError('server') }}</div>
+        }
+      </div>
+
+      <!-- Alamat -->
+      <div class="mb-3">
+        <label for="alamat" class="form-label">{{ 'PROFILE_CLUB.FORM.ALAMAT' | translate }}</label>
+        <textarea
+          id="alamat"
+          formControlName="alamat"
+          class="form-control"
+          rows="2"
+          placeholder="Jl. Slamet Raya No. 42, Malang, Jawa Timur"
+          [class.is-invalid]="hasError('alamat', 'server')"
+        ></textarea>
+        @if (hasError('alamat', 'server')) {
+          <div class="invalid-feedback">{{ form.get('alamat')?.getError('server') }}</div>
+        }
+      </div>
+
+      <!-- Keterangan -->
+      <div class="mb-3">
+        <label for="keterangan" class="form-label">{{ 'PROFILE_CLUB.FORM.KETERANGAN' | translate }}</label>
+        <textarea
+          id="keterangan"
+          formControlName="keterangan"
+          class="form-control"
+          rows="4"
+          placeholder="Deskripsi/tagline klub..."
+          [class.is-invalid]="hasError('keterangan', 'server')"
+        ></textarea>
+        @if (hasError('keterangan', 'server')) {
+          <div class="invalid-feedback">{{ form.get('keterangan')?.getError('server') }}</div>
+        }
+      </div>
+
+      <hr class="slam-divider my-4" />
+
+      <h5 class="slam-heading mb-3">{{ 'PROFILE_CLUB.FORM.FILES_HEADING' | translate }}</h5>
+
+      <!-- Banner -->
+      <div class="mb-3">
+        <label class="form-label">{{ 'PROFILE_CLUB.FORM.BANNER' | translate }}</label>
+        <div class="d-flex align-items-center gap-3">
+          @if (bannerPreview(); as url) {
+            <img [src]="url" alt="Banner" class="file-preview file-preview--banner" />
+          } @else {
+            <div class="file-preview file-preview--banner file-placeholder"></div>
+          }
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              class="d-none"
+              #bannerInput
+              (change)="onBannerPicked($event)"
+            />
+            <button type="button" class="btn btn-outline-light btn-sm" (click)="bannerInput.click()">
+              {{ 'COMMON.UPLOAD' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Simple -->
+      <div class="mb-3">
+        <label class="form-label">{{ 'PROFILE_CLUB.FORM.LOGO_SIMPLE' | translate }}</label>
+        <div class="d-flex align-items-center gap-3">
+          @if (logoSimplePreview(); as url) {
+            <img [src]="url" alt="Logo Simple" class="file-preview file-preview--logo" />
+          } @else {
+            <div class="file-preview file-preview--logo file-placeholder"></div>
+          }
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              class="d-none"
+              #logoSimpleInput
+              (change)="onLogoSimplePicked($event)"
+            />
+            <button type="button" class="btn btn-outline-light btn-sm" (click)="logoSimpleInput.click()">
+              {{ 'COMMON.UPLOAD' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Logo Besar -->
+      <div class="mb-4">
+        <label class="form-label">{{ 'PROFILE_CLUB.FORM.LOGO_BESAR' | translate }}</label>
+        <div class="d-flex align-items-center gap-3">
+          @if (logoBesarPreview(); as url) {
+            <img [src]="url" alt="Logo Besar" class="file-preview file-preview--logo" />
+          } @else {
+            <div class="file-preview file-preview--logo file-placeholder"></div>
+          }
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              class="d-none"
+              #logoBesarInput
+              (change)="onLogoBesarPicked($event)"
+            />
+            <button type="button" class="btn btn-outline-light btn-sm" (click)="logoBesarInput.click()">
+              {{ 'COMMON.UPLOAD' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="d-flex justify-content-end gap-2">
+        <button
+          type="submit"
+          class="btn btn-danger"
+          [disabled]="saving()"
+        >
+          @if (saving()) {
+            <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+            {{ 'COMMON.SAVING' | translate }}
+          } @else {
+            {{ 'COMMON.SAVE' | translate }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

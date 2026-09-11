@@ -1,0 +1,125 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'UNIT.TITLE' | translate }}</h1>
+    <a routerLink="create" class="btn btn-danger" *hasPermission="'unit.create'">
+      {{ 'COMMON.ADD' | translate }} {{ 'UNIT.LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3 col-sm-6">
+      <label class="form-label form-label-sm text-muted">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'UNIT.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'UNIT.FILTER.ANGGOTA' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="anggotaFilter()"
+        (ngModelChange)="onAnggotaChange($event)"
+      >
+        <option [ngValue]="null">{{ 'COMMON.ALL' | translate }}</option>
+        @for (a of anggotaList(); track a.id) {
+          <option [ngValue]="a.id">{{ a.nama_lengkap }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'UNIT.FILTER.DISETUJUI' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="disetujuiFilter()"
+        (ngModelChange)="onDisetujuiChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        <option value="true">{{ 'UNIT.APPROVED' | translate }}</option>
+        <option value="false">{{ 'UNIT.PENDING' | translate }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="onSearch()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="slam-form-card">
+    @if (loading()) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-danger" role="status">
+          <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+        </div>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>{{ 'UNIT.TABLE.KODE' | translate }}</th>
+              <th>{{ 'UNIT.TABLE.MODEL' | translate }}</th>
+              <th>{{ 'UNIT.TABLE.ANGGOTA' | translate }}</th>
+              <th class="text-end">{{ 'UNIT.TABLE.FPS' | translate }}</th>
+              <th class="text-end">{{ 'UNIT.TABLE.BERAT' | translate }}</th>
+              <th class="text-center">{{ 'UNIT.TABLE.STATUS' | translate }}</th>
+              <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of items(); track u.id) {
+              <tr>
+                <td>{{ u.kode || '—' }}</td>
+                <td>{{ u.model || '—' }}</td>
+                <td>{{ anggotaDisplay(u) }}</td>
+                <td class="text-end">{{ u.fps ?? '—' }}</td>
+                <td class="text-end">{{ u.berat ?? '—' }}</td>
+                <td class="text-center">
+                  <span [class]="disetujuiClass(u.disetujui)">
+                    {{ (u.disetujui ? 'UNIT.APPROVED' : 'UNIT.PENDING') | translate }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <a [routerLink]="[u.id, 'edit']" class="btn btn-outline-light btn-sm me-1" *hasPermission="'unit.update'">
+                    {{ 'COMMON.EDIT' | translate }}
+                  </a>
+                  <button class="btn btn-outline-danger btn-sm" *hasPermission="'unit.delete'" (click)="deleteItem(u)">
+                    {{ 'COMMON.DELETE' | translate }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">{{ 'COMMON.EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+        <small class="text-muted">
+          {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }} {{ total() }} {{ 'COMMON.ENTRIES' | translate }}
+        </small>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+            {{ 'COMMON.PREVIOUS' | translate }}
+          </button>
+          <span class="btn btn-outline-light disabled">{{ currentPage() }} / {{ totalPages() }}</span>
+          <button class="btn btn-outline-light" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+            {{ 'COMMON.NEXT' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

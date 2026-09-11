@@ -1,0 +1,137 @@
+<div class="container-fluid py-4">
+  <!-- Heading -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="slam-heading mb-0">{{ titleKey() | translate }}</h2>
+    @if (canCreate()) {
+      <a class="btn btn-primary" [routerLink]="['create']">
+        <slam-icon name="plus" [size]="16" class="me-1"></slam-icon>
+        {{ 'COMMON.ADD' | translate }}
+      </a>
+    }
+  </div>
+
+  <!-- Card -->
+  <div class="slam-card slam-card--wide">
+    <!-- Toolbar: search + status filter -->
+    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+      <input
+        type="text"
+        class="form-control form-control-sm bg-dark text-light border-secondary"
+        style="max-width: 280px"
+        [placeholder]="'COMMON.SEARCH' | translate"
+        [(ngModel)]="q"
+        (keydown.enter)="onSearch()"
+      />
+      <select
+        class="form-select form-select-sm bg-dark text-light border-secondary"
+        style="max-width: 180px"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusChange($event)"
+      >
+        <option value="">{{ 'USERMGMT.FILTER.ALL_STATUS' | translate }}</option>
+        <option value="1">{{ 'USERMGMT.FILTER.ACTIVE' | translate }}</option>
+        <option value="0">{{ 'USERMGMT.FILTER.INACTIVE' | translate }}</option>
+      </select>
+      <button class="btn btn-sm btn-outline-light" (click)="onSearch()">
+        <slam-icon name="magnifying-glass" [size]="14"></slam-icon>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.NO' | translate }}</th>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.ANGGOTA' | translate }}</th>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.USERNAME' | translate }}</th>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.EMAIL' | translate }}</th>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.ROLE' | translate }}</th>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.LEVEL' | translate }}</th>
+            <th>{{ 'USERMGMT.TABLE.COLUMN.STATUS' | translate }}</th>
+            <th class="text-end">{{ 'USERMGMT.TABLE.COLUMN.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (loading()) {
+            <!-- Skeleton rows -->
+            @for (r of [1,2,3,4,5]; track r) {
+              <tr>
+                @for (c of [1,2,3,4,5,6,7,8]; track c) {
+                  <td><div class="skeleton-cell"></div></td>
+                }
+              </tr>
+            }
+          } @else {
+            @if (items().length === 0) {
+              <tr>
+                <td colspan="8" class="text-center text-muted py-4">
+                  {{ 'COMMON.NO_DATA' | translate }}
+                </td>
+              </tr>
+            }
+            @for (row of items(); track row.id; let i = $index) {
+              <tr>
+                <td>{{ (currentPage() - 1) * perPage() + i + 1 }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    @if (row.anggota.foto_url) {
+                      <img [src]="row.anggota.foto_url" class="avatar-sm rounded-circle" alt="" />
+                    }
+                    <span>{{ row.anggota.nama_lengkap || '—' }}</span>
+                  </div>
+                </td>
+                <td>{{ row.username }}</td>
+                <td>{{ row.email }}</td>
+                <td>{{ row.role.nama || '—' }}</td>
+                <td>{{ row.role.level }}</td>
+                <td>
+                  @if (row.is_aktif) {
+                    <span class="badge bg-success">{{ 'COMMON.ACTIVE' | translate }}</span>
+                  } @else {
+                    <span class="badge bg-secondary">{{ 'COMMON.INACTIVE' | translate }}</span>
+                  }
+                  {{ lockLabel(row) }}
+                </td>
+                <td class="text-end">
+                  @if (canUpdate()) {
+                    <a class="btn btn-sm btn-outline-info me-1"
+                       [routerLink]="[row.id, 'edit']"
+                       [title]="'COMMON.EDIT' | translate">
+                      <slam-icon name="pencil-simple" [size]="14"></slam-icon>
+                    </a>
+                  }
+                  @if (canDelete()) {
+                    <button class="btn btn-sm btn-outline-danger"
+                            (click)="deleteUser(row)"
+                            [title]="'COMMON.DELETE' | translate">
+                      <slam-icon name="trash" [size]="14"></slam-icon>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3">
+      <span class="text-muted small">
+        {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }} {{ total() }}
+      </span>
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-secondary" [disabled]="currentPage() <= 1" (click)="prevPage()">
+          <slam-icon name="caret-left" [size]="14"></slam-icon>
+        </button>
+        <span class="btn btn-outline-secondary disabled">
+          {{ currentPage() }} / {{ totalPages() }}
+        </span>
+        <button class="btn btn-outline-secondary" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+          <slam-icon name="caret-right" [size]="14"></slam-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

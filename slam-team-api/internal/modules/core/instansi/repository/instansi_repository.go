@@ -42,8 +42,8 @@ func (r *InstansiRepository) listJoin(q *gorm.DB) *gorm.DB {
 			 WHERE a.instansi_id = mst_instansi.id AND a.is_deleted = false
 			) AS jumlah_anggota
 		`).
-		LeftJoin("mst_file lu ON lu.id = mst_instansi.logo_utama_file_id AND lu.is_deleted = false").
-		LeftJoin("mst_file lt ON lt.id = mst_instansi.logo_tambahan_file_id AND lt.is_deleted = false")
+		Joins("LEFT JOIN mst_file lu ON lu.id = mst_instansi.logo_utama_file_id AND lu.is_deleted = false").
+		Joins("LEFT JOIN mst_file lt ON lt.id = mst_instansi.logo_tambahan_file_id AND lt.is_deleted = false")
 }
 
 // ── CRUD ──

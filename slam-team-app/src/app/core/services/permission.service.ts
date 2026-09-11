@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 
 import { MePermissions } from '../models/user.model';
 import { ApiService } from './api.service';
@@ -30,6 +30,10 @@ export class PermissionService {
   /** After load(), the permission set is ready for `can()` checks. */
   readonly ready = signal(false);
 
+  /** Observable that emits `true` once the first load() completes. */
+  private readonly _ready$ = new Subject<boolean>();
+  readonly ready$ = this._ready$.asObservable();
+
   /** Current permission version from the backend. */
   readonly permVersion = this._permVersion.asReadonly();
 
@@ -41,12 +45,20 @@ export class PermissionService {
         this._perms.set(new Set(p.permissions));
         this._permVersion.set(p.perm_version);
         this.ready.set(true);
+        this._ready$.next(true);
       }),
     );
   }
 
   /** Returns `true` when the current user holds the given permission code. */
   can = (code: string): boolean => this._super() || this._perms().has(code);
+
+  /** Ensure permissions have been loaded (idempotent). */
+  ensureLoaded(): void {
+    if (!this.ready()) {
+      this.load().subscribe();
+    }
+  }
 
   /** Clear the permission state (on logout). */
   clear(): void {

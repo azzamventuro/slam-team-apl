@@ -151,6 +151,15 @@ func cmdCreateSuperadmin(args []string) error {
 			return fmt.Errorf("insert users: %w", err)
 		}
 
+		// Link user to role in the user_role junction table so that
+		// GetUserPrimaryRole (used by JWT issue) finds the role assignment.
+		if err := tx.Exec(`
+			INSERT INTO user_role (user_id, role_id, is_utama, created_at)
+			VALUES (?, ?, true, now())
+		`, userID, roleID).Error; err != nil {
+			return fmt.Errorf("insert user_role: %w", err)
+		}
+
 		// Audit trail, best effort: log_aktivitas belongs to a later migration.
 		ok, err := tableExists(tx, "log_aktivitas")
 		if err != nil {

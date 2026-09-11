@@ -74,6 +74,195 @@ export const routes: Routes = [
           },
         ],
       },
+      // ── Anggota (Master Data) ──
+      {
+        path: 'anggota',
+        canActivate: [permissionGuard],
+        data: { permission: 'anggota.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/anggota/anggota-list').then((m) => m.AnggotaList),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/anggota/anggota-form').then((m) => m.AnggotaFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/anggota/anggota-form').then((m) => m.AnggotaFormComponent),
+          },
+          {
+            path: ':id',
+            loadComponent: () => import('./pages/anggota/anggota-detail').then((m) => m.AnggotaDetail),
+          },
+        ],
+      },
+      // ── Unit (Armament) ──
+      {
+        path: 'unit',
+        canActivate: [permissionGuard],
+        data: { permission: 'unit.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/unit/unit-list').then((m) => m.UnitList),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/unit/unit-form').then((m) => m.UnitFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/unit/unit-form').then((m) => m.UnitFormComponent),
+          },
+        ],
+      },
+      // ── Prestasi (Achievements) ──
+      {
+        path: 'prestasi',
+        canActivate: [permissionGuard],
+        data: { permission: 'prestasi.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/prestasi/prestasi-list').then((m) => m.PrestasiList),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/prestasi/prestasi-form').then((m) => m.PrestasiFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/prestasi/prestasi-form').then((m) => m.PrestasiFormComponent),
+          },
+        ],
+      },
+      // ── Inorga (Kepengurusan) ──
+      {
+        path: 'inorga',
+        canActivate: [permissionGuard],
+        data: { permission: 'inorga.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/inorga/inorga-list').then((m) => m.InorgaList),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/inorga/inorga-form').then((m) => m.InorgaFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/inorga/inorga-form').then((m) => m.InorgaFormComponent),
+          },
+        ],
+      },
+      // ── Medsos (Social Media Links) ──
+      {
+        path: 'medsos',
+        canActivate: [permissionGuard],
+        data: { permission: 'medsos.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/medsos/medsos-list').then((m) => m.MedsosList),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/medsos/medsos-form').then((m) => m.MedsosFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/medsos/medsos-form').then((m) => m.MedsosFormComponent),
+          },
+        ],
+      },
+      // ── Dokumen (Documents) ──
+      {
+        path: 'dokumen',
+        canActivate: [permissionGuard],
+        data: { permission: 'dokumen.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/dokumen/dokumen-list').then((m) => m.DokumenList),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/dokumen/dokumen-form').then((m) => m.DokumenFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/dokumen/dokumen-form').then((m) => m.DokumenFormComponent),
+          },
+        ],
+      },
+      // ── Profile Club (Singleton — one form, no list) ──
+      {
+        path: 'profile-club',
+        canActivate: [permissionGuard],
+        data: { permission: 'profile_club.read' },
+        loadComponent: () => import('./pages/profile-club/profile-club').then((m) => m.ProfileClubComponent),
+      },
+      // ── User Management — 3 surfaces sharing same components ──
+      {
+        path: 'admin',
+        canActivate: [permissionGuard],
+        data: { permission: 'admin.read', base: 'admin' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+        ],
+      },
+      {
+        path: 'moderator',
+        canActivate: [permissionGuard],
+        data: { permission: 'moderator.read', base: 'moderator' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+        ],
+      },
+      {
+        path: 'user',
+        canActivate: [permissionGuard],
+        data: { permission: 'user.read', base: 'user' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+        ],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

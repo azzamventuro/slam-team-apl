@@ -27,9 +27,11 @@ func seedInstansi(_ context.Context, db *gorm.DB) error {
 	for _, r := range seeds {
 		res := db.Exec(`
 			INSERT INTO mst_instansi (kode, nama, status, created_at)
-			VALUES (?, ?, 1, now())
-			ON CONFLICT (kode) DO NOTHING
-		`, r.Kode, r.Nama)
+			SELECT ?, ?, 1, now()
+			WHERE NOT EXISTS (
+				SELECT 1 FROM mst_instansi WHERE kode = ? AND is_deleted = false
+			)
+		`, r.Kode, r.Nama, r.Kode)
 		if res.Error != nil {
 			return fmt.Errorf("seed instansi %s: %w", r.Kode, res.Error)
 		}

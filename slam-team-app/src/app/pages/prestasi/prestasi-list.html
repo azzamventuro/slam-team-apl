@@ -1,0 +1,122 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'PRESTASI.TITLE' | translate }}</h1>
+    <a routerLink="create" class="btn btn-danger" *hasPermission="'prestasi.create'">
+      {{ 'COMMON.ADD' | translate }} {{ 'PRESTASI.LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3 col-sm-6">
+      <label class="form-label form-label-sm text-muted">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'PRESTASI.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'PRESTASI.FILTER.ANGGOTA' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="anggotaFilter()"
+        (ngModelChange)="onAnggotaChange($event)"
+      >
+        <option [ngValue]="null">{{ 'COMMON.ALL' | translate }}</option>
+        @for (a of anggotaList(); track a.id) {
+          <option [ngValue]="a.id">{{ a.nama_lengkap }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'PRESTASI.FILTER.TINGKAT' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="tingkatFilter()"
+        (ngModelChange)="onTingkatChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        <option value="Lokal">{{ 'PRESTASI.TINGKAT.LOKAL' | translate }}</option>
+        <option value="Kabupaten">{{ 'PRESTASI.TINGKAT.KABUPATEN' | translate }}</option>
+        <option value="Provinsi">{{ 'PRESTASI.TINGKAT.PROVINSI' | translate }}</option>
+        <option value="Nasional">{{ 'PRESTASI.TINGKAT.NASIONAL' | translate }}</option>
+        <option value="Internasional">{{ 'PRESTASI.TINGKAT.INTERNASIONAL' | translate }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="onSearch()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="slam-form-card">
+    @if (loading()) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-danger" role="status">
+          <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+        </div>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>{{ 'PRESTASI.TABLE.JUDUL' | translate }}</th>
+              <th>{{ 'PRESTASI.TABLE.ANGGOTA' | translate }}</th>
+              <th>{{ 'PRESTASI.TABLE.PERINGKAT' | translate }}</th>
+              <th>{{ 'PRESTASI.TABLE.TINGKAT' | translate }}</th>
+              <th>{{ 'PRESTASI.TABLE.TANGGAL' | translate }}</th>
+              <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (p of items(); track p.id) {
+              <tr>
+                <td>{{ p.judul_kompetisi }}</td>
+                <td>{{ anggotaDisplay(p) }}</td>
+                <td>{{ p.peringkat || '—' }}</td>
+                <td>{{ p.tingkat || '—' }}</td>
+                <td>{{ p.tanggal_kompetisi || '—' }}</td>
+                <td class="text-end">
+                  <a [routerLink]="[p.id, 'edit']" class="btn btn-outline-light btn-sm me-1" *hasPermission="'prestasi.update'">
+                    {{ 'COMMON.EDIT' | translate }}
+                  </a>
+                    <button class="btn btn-outline-danger btn-sm" *hasPermission="'prestasi.delete'" (click)="deleteItem(p)">
+                    {{ 'COMMON.DELETE' | translate }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">{{ 'COMMON.EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+        <small class="text-muted">
+          {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }} {{ total() }} {{ 'COMMON.ENTRIES' | translate }}
+        </small>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+            {{ 'COMMON.PREVIOUS' | translate }}
+          </button>
+          <span class="btn btn-outline-light disabled">{{ currentPage() }} / {{ totalPages() }}</span>
+          <button class="btn btn-outline-light" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+            {{ 'COMMON.NEXT' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

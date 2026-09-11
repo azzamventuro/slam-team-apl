@@ -54,7 +54,7 @@ func (h *HakaksesHandler) ListRoles(c *gin.Context) {
 func (h *HakaksesHandler) GetRole(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 	role, err := h.svc.GetRoleDetail(c.Request.Context(), id)
@@ -69,7 +69,7 @@ func (h *HakaksesHandler) GetRole(c *gin.Context) {
 func (h *HakaksesHandler) UpdateRole(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 	var req dto.UpdateRoleReq
@@ -90,7 +90,7 @@ func (h *HakaksesHandler) UpdateRole(c *gin.Context) {
 func (h *HakaksesHandler) DeleteRole(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 	actor := actorFromCtx(c)
@@ -107,7 +107,7 @@ func (h *HakaksesHandler) DeleteRole(c *gin.Context) {
 func (h *HakaksesHandler) SetPermissions(c *gin.Context) {
 	id, err := parseID(c, "id")
 	if err != nil {
-		response.BadRequest(c, "id tidak valid")
+		response.BadRequest(c, "id tidak valid", nil)
 		return
 	}
 	var req dto.SetPermissionsReq

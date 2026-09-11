@@ -1,0 +1,182 @@
+<div class="container-fluid py-4">
+  <!-- Heading -->
+  <div class="d-flex align-items-center mb-4">
+    <a class="text-decoration-none me-3" [routerLink]="['/' + base()]">
+      <slam-icon name="arrow-left" [size]="20"></slam-icon>
+    </a>
+    <h2 class="slam-heading mb-0">{{ titleKey | translate }}</h2>
+  </div>
+
+  @if (loading()) {
+    <!-- Loading skeleton -->
+    <div class="slam-card slam-card--wide">
+      <div class="skeleton-block mb-3" style="height: 40px; max-width: 400px"></div>
+      <div class="skeleton-block mb-3" style="height: 40px; max-width: 400px"></div>
+      <div class="skeleton-block mb-3" style="height: 40px; max-width: 400px"></div>
+    </div>
+  } @else {
+    <div class="slam-card slam-card--wide">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="row g-3">
+          <!-- Anggota picker -->
+          <div class="col-md-6">
+            <label class="form-label">{{ 'USERMGMT.FORM.ANGGOTA' | translate }}</label>
+            <select
+              class="form-select form-select-sm bg-dark text-light border-secondary"
+              formControlName="anggota_id"
+              [class.is-invalid]="hasError('anggota_id')"
+            >
+              <option [ngValue]="null" disabled>
+                {{ 'USERMGMT.FORM.SELECT_ANGGOTA' | translate }}
+              </option>
+              @for (a of anggotaList(); track a.id) {
+                <option [ngValue]="a.id">
+                  {{ a.nama_lengkap }}{{ a.no_induk ? ' (' + a.no_induk + ')' : '' }}
+                </option>
+              }
+            </select>
+            @if (hasError('anggota_id')) {
+              <div class="invalid-feedback">{{ 'USERMGMT.FORM.ANGGOTA_REQUIRED' | translate }}</div>
+            }
+          </div>
+
+          <!-- Username -->
+          <div class="col-md-6">
+            <label class="form-label">{{ 'USERMGMT.FORM.USERNAME' | translate }}</label>
+            <input
+              type="text"
+              class="form-control form-control-sm bg-dark text-light border-secondary"
+              formControlName="username"
+              [class.is-invalid]="hasError('username')"
+            />
+            @if (hasError('username')) {
+              <div class="invalid-feedback">{{ 'USERMGMT.FORM.USERNAME_REQUIRED' | translate }}</div>
+            }
+          </div>
+
+          <!-- Email -->
+          <div class="col-md-6">
+            <label class="form-label">{{ 'USERMGMT.FORM.EMAIL' | translate }}</label>
+            <input
+              type="email"
+              class="form-control form-control-sm bg-dark text-light border-secondary"
+              formControlName="email"
+              [class.is-invalid]="hasError('email')"
+            />
+            @if (hasError('email')) {
+              <div class="invalid-feedback">{{ 'USERMGMT.FORM.EMAIL_INVALID' | translate }}</div>
+            }
+          </div>
+
+          <!-- Password -->
+          <div class="col-md-6">
+            <label class="form-label">
+              {{ 'USERMGMT.FORM.PASSWORD' | translate }}
+              @if (isEdit()) {
+                <small class="text-muted">({{ 'USERMGMT.FORM.PASSWORD_LEAVE_EMPTY' | translate }})</small>
+              }
+            </label>
+            <input
+              type="password"
+              class="form-control form-control-sm bg-dark text-light border-secondary"
+              formControlName="password"
+              [class.is-invalid]="hasError('password')"
+            />
+            @if (hasError('password')) {
+              <div class="invalid-feedback">
+                @if (form.get('password')?.errors?.['required']) {
+                  {{ 'USERMGMT.FORM.PASSWORD_REQUIRED' | translate }}
+                } @else {
+                  {{ 'USERMGMT.FORM.PASSWORD_MIN' | translate }}
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Role select (anti-escalation: roles with level >= actor are disabled) -->
+          <div class="col-md-6">
+            <label class="form-label">{{ 'USERMGMT.FORM.ROLE' | translate }}</label>
+            <select
+              class="form-select form-select-sm bg-dark text-light border-secondary"
+              formControlName="role_id"
+              [class.is-invalid]="hasError('role_id')"
+            >
+              <option [ngValue]="null" disabled>
+                {{ 'USERMGMT.FORM.SELECT_ROLE' | translate }}
+              </option>
+              @for (r of roles(); track r.id) {
+                <option [ngValue]="r.id" [disabled]="isRoleDisabled(r)">
+                  {{ r.nama }} (Level {{ r.level }}){{ isRoleDisabled(r) ? ' — ' + ('USERMGMT.FORM.LEVEL_RESTRICTED' | translate) : '' }}
+                </option>
+              }
+            </select>
+            @if (hasError('role_id')) {
+              <div class="invalid-feedback">{{ 'USERMGMT.FORM.ROLE_REQUIRED' | translate }}</div>
+            }
+          </div>
+
+          <!-- Timezone -->
+          <div class="col-md-6">
+            <label class="form-label">{{ 'USERMGMT.FORM.TIMEZONE' | translate }}</label>
+            <input
+              type="text"
+              class="form-control form-control-sm bg-dark text-light border-secondary"
+              formControlName="timezone"
+            />
+          </div>
+
+          <!-- Is Aktif toggle -->
+          <div class="col-md-6">
+            <label class="form-label d-block">{{ 'USERMGMT.FORM.STATUS' | translate }}</label>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                formControlName="is_aktif"
+                id="is_aktif"
+              />
+              <label class="form-check-label" for="is_aktif">
+                {{ form.get('is_aktif')?.value ? ('COMMON.ACTIVE' | translate) : ('COMMON.INACTIVE' | translate) }}
+              </label>
+            </div>
+          </div>
+
+          <!-- Buka Kunci (only shown in edit mode) -->
+          @if (isEdit()) {
+            <div class="col-md-6">
+              <label class="form-label d-block">{{ 'USERMGMT.FORM.UNLOCK' | translate }}</label>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  formControlName="buka_kunci"
+                  id="buka_kunci"
+                />
+                <label class="form-check-label" for="buka_kunci">
+                  {{ 'USERMGMT.FORM.UNLOCK_HELP' | translate }}
+                </label>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-end gap-2 mt-4">
+          <a class="btn btn-outline-secondary" [routerLink]="['/' + base()]">
+            {{ 'COMMON.CANCEL' | translate }}
+          </a>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="submitting()"
+          >
+            @if (submitting()) {
+              <span class="spinner-border spinner-border-sm me-1"></span>
+            }
+            {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.CREATE') | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>
