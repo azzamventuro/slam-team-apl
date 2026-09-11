@@ -2,7 +2,7 @@
 
 Tracker per-prompt untuk build SLAM Team. Satu baris = satu prompt yang di-paste ke Claude Code (API atau APP). Urutan = build order (`EXECUTION.md` §3). Tandai selesai setiap kali sebuah prompt tuntas + terverifikasi + ter-commit.
 
-**Progress: 24 / 49 selesai** · 🟡 0 proses · ⬜ 25 belum
+**Progress: 25 / 49 selesai** · 🟡 0 proses · ⬜ 24 belum
 
 Status: ⬜ Belum · 🟡 Proses · ✅ Selesai · ⛔ Terblokir
 
@@ -47,7 +47,7 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 | 13 | 06-anggota | API | Sonnet · high | ✅ | 2026-09-10 | `273d305` | migrasi `0006_anggota` (+ `mst_wilayah`), 5 CRUD endpoints, FK validators, audit log, soft-delete guards (active KTA/user account) |
 | 14 | 06-anggota | APP | Sonnet · high | ✅ | 2026-09-10 | `273d305` | list (search+jenis/status filter+pagination), form (reactive+3 file upload+preview), detail (blob image load), i18n `ANGGOTA.*` |
 | 15 | 07-user-management | API | Opus · high | ✅ | 2026-09-10 | `273d305` | anti-eskalasi, 7 endpoints, anti-escalation rules, dual-band handler |
-| 16 | 07-user-management | APP | Opus · high | ⬜ |  |  |  |
+| 16 | 07-user-management | APP | Opus · high | ✅ | 2026-09-11 | `98b108f` | 3 surfaces (admin/moderator/user), list (signal, search, status filter, pagination), form (anggota picker, role select with anti-escalation, buka kunci), routing + i18n IND/ENG |
 | 17 | 09-unit | API | Sonnet · high | ✅ | 2026-09-10 | `273d305` | migrasi `0007_unit`, 6 endpoints CRUD, approval flow via PUT, scope enforcement, anggota tersedia, foto UUID→file_id resolve |
 | 18 | 09-unit | APP | Sonnet · high | ✅ | 2026-09-10 | `273d305` | unit-list (signal, filter, pagination), unit-form (anggota picker, spec fields, foto upload, approval toggle), routing, i18n IND/ENG |
 | 19 | 10-prestasi | API | Sonnet · high | ✅ | 2026-09-11 | `273d305` | migrasi 0008, CRUD 6 endpoints, tingkat enum, anggota FK, audit |
@@ -121,6 +121,7 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 
 ## Riwayat
 
+- **2026-09-11** — #16 `07-user-management` APP selesai (Opus · high) — commit `98b108f`. 3 surfaces (admin/moderator/user) dengan komponen shared: `UserListComponent` (signal-based list, search, status filter, pagination, skeleton loading, avatar, role/level display, active/inactive badge, lock indicator, action buttons gated by permission), `UserFormComponent` (reactive form, anggota picker dari `/anggota-tersedia`, role select dengan anti-escalation UX — role level >= actor level disabled, password optional on edit, active toggle, buka kunci toggle on edit). Routes 3 permukaan `canActivate:[permissionGuard]` dengan `data:{permission, base}`. i18n `USERMGMT.*` IND+ENG + tambahan `COMMON.ACTIVE/INACTIVE/CREATE`. Verifikasi: `ng build` bersih (0 errors) + browser validation di 3 surfaces (list + create form).
 - **2026-09-11** — #27 `14-profile-club` API selesai (Sonnet · high) — commit `273d305`. Migrasi `0012_profile_club`, singleton guard (`CountActive > 0 → 409`), 6 endpoints (list/detail/create/update/delete + public profil), 3 file refs (banner, logo_simple, logo_besar), public endpoint tanpa auth. Bugs fixed: `toResp` pointer mismatch, `FileExistChecker` interface naming, `.Omit()` computed columns, qualified `is_deleted` ambiguitas. Verifikasi: `go build`/`go vet` + 6 endpoint tests bersih.
 - **2026-09-11** — #28 `14-profile-club` APP selesai (Sonnet · high) — commit `273d305`. Singleton form (auto-detect create vs edit via GET list), 3 image uploads dengan blob preview + `revokeObjectURL`, reactive form dengan validasi, i18n `PROFILE_CLUB.*` IND+ENG. Verifikasi: `ng build` bersih + browser validation.
 - **2026-09-11** — #25 `13-dokumen` API selesai (Sonnet · high) — commit `273d305`. Migrasi `0011_mst_dokumen`, CRUD, file upload (kategori=dokumen), download endpoint. Verifikasi: `go build`/`go vet` bersih.
