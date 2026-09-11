@@ -2,7 +2,7 @@
 
 Tracker per-prompt untuk build SLAM Team. Satu baris = satu prompt yang di-paste ke Claude Code (API atau APP). Urutan = build order (`EXECUTION.md` §3). Tandai selesai setiap kali sebuah prompt tuntas + terverifikasi + ter-commit.
 
-**Progress: 14 / 49 selesai** · 🟡 0 proses · ⬜ 35 belum
+**Progress: 25 / 49 selesai** · 🟡 0 proses · ⬜ 24 belum
 
 Status: ⬜ Belum · 🟡 Proses · ✅ Selesai · ⛔ Terblokir
 
@@ -47,19 +47,19 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 | 13 | 06-anggota | API | Sonnet · high | ✅ | 2026-09-10 | `—` | migrasi `0006_anggota` (+ `mst_wilayah`), 5 CRUD endpoints, FK validators, audit log, soft-delete guards (active KTA/user account) |
 | 14 | 06-anggota | APP | Sonnet · high | ✅ | 2026-09-10 | `—` | list (search+jenis/status filter+pagination), form (reactive+3 file upload+preview), detail (blob image load), i18n `ANGGOTA.*` |
 | 15 | 07-user-management | API | Opus · high | ✅ | 2026-09-10 | `—` | anti-eskalasi, 7 endpoints, anti-escalation rules, dual-band handler |
-| 16 | 07-user-management | APP | Opus · high | ⬜ |  |  |  |
+| 16 | 07-user-management | APP | Opus · high | ✅ | 2026-09-11 | `273d305` | list + form, user CRUD, role picker, i18n |
 | 17 | 09-unit | API | Sonnet · high | ✅ | 2026-09-10 | `—` | migrasi `0007_unit`, 6 endpoints CRUD, approval flow via PUT, scope enforcement, anggota tersedia, foto UUID→file_id resolve |
 | 18 | 09-unit | APP | Sonnet · high | ✅ | 2026-09-10 | `—` | unit-list (signal, filter, pagination), unit-form (anggota picker, spec fields, foto upload, approval toggle), routing, i18n IND/ENG |
-| 19 | 10-prestasi | API | Sonnet · high | ⬜ |  |  |  |
-| 20 | 10-prestasi | APP | Sonnet · high | ⬜ |  |  |  |
-| 21 | 11-inorga | API | Sonnet · high | ⬜ |  |  |  |
-| 22 | 11-inorga | APP | Sonnet · high | ⬜ |  |  |  |
-| 23 | 12-medsos | API | Sonnet · high | ⬜ |  |  |  |
-| 24 | 12-medsos | APP | Sonnet · high | ⬜ |  |  |  |
-| 25 | 13-dokumen | API | Sonnet · high | ⬜ |  |  |  |
-| 26 | 13-dokumen | APP | Sonnet · high | ⬜ |  |  |  |
-| 27 | 14-profile-club | API | Sonnet · high | ⬜ |  |  | singleton |
-| 28 | 14-profile-club | APP | Sonnet · high | ⬜ |  |  |  |
+| 19 | 10-prestasi | API | Sonnet · high | ✅ | 2026-09-11 | `273d305` | migrasi 0008, CRUD 6 endpoints, tingkat enum, anggota FK, audit |
+| 20 | 10-prestasi | APP | Sonnet · high | ✅ | 2026-09-11 | `273d305` | list + form + tingkat filter, foto/flyer upload, i18n |
+| 21 | 11-inorga | API | Sonnet · high | ✅ | 2026-09-11 | `273d305` | migrasi 0009, CRUD, logo/banner/SK upload, status toggle |
+| 22 | 11-inorga | APP | Sonnet · high | ✅ | 2026-09-11 | `273d305` | list + form (CKEditor-style textarea), 3 file uploads, i18n |
+| 23 | 12-medsos | API | Sonnet · high | ✅ | 2026-09-11 | `273d305` | migrasi 0010, CRUD, anggota FK, kode unique per anggota |
+| 24 | 12-medsos | APP | Sonnet · high | ✅ | 2026-09-11 | `273d305` | list + form, jenis filter, anggota picker, i18n |
+| 25 | 13-dokumen | API | Sonnet · high | ✅ | 2026-09-11 | `273d305` | migrasi 0011, CRUD, file upload (kategori=dokumen), download |
+| 26 | 13-dokumen | APP | Sonnet · high | ✅ | 2026-09-11 | `273d305` | list + form + file upload + download, reff_type filter, i18n |
+| 27 | 14-profile-club | API | Sonnet · high | ✅ | 2026-09-11 | `273d305` | singleton guard (409), 6 endpoints, public profil endpoint, 3 file refs |
+| 28 | 14-profile-club | APP | Sonnet · high | ✅ | 2026-09-11 | `273d305` | singleton form (auto create/edit), 3 image uploads, i18n |
 
 ## Fase 3 — Lokasi + jadwal
 
@@ -118,6 +118,12 @@ Aturan tetap: API dulu, baru APP. Verifikasi = checklist prompt + `make build &&
 | 49 | 25-pwa | APP | Sonnet · high | ⬜ |  |  | manifest + SW (tanpa API) |
 
 ---
+
+## Riwayat
+
+| Waktu | Modul | Aksi |
+|-------|-------|------|
+| 2026-09-11 | 07-user-management APP, 10-prestasi API+APP, 11-inorga API+APP, 12-medsos API+APP, 13-dokumen API+APP, 14-profile-club API+APP | Selesai (25/49) — Fase 2 lengkap, commit `273d305` |
 
 ## Riwayat
 
