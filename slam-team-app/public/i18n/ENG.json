@@ -77,7 +77,10 @@
     "SHOWING": "Showing",
     "ENTRIES": "entries",
     "RECORDS": "records",
-    "PREV": "Previous"
+    "PREV": "Previous",
+    "ACTIVE": "Active",
+    "INACTIVE": "Inactive",
+    "CREATE": "Create"
   },
   "FORBIDDEN": {
     "TITLE": "Access Denied",
@@ -490,6 +493,69 @@
       "BANNER": "Banner",
       "LOGO_SIMPLE": "Simple Logo",
       "LOGO_BESAR": "Full Logo"
+    }
+  },
+  "USERMGMT": {
+    "LOAD_ERROR": "Failed to load user data",
+    "DELETE_SUCCESS": "User deleted successfully",
+    "DELETE_ERROR": "Failed to delete user",
+    "ROLES_ERROR": "Failed to load roles",
+    "ANGGOTA_ERROR": "Failed to load member list",
+    "CREATE_SUCCESS": "New user created successfully",
+    "UPDATE_SUCCESS": "User data updated successfully",
+    "SAVE_ERROR": "Failed to save user data",
+    "ADMIN": {
+      "TITLE": "User Management (Admin)",
+      "CREATE_TITLE": "Add Admin User",
+      "EDIT_TITLE": "Edit Admin User"
+    },
+    "MODERATOR": {
+      "TITLE": "User Management (Moderator)",
+      "CREATE_TITLE": "Add Moderator User",
+      "EDIT_TITLE": "Edit Moderator User"
+    },
+    "USER": {
+      "TITLE": "User Management (User)",
+      "CREATE_TITLE": "Add User",
+      "EDIT_TITLE": "Edit User"
+    },
+    "FILTER": {
+      "ALL_STATUS": "All Status",
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    },
+    "TABLE": {
+      "COLUMN": {
+        "NO": "No",
+        "ANGGOTA": "Member",
+        "USERNAME": "Username",
+        "EMAIL": "Email",
+        "ROLE": "Role",
+        "LEVEL": "Level",
+        "STATUS": "Status",
+        "ACTIONS": "Actions"
+      }
+    },
+    "FORM": {
+      "ANGGOTA": "Select Member",
+      "SELECT_ANGGOTA": "-- Select Member --",
+      "ANGGOTA_REQUIRED": "Member is required",
+      "USERNAME": "Username",
+      "USERNAME_REQUIRED": "Username is required (min 3 characters)",
+      "EMAIL": "Email",
+      "EMAIL_INVALID": "Invalid email format",
+      "PASSWORD": "Password",
+      "PASSWORD_LEAVE_EMPTY": "leave empty to keep current",
+      "PASSWORD_REQUIRED": "Password is required",
+      "PASSWORD_MIN": "Password must be at least 6 characters",
+      "ROLE": "Role",
+      "SELECT_ROLE": "-- Select Role --",
+      "ROLE_REQUIRED": "Role is required",
+      "LEVEL_RESTRICTED": "Not available",
+      "TIMEZONE": "Timezone",
+      "STATUS": "Active Status",
+      "UNLOCK": "Unlock Account",
+      "UNLOCK_HELP": "Enable to unlock a locked account"
     }
   }
 }

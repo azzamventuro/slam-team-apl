@@ -205,6 +205,64 @@ export const routes: Routes = [
         data: { permission: 'profile_club.read' },
         loadComponent: () => import('./pages/profile-club/profile-club').then((m) => m.ProfileClubComponent),
       },
+      // ── User Management — 3 surfaces sharing same components ──
+      {
+        path: 'admin',
+        canActivate: [permissionGuard],
+        data: { permission: 'admin.read', base: 'admin' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+        ],
+      },
+      {
+        path: 'moderator',
+        canActivate: [permissionGuard],
+        data: { permission: 'moderator.read', base: 'moderator' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+        ],
+      },
+      {
+        path: 'user',
+        canActivate: [permissionGuard],
+        data: { permission: 'user.read', base: 'user' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+          },
+          {
+            path: 'create',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+          },
+        ],
+      },
     ],
   },
   { path: '**', redirectTo: '' },

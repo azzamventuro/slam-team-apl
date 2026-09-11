@@ -77,7 +77,10 @@
     "SHOWING": "Menampilkan",
     "ENTRIES": "data",
     "RECORDS": "data",
-    "PREV": "Sebelumnya"
+    "PREV": "Sebelumnya",
+    "ACTIVE": "Aktif",
+    "INACTIVE": "Nonaktif",
+    "CREATE": "Buat"
   },
   "FORBIDDEN": {
     "TITLE": "Akses Ditolak",
@@ -490,6 +493,69 @@
       "BANNER": "Banner",
       "LOGO_SIMPLE": "Logo Simple",
       "LOGO_BESAR": "Logo Besar"
+    }
+  },
+  "USERMGMT": {
+    "LOAD_ERROR": "Gagal memuat data pengguna",
+    "DELETE_SUCCESS": "Pengguna berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus pengguna",
+    "ROLES_ERROR": "Gagal memuat daftar peran",
+    "ANGGOTA_ERROR": "Gagal memuat daftar anggota",
+    "CREATE_SUCCESS": "Pengguna baru berhasil dibuat",
+    "UPDATE_SUCCESS": "Data pengguna berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan data pengguna",
+    "ADMIN": {
+      "TITLE": "Manajemen Pengguna (Admin)",
+      "CREATE_TITLE": "Tambah Pengguna Admin",
+      "EDIT_TITLE": "Edit Pengguna Admin"
+    },
+    "MODERATOR": {
+      "TITLE": "Manajemen Pengguna (Moderator)",
+      "CREATE_TITLE": "Tambah Pengguna Moderator",
+      "EDIT_TITLE": "Edit Pengguna Moderator"
+    },
+    "USER": {
+      "TITLE": "Manajemen Pengguna (User)",
+      "CREATE_TITLE": "Tambah Pengguna",
+      "EDIT_TITLE": "Edit Pengguna"
+    },
+    "FILTER": {
+      "ALL_STATUS": "Semua Status",
+      "ACTIVE": "Aktif",
+      "INACTIVE": "Nonaktif"
+    },
+    "TABLE": {
+      "COLUMN": {
+        "NO": "No",
+        "ANGGOTA": "Anggota",
+        "USERNAME": "Username",
+        "EMAIL": "Email",
+        "ROLE": "Peran",
+        "LEVEL": "Level",
+        "STATUS": "Status",
+        "ACTIONS": "Aksi"
+      }
+    },
+    "FORM": {
+      "ANGGOTA": "Pilih Anggota",
+      "SELECT_ANGGOTA": "-- Pilih Anggota --",
+      "ANGGOTA_REQUIRED": "Anggota wajib dipilih",
+      "USERNAME": "Username",
+      "USERNAME_REQUIRED": "Username wajib diisi (minimal 3 karakter)",
+      "EMAIL": "Email",
+      "EMAIL_INVALID": "Format email tidak valid",
+      "PASSWORD": "Password",
+      "PASSWORD_LEAVE_EMPTY": "kosongkan jika tidak ingin mengubah",
+      "PASSWORD_REQUIRED": "Password wajib diisi",
+      "PASSWORD_MIN": "Password minimal 6 karakter",
+      "ROLE": "Peran",
+      "SELECT_ROLE": "-- Pilih Peran --",
+      "ROLE_REQUIRED": "Peran wajib dipilih",
+      "LEVEL_RESTRICTED": "Tidak dapat dipilih",
+      "TIMEZONE": "Zona Waktu",
+      "STATUS": "Status Aktif",
+      "UNLOCK": "Buka Kunci Akun",
+      "UNLOCK_HELP": "Aktifkan untuk membuka akun yang terkunci"
     }
   }
 }
