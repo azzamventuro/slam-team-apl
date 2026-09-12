@@ -1,0 +1,95 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex align-items-center mb-4">
+    <a routerLink="/hak-akses" class="btn btn-outline-light me-3">{{ 'COMMON.BACK' | translate }}</a>
+    <h1 class="slam-heading mb-0">
+      {{ 'HAK_AKSES.MATRIX.TITLE' | translate }} — {{ roleName() }}
+    </h1>
+  </div>
+
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Permission grid -->
+    <div class="table-responsive">
+      <table class="table table-dark table-bordered table-sm align-middle slam-matrix">
+        <thead>
+          <tr>
+            <th class="slam-matrix__modul-col">{{ 'HAK_AKSES.MATRIX.MODUL' | translate }}</th>
+            @for (aksi of aksiColumns; track aksi) {
+              <th class="text-center slam-matrix__aksi-col">
+                {{ 'HAK_AKSES.MATRIX.AKSI.' + aksi.toUpperCase() | translate }}
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (modul of moduls(); track modul.kode) {
+            <tr>
+              <td>
+                <span class="slam-matrix__modul-name">{{ modul.nama }}</span>
+                <span class="text-muted ms-2">{{ modul.kode }}</span>
+              </td>
+              @for (aksi of aksiColumns; track aksi) {
+                <td class="text-center">
+                  @if (userHasPermission(modul.kode, aksi) || canEditMatrix()) {
+                    <!-- Checkbox + cakupan select -->
+                    <div class="d-flex align-items-center justify-content-center gap-1">
+                      <input
+                        type="checkbox"
+                        class="form-check-input slam-checkbox"
+                        [checked]="isChecked(modul.kode, aksi)"
+                        [disabled]="!userHasPermission(modul.kode, aksi) || !canEditMatrix()"
+                        (change)="toggle(modul.kode, aksi)"
+                      />
+                      @if (isChecked(modul.kode, aksi)) {
+                        <select
+                          class="form-select form-select-sm slam-cakupan-select"
+                          [value]="getCakupan(modul.kode, aksi)"
+                          [disabled]="!userHasPermission(modul.kode, aksi) || !canEditMatrix()"
+                          (change)="setCakupan(modul.kode, aksi, $any($event.target).value)"
+                        >
+                          @for (cakupan of cakupanOptions; track cakupan) {
+                            <option [value]="cakupan">
+                              {{ 'HAK_AKSES.MATRIX.CAKUPAN.' + cakupan.toUpperCase() | translate }}
+                            </option>
+                          }
+                        </select>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-muted">—</span>
+                  }
+                </td>
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="aksiColumns.length + 1" class="text-center text-muted py-4">
+                {{ 'COMMON.EMPTY' | translate }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Save button -->
+    @if (canEditMatrix()) {
+      <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-danger" [disabled]="saving()" (click)="save()">
+          @if (saving()) {
+            <span class="spinner-border spinner-border-sm me-1"></span>
+          }
+          {{ 'COMMON.SAVE' | translate }}
+        </button>
+        <a routerLink="/hak-akses" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+      </div>
+    }
+  }
+</div>

@@ -1,0 +1,124 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'ANGGOTA.FORM.TITLE_EDIT' | translate }}</h1>
+    <div class="d-flex gap-2">
+      <a [routerLink]="['/anggota', anggota()?.id, 'edit']" class="btn btn-warning" *hasPermission="'anggota.update'">
+        {{ 'COMMON.EDIT' | translate }}
+      </a>
+      <a routerLink="/anggota" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="slam-skeleton">
+      <div class="slam-skeleton__row">
+        <div class="slam-skeleton__cell slam-skeleton__cell--lg"></div>
+        <div class="slam-skeleton__cell slam-skeleton__cell--lg"></div>
+      </div>
+      <div class="slam-skeleton__row">
+        <div class="slam-skeleton__cell slam-skeleton__cell--md"></div>
+        <div class="slam-skeleton__cell slam-skeleton__cell--md"></div>
+      </div>
+    </div>
+  } @else if (anggota(); as a) {
+    <div class="row g-4">
+      <!-- Profile photo column -->
+      <div class="col-md-3">
+        <div class="slam-detail-card text-center">
+          @if (fotoProfilUrl(); as url) {
+            <img [src]="url" class="img-fluid rounded mb-3 slam-img-profile" alt="foto profil" />
+          } @else {
+            <div class="slam-img-placeholder mb-3">
+              <span class="slam-icon-placeholder">👤</span>
+            </div>
+          }
+          <h5 class="mb-1">{{ a.nama_lengkap }}</h5>
+          @if (a.nama_panggilan) {
+            <p class="text-muted mb-2">"{{ a.nama_panggilan }}"</p>
+          }
+          <p class="mb-1"><code>{{ a.no_induk ?? '—' }}</code></p>
+          <span [class]="statusClass(a.status_anggota)">{{ a.status_anggota }}</span>
+        </div>
+      </div>
+
+      <!-- Detail info -->
+      <div class="col-md-9">
+        <div class="slam-detail-card">
+          <h5 class="slam-heading-sm mb-3">{{ 'ANGGOTA.DETAIL.INFO_BIODATA' | translate }}</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.TABLE.INSTANSI' | translate }}</span>
+              <span class="slam-detail-value">{{ a.instansi_nama ?? '—' }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.JENIS_ANGGOTA' | translate }}</span>
+              <span class="slam-detail-value">{{ jenisLabel(a.jenis_anggota) }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.JENIS_KELAMIN' | translate }}</span>
+              <span class="slam-detail-value">{{ jkLabel(a.jenis_kelamin) }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.TEMPAT_LAHIR' | translate }}</span>
+              <span class="slam-detail-value">{{ a.tempat_lahir ?? '—' }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.TANGGAL_LAHIR' | translate }}</span>
+              <span class="slam-detail-value">{{ a.tanggal_lahir }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.TANGGAL_BERGABUNG' | translate }}</span>
+              <span class="slam-detail-value">{{ a.tanggal_bergabung ?? '—' }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.PEKERJAAN' | translate }}</span>
+              <span class="slam-detail-value">{{ a.pekerjaan ?? '—' }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.JENIS_IDENTITAS' | translate }}</span>
+              <span class="slam-detail-value">{{ jenisIdentitasLabel(a.jenis_identitas) }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.NO_IDENTITAS' | translate }}</span>
+              <span class="slam-detail-value">{{ a.no_identitas ?? '—' }}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.KODE_POS' | translate }}</span>
+              <span class="slam-detail-value">{{ a.kode_pos ?? '—' }}</span>
+            </div>
+            @if (a.alamat) {
+              <div class="col-12">
+                <span class="slam-detail-label">{{ 'ANGGOTA.FORM.ALAMAT' | translate }}</span>
+                <span class="slam-detail-value">{{ a.alamat }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Files section -->
+        <div class="slam-detail-card mt-4">
+          <h5 class="slam-heading-sm mb-3">{{ 'ANGGOTA.DETAIL.INFO_FILES' | translate }}</h5>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.FOTO_FORMAL' | translate }}</span>
+              @if (fotoFormalUrl(); as url) {
+                <img [src]="url" class="img-fluid rounded mt-1 slam-img-detail" alt="foto formal" />
+              } @else {
+                <p class="slam-detail-value">—</p>
+              }
+            </div>
+            <div class="col-md-4">
+              <span class="slam-detail-label">{{ 'ANGGOTA.FORM.FILE_IDENTITAS' | translate }}</span>
+              @if (fileIdentitasUrl(); as url) {
+                <img [src]="url" class="img-fluid rounded mt-1 slam-img-detail" alt="file identitas" />
+              } @else {
+                <p class="slam-detail-value">—</p>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

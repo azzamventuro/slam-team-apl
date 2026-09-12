@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../core/services/auth.service';
+import { SlamIconComponent } from '../../shared/components/slam-icon/slam-icon.component';
 
 @Component({
   selector: 'app-topbar',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, SlamIconComponent],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
 })

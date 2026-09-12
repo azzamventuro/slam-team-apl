@@ -1,0 +1,179 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">
+      {{ (isEdit() ? 'ANGGOTA.FORM.TITLE_EDIT' : 'ANGGOTA.FORM.TITLE_CREATE') | translate }}
+    </h1>
+    <a routerLink="/anggota" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-form-card">
+    <div class="row g-3">
+      <!-- Instansi (required) -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'ANGGOTA.FORM.INSTANSI_ID' | translate }} *</label>
+        <select class="form-select" formControlName="instansi_id">
+          <option [ngValue]="null" disabled>{{ 'ANGGOTA.FORM.PLACEHOLDER_INSTANSI' | translate }}</option>
+          @for (ins of instansiList(); track ins.id) {
+            <option [ngValue]="ins.id">{{ ins.nama }}</option>
+          }
+        </select>
+        @if (hasError('instansi_id', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Nama Lengkap (required) -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'ANGGOTA.FORM.NAMA_LENGKAP' | translate }} *</label>
+        <input type="text" class="form-control" formControlName="nama_lengkap" maxlength="150" />
+        @if (hasError('nama_lengkap', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Nama Panggilan -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'ANGGOTA.FORM.NAMA_PANGGILAN' | translate }}</label>
+        <input type="text" class="form-control" formControlName="nama_panggilan" maxlength="50" />
+      </div>
+
+      <!-- Jenis Anggota (required) -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.JENIS_ANGGOTA' | translate }} *</label>
+        <select class="form-select" formControlName="jenis_anggota">
+          <option value="" disabled>{{ 'ANGGOTA.FORM.PLACEHOLDER_JENIS' | translate }}</option>
+          <option value="siswa">{{ 'ANGGOTA.JENIS.SISWA' | translate }}</option>
+          <option value="dewasa">{{ 'ANGGOTA.JENIS.DEWASA' | translate }}</option>
+          <option value="siswa_ke_dewasa">{{ 'ANGGOTA.JENIS.SISWA_KE_DEWASA' | translate }}</option>
+        </select>
+        @if (hasError('jenis_anggota', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Jenis Kelamin -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.JENIS_KELAMIN' | translate }}</label>
+        <select class="form-select" formControlName="jenis_kelamin">
+          <option [ngValue]="null">{{ 'ANGGOTA.FORM.PLACEHOLDER_JK' | translate }}</option>
+          <option [ngValue]="1">{{ 'ANGGOTA.JK.LAKI' | translate }}</option>
+          <option [ngValue]="2">{{ 'ANGGOTA.JK.PEREMPUAN' | translate }}</option>
+        </select>
+      </div>
+
+      <!-- Tempat Lahir -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.TEMPAT_LAHIR' | translate }}</label>
+        <input type="text" class="form-control" formControlName="tempat_lahir" maxlength="100" />
+      </div>
+
+      <!-- Tanggal Lahir (required) -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.TANGGAL_LAHIR' | translate }} *</label>
+        <input type="date" class="form-control" formControlName="tanggal_lahir" />
+        @if (hasError('tanggal_lahir', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Tanggal Bergabung -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.TANGGAL_BERGABUNG' | translate }}</label>
+        <input type="date" class="form-control" formControlName="tanggal_bergabung" />
+      </div>
+
+      <!-- Status Anggota -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.STATUS_ANGGOTA' | translate }}</label>
+        <select class="form-select" formControlName="status_anggota">
+          <option value="aktif">{{ 'ANGGOTA.STATUS_AKTIF' | translate }}</option>
+          <option value="non_aktif">{{ 'ANGGOTA.STATUS_NON_AKTIF' | translate }}</option>
+        </select>
+      </div>
+
+      <!-- Jenis Identitas -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.JENIS_IDENTITAS' | translate }}</label>
+        <select class="form-select" formControlName="jenis_identitas">
+          <option [ngValue]="null">{{ 'ANGGOTA.FORM.PLACEHOLDER_JENIS_ID' | translate }}</option>
+          <option [ngValue]="1">KTP</option>
+          <option [ngValue]="2">SIM</option>
+          <option [ngValue]="3">Paspor</option>
+          <option [ngValue]="4">Lainnya</option>
+        </select>
+      </div>
+
+      <!-- No Identitas -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.NO_IDENTITAS' | translate }}</label>
+        <input type="text" class="form-control" formControlName="no_identitas" maxlength="50" />
+      </div>
+
+      <!-- Pekerjaan -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.PEKERJAAN' | translate }}</label>
+        <input type="text" class="form-control" formControlName="pekerjaan" maxlength="100" />
+      </div>
+
+      <!-- Alamat -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'ANGGOTA.FORM.ALAMAT' | translate }}</label>
+        <textarea class="form-control" formControlName="alamat" rows="2"></textarea>
+      </div>
+
+      <!-- Kode Pos -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'ANGGOTA.FORM.KODE_POS' | translate }}</label>
+        <input type="text" class="form-control" formControlName="kode_pos" maxlength="10" />
+      </div>
+
+      <hr class="my-3" />
+      <h5 class="slam-heading-sm">{{ 'ANGGOTA.FORM.FILES' | translate }}</h5>
+
+      <!-- Foto Profil -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'ANGGOTA.FORM.FOTO_PROFIL' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onFotoProfilPicked($event)" />
+        @if (fotoProfilPreview()) {
+          <div class="mt-2">
+            <img [src]="fotoProfilPreview()" class="img-thumbnail slam-img-sm" alt="foto_profil" />
+          </div>
+        }
+      </div>
+
+      <!-- Foto Formal -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'ANGGOTA.FORM.FOTO_FORMAL' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onFotoFormalPicked($event)" />
+        @if (fotoFormalPreview()) {
+          <div class="mt-2">
+            <img [src]="fotoFormalPreview()" class="img-thumbnail slam-img-sm" alt="foto_formal" />
+          </div>
+        }
+      </div>
+
+      <!-- File Identitas -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'ANGGOTA.FORM.FILE_IDENTITAS' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*,application/pdf" (change)="onFileIdentitasPicked($event)" />
+        @if (fileIdentitasPreview()) {
+          <div class="mt-2">
+            <img [src]="fileIdentitasPreview()" class="img-thumbnail slam-img-sm" alt="file_identitas" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/anggota" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

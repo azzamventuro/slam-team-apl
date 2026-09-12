@@ -19,3 +19,10 @@ type LoginResponse struct {
 	Token string       `json:"token"`
 	User  UserResponse `json:"user"`
 }
+
+// MyPermissionsResp is returned by GET /auth/me/permissions.
+type MyPermissionsResp struct {
+	Permissions []string `json:"permissions"` // e.g. ["anggota.read", "file.delete"] or ["*"] for super
+	PermVersion int64    `json:"perm_version"`
+	IsSuper     bool     `json:"is_super"`
+}

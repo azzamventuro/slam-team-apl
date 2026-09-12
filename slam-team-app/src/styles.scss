@@ -419,7 +419,115 @@ h4,
   color: var(--slam-on-primary);
 }
 
-// ── 10. Accessibility baselines ─────────────────────────────────────────────
+// ── 10. Shared component classes ───────────────────────────────────────────
+// Page heading — consistent across all list/form pages.
+.slam-heading {
+  color: var(--slam-text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+// Card container for form pages.
+.slam-card {
+  background: var(--slam-surface);
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius-lg);
+  padding: var(--slam-space-5);
+  max-width: 480px;
+  transition: box-shadow var(--slam-transition);
+}
+
+.slam-card:hover {
+  box-shadow: var(--slam-shadow-sm);
+}
+
+.slam-card--wide {
+  max-width: 640px;
+}
+
+// Skeleton loader — animated pulse placeholder.
+.slam-skeleton {
+  display: flex;
+  gap: var(--slam-space-4);
+  padding: var(--slam-space-5);
+}
+
+.slam-skeleton__row {
+  display: flex;
+  gap: var(--slam-space-4);
+  width: 100%;
+  padding: var(--slam-space-3) 0;
+}
+
+.slam-skeleton__cell {
+  height: 16px;
+  border-radius: var(--slam-radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--slam-surface-2) 25%,
+    var(--slam-surface-3) 50%,
+    var(--slam-surface-2) 75%
+  );
+  background-size: 200% 100%;
+  animation: slam-shimmer 1.5s ease-in-out infinite;
+}
+
+.slam-skeleton__cell--sm { flex: 1; }
+.slam-skeleton__cell--md { flex: 2; }
+.slam-skeleton__cell--lg { flex: 3; }
+.slam-skeleton__cell--avatar {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border-radius: var(--slam-radius-sm);
+}
+
+@keyframes slam-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// Empty state — icon + message + optional action.
+.slam-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--slam-space-3);
+  padding: var(--slam-space-7) var(--slam-space-5);
+  text-align: center;
+}
+
+.slam-empty__icon {
+  color: var(--slam-text-dim);
+  opacity: 0.5;
+}
+
+.slam-empty__text {
+  color: var(--slam-text-muted);
+  font-size: 0.875rem;
+  max-width: 280px;
+}
+
+// Table row hover micro-interaction.
+.table tbody tr {
+  transition: background-color var(--slam-transition-fast);
+}
+
+.table tbody tr:hover > * {
+  background-color: var(--slam-surface-2);
+}
+
+// Button press micro-interaction.
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-group-sm .btn:active {
+  transform: scale(0.95);
+}
+
+// ── 11. Accessibility baselines ─────────────────────────────────────────────
 // Touch targets reach 44px where fingers are the input device (absen, mobile).
 @media (max-width: 767.98px) {
   .btn,

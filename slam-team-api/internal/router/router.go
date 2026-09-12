@@ -7,9 +7,20 @@ import (
 
 	"slam-team-api/internal/config"
 	"slam-team-api/internal/middleware"
+	"slam-team-api/internal/modules/core/anggota"
 	"slam-team-api/internal/modules/core/auth"
 	"slam-team-api/internal/modules/core/file"
+	"slam-team-api/internal/modules/core/hakakses"
+	"slam-team-api/internal/modules/core/inorga"
+	"slam-team-api/internal/modules/core/instansi"
+	"slam-team-api/internal/modules/core/dokumen"
+	filerepository "slam-team-api/internal/modules/core/file/repository"
+	"slam-team-api/internal/modules/core/medsos"
 	"slam-team-api/internal/modules/core/pengaturan"
+	"slam-team-api/internal/modules/core/prestasi"
+	"slam-team-api/internal/modules/core/profileclub"
+	"slam-team-api/internal/modules/core/unit"
+	"slam-team-api/internal/modules/core/usermgmt"
 	"slam-team-api/internal/shared/audit"
 	"slam-team-api/pkg/jwt"
 
@@ -51,8 +62,22 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	// log_aktivitas row through it.
 	auditor := audit.NewWriter(db)
 
+	// Shared PermGuard: dynamic RBAC permission cache. Created once, passed
+	// to every module that needs route-level permission checks.
+	permGuard := middleware.NewPermGuard(db)
+
 	// --- Register feature modules here ---
-	auth.Initialize(db, jwtMgr).SetupRoutes(apiV1)
+
+	// Hakakses (RBAC): role CRUD, permission matrix, permission catalogue.
+	// Registered FIRST because auth depends on hakakses repo for role claims
+	// in login tokens and the /me/permissions endpoint.
+	hakaksesModule := hakakses.Initialize(db, jwtMgr, permGuard, auditor)
+	hakaksesModule.SetupRoutes(apiV1)
+
+	// Auth: depends on hakakses repo (for GetUserPrimaryRole / GetPermVersion)
+	// and permGuard (for Effective in /me/permissions).
+	auth.Initialize(db, jwtMgr, hakaksesModule.Repository(), permGuard).SetupRoutes(apiV1)
+
 	pengaturan.Initialize(db, jwtMgr, auditor).SetupRoutes(apiV1)
 
 	// The file layer reads its variant sizes from mst_pengaturan, so it is
@@ -62,6 +87,53 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 		return nil, err
 	}
 	fileModule.SetupRoutes(apiV1)
+
+	// Instansi (Master Data Instansi / Sekolah): CRUD with RBAC permission guards.
+	// Registered after file (logo uploads) and hakakses (permission checks).
+	instansi.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Anggota (Master Data Anggota / Core Member Record): CRUD with RBAC permission guards.
+	// Registered after instansi (FK validation) and file (foto uploads).
+	anggota.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Unit (Master Data Unit / Airsoft Gun Registry): CRUD with RBAC permission guards.
+	// Registered after anggota (FK validation) and file (foto uploads).
+	unit.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Prestasi (Achievement / Competition Records): CRUD with RBAC permission guards.
+	// Registered after anggota (FK validation) and file (flyer/foto uploads).
+	prestasiModule := prestasi.Initialize(db, jwtMgr, permGuard, auditor)
+	prestasiModule.SetupRoutes(apiV1)
+
+	// Inorga (Kepengurusan / Organisational Periods): CRUD with RBAC permission guards.
+	// Registered after file (logo/banner/SK uploads).
+	inorga.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Medsos (Social Media Links per Anggota): CRUD with RBAC permission guards.
+	// Registered after anggota (FK validation).
+	medsos.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Dokumen (Polymorphic Document Attachments): CRUD with RBAC permission guards.
+	// Registered after file (file_uuid → file_id resolution) and before usermgmt.
+	// A separate FileRepository instance is created here since the file module
+	// does not export its repository.
+	dokumenFileRepo := filerepository.NewFileRepository(db)
+	dokumen.Initialize(db, jwtMgr, permGuard, auditor, dokumenFileRepo).SetupRoutes(apiV1)
+
+	// ProfileClub (Singleton Club Identity): CRUD with RBAC permission guards.
+	// Registered after file (logo/banner uploads) and before usermgmt.
+	profileClubModule := profileclub.Initialize(db, jwtMgr, permGuard, auditor)
+	profileClubModule.SetupRoutes(apiV1)
+
+	// Usermgmt (User Management surfaces: admin / moderator / user): CRUD over
+	// users + user_role filtered by role-level band. Anti-escalation enforced.
+	// Registered after anggota (FK validation) and hakakses (permission checks).
+	usermgmt.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// ── Public routes (no auth required) ──
+	publicV1 := engine.Group("/api/public")
+	prestasiModule.PublicSetupRoutes(publicV1)
+	profileClubModule.PublicSetupRoutes(publicV1)
 
 	return engine, nil
 }

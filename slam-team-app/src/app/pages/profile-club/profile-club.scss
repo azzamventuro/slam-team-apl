@@ -1,0 +1,19 @@
+.file-preview {
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid var(--slam-border);
+}
+
+.file-preview--banner {
+  width: 200px;
+  height: 80px;
+}
+
+.file-preview--logo {
+  width: 80px;
+  height: 80px;
+}
+
+.file-placeholder {
+  background: var(--slam-surface-2);
+}

@@ -1,0 +1,83 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">
+      {{ (isEdit() ? 'MEDSOS.FORM.TITLE_EDIT' : 'MEDSOS.FORM.TITLE_CREATE') | translate }}
+    </h1>
+    <a routerLink="/medsos" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-form-card">
+    <div class="row g-3">
+      <!-- Anggota (required) -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'MEDSOS.FORM.ANGGOTA' | translate }} *</label>
+        <select class="form-select" formControlName="anggota_id">
+          <option [ngValue]="null" disabled>{{ 'MEDSOS.FORM.PLACEHOLDER_ANGGOTA' | translate }}</option>
+          @for (a of anggotaList(); track a.id) {
+            <option [ngValue]="a.id">{{ a.nama_lengkap }}</option>
+          }
+        </select>
+        @if (hasError('anggota_id', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Jenis Medsos (required) -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'MEDSOS.FORM.JENIS' | translate }} *</label>
+        <input type="text" class="form-control" formControlName="jenis_medsos" maxlength="50"
+          [placeholder]="'MEDSOS.FORM.PLACEHOLDER_JENIS' | translate" />
+        @if (hasError('jenis_medsos', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('jenis_medsos', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 50 } }}</small>
+        }
+      </div>
+
+      <!-- Konten Medsos (required) -->
+      <div class="col-md-8">
+        <label class="form-label">{{ 'MEDSOS.FORM.KONTEN' | translate }} *</label>
+        <input type="text" class="form-control" formControlName="konten_medsos" maxlength="255"
+          [placeholder]="'MEDSOS.FORM.PLACEHOLDER_KONTEN' | translate" />
+        @if (hasError('konten_medsos', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('konten_medsos', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 255 } }}</small>
+        }
+      </div>
+
+      <!-- Icon -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'MEDSOS.FORM.ICON' | translate }}</label>
+        <input type="text" class="form-control" formControlName="icon" maxlength="50"
+          [placeholder]="'MEDSOS.FORM.PLACEHOLDER_ICON' | translate" />
+      </div>
+
+      <!-- Kode -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'MEDSOS.FORM.KODE' | translate }}</label>
+        <input type="text" class="form-control" formControlName="kode" maxlength="50" />
+      </div>
+
+      <!-- Tipe -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'MEDSOS.FORM.TIPE' | translate }}</label>
+        <input type="number" class="form-control" formControlName="tipe" min="0" />
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/medsos" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

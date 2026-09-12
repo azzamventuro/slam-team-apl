@@ -28,7 +28,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		response.Unprocess(c, "validation failed", err.Error())
 		return
 	}
-	res, err := h.svc.Login(req)
+	res, err := h.svc.Login(c.Request.Context(), req)
 	if err != nil {
 		if errors.Is(err, service.ErrInvalidCredentials) {
 			response.Unauthorized(c, err.Error())
@@ -48,8 +48,28 @@ func (h *AuthHandler) Me(c *gin.Context) {
 		return
 	}
 	response.OK(c, gin.H{
-		"id":    claims.UserID,
-		"email": claims.Email,
-		"name":  claims.Name,
+		"id":          claims.UserID,
+		"email":       claims.Email,
+		"name":        claims.Name,
+		"role_id":     claims.RoleID,
+		"role_level":  claims.RoleLevel,
+		"is_super":    claims.IsSuper,
+		"perm_version": claims.PermVersion,
 	})
+}
+
+// MePermissions handles GET /auth/me/permissions — returns the user's effective
+// permission set from the dynamic RBAC matrix.
+func (h *AuthHandler) MePermissions(c *gin.Context) {
+	claims := middleware.Claims(c)
+	if claims == nil {
+		response.Unauthorized(c, "not authenticated")
+		return
+	}
+	resp, err := h.svc.MyPermissions(c.Request.Context(), claims)
+	if err != nil {
+		response.Internal(c, err)
+		return
+	}
+	response.OK(c, resp)
 }

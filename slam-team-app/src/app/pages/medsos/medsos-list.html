@@ -1,0 +1,133 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'MEDSOS.TITLE' | translate }}</h1>
+    <a routerLink="create" class="btn btn-danger" *hasPermission="'medsos.create'">
+      {{ 'COMMON.ADD' | translate }} {{ 'MEDSOS.LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3 col-sm-6">
+      <label class="form-label form-label-sm text-muted">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'MEDSOS.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="col-md-2 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'MEDSOS.FILTER.JENIS' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'MEDSOS.FILTER.PLACEHOLDER_JENIS' | translate"
+        [ngModel]="jenisFilter()"
+        (ngModelChange)="onJenisChange($event)"
+      />
+    </div>
+    <div class="col-md-3 col-sm-3">
+      <label class="form-label form-label-sm text-muted">{{ 'MEDSOS.FILTER.ANGGOTA' | translate }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="anggotaFilter()"
+        (ngModelChange)="onAnggotaChange($event)"
+      >
+        <option [ngValue]="null">{{ 'COMMON.ALL' | translate }}</option>
+        @for (a of anggotaList(); track a.id) {
+          <option [ngValue]="a.id">{{ a.nama_lengkap }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="onSearch()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="slam-form-card">
+    @if (loading()) {
+      <div class="text-center py-4">
+        <div class="spinner-border text-danger" role="status">
+          <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+        </div>
+      </div>
+    } @else {
+      <div class="table-responsive">
+        <table class="table table-dark table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>{{ 'MEDSOS.TABLE.JENIS' | translate }}</th>
+              <th>{{ 'MEDSOS.TABLE.KONTEN' | translate }}</th>
+              <th>{{ 'MEDSOS.TABLE.ICON' | translate }}</th>
+              <th>{{ 'MEDSOS.TABLE.ANGGOTA' | translate }}</th>
+              <th>{{ 'MEDSOS.TABLE.KODE' | translate }}</th>
+              <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of items(); track item.id) {
+              <tr>
+                <td>{{ item.jenis_medsos }}</td>
+                <td>
+                  @if (item.konten_medsos.startsWith('http')) {
+                    <a [href]="item.konten_medsos" target="_blank" rel="noopener" class="text-info text-decoration-underline">
+                      {{ item.konten_medsos }}
+                    </a>
+                  } @else {
+                    {{ item.konten_medsos }}
+                  }
+                </td>
+                <td>
+                  @if (item.icon) {
+                    <span class="badge bg-secondary">{{ item.icon }}</span>
+                  } @else {
+                    —
+                  }
+                </td>
+                <td>{{ anggotaDisplay(item) }}</td>
+                <td>{{ item.kode || '—' }}</td>
+                <td class="text-end">
+                  <a [routerLink]="[item.id, 'edit']" class="btn btn-outline-light btn-sm me-1" *hasPermission="'medsos.update'">
+                    {{ 'COMMON.EDIT' | translate }}
+                  </a>
+                  <button class="btn btn-outline-danger btn-sm" *hasPermission="'medsos.delete'" (click)="deleteItem(item)">
+                    {{ 'COMMON.DELETE' | translate }}
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">{{ 'COMMON.EMPTY' | translate }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+        <small class="text-muted">
+          {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }} {{ total() }} {{ 'COMMON.ENTRIES' | translate }}
+        </small>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+            {{ 'COMMON.PREVIOUS' | translate }}
+          </button>
+          <span class="btn btn-outline-light disabled">
+            {{ currentPage() }} / {{ totalPages() }}
+          </span>
+          <button class="btn btn-outline-light" [disabled]="currentPage() >= totalPages()" (click)="nextPage()">
+            {{ 'COMMON.NEXT' | translate }}
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

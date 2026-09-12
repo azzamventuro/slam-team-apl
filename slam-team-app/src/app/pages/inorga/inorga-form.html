@@ -1,0 +1,98 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">
+      {{ (isEdit() ? 'INORGA.FORM.TITLE_EDIT' : 'INORGA.FORM.TITLE_CREATE') | translate }}
+    </h1>
+    <a routerLink="/inorga" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-form-card">
+    <div class="row g-3">
+      <!-- Nama (required) -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'INORGA.FORM.NAMA' | translate }} *</label>
+        <input type="text" class="form-control" formControlName="nama" maxlength="150" />
+        @if (hasError('nama', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('nama', 'maxlength')) {
+          <small class="text-danger">{{ 'COMMON.MAX_LENGTH' | translate: { max: 150 } }}</small>
+        }
+      </div>
+
+      <!-- Kode -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'INORGA.FORM.KODE' | translate }}</label>
+        <input type="text" class="form-control" formControlName="kode" maxlength="50" />
+      </div>
+
+      <!-- Tanggal Mulai (required) -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'INORGA.FORM.TANGGAL_MULAI' | translate }} *</label>
+        <input type="date" class="form-control" formControlName="tanggal_mulai" />
+        @if (hasError('tanggal_mulai', 'required')) {
+          <small class="text-danger">{{ 'COMMON.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Tanggal Selesai -->
+      <div class="col-md-3">
+        <label class="form-label">{{ 'INORGA.FORM.TANGGAL_SELESAI' | translate }}</label>
+        <input type="date" class="form-control" formControlName="tanggal_selesai" />
+      </div>
+
+      <!-- Keterangan / Konten -->
+      <div class="col-12">
+        <label class="form-label">{{ 'INORGA.FORM.KONTEN' | translate }}</label>
+        <textarea class="form-control" formControlName="konten" rows="6"
+          [placeholder]="'INORGA.FORM.PLACEHOLDER_KONTEN' | translate"></textarea>
+      </div>
+
+      <hr class="my-3" />
+      <h5 class="slam-heading-sm">{{ 'INORGA.FORM.FILES_HEADING' | translate }}</h5>
+
+      <!-- Logo -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'INORGA.FORM.LOGO' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onLogoPicked($event)" />
+        @if (logoPreview()) {
+          <div class="mt-2">
+            <img [src]="logoPreview()" class="img-thumbnail slam-img-sm" alt="logo" />
+          </div>
+        }
+      </div>
+
+      <!-- Banner -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'INORGA.FORM.BANNER' | translate }}</label>
+        <input class="form-control" type="file" accept="image/*" (change)="onBannerPicked($event)" />
+        @if (bannerPreview()) {
+          <div class="mt-2">
+            <img [src]="bannerPreview()" class="img-thumbnail slam-img-sm" alt="banner" />
+          </div>
+        }
+      </div>
+
+      <!-- File SK -->
+      <div class="col-md-4">
+        <label class="form-label">{{ 'INORGA.FORM.FILE_SK' | translate }}</label>
+        <input class="form-control" type="file" accept=".pdf,.doc,.docx" (change)="onSkPicked($event)" />
+        @if (skUploaded()) {
+          <small class="text-success mt-1 d-block">{{ 'INORGA.FORM.SK_UPLOADED' | translate }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/inorga" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>
