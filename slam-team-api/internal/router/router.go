@@ -9,12 +9,13 @@ import (
 	"slam-team-api/internal/middleware"
 	"slam-team-api/internal/modules/core/anggota"
 	"slam-team-api/internal/modules/core/auth"
+	"slam-team-api/internal/modules/core/dokumen"
 	"slam-team-api/internal/modules/core/file"
+	filerepository "slam-team-api/internal/modules/core/file/repository"
 	"slam-team-api/internal/modules/core/hakakses"
 	"slam-team-api/internal/modules/core/inorga"
 	"slam-team-api/internal/modules/core/instansi"
-	"slam-team-api/internal/modules/core/dokumen"
-	filerepository "slam-team-api/internal/modules/core/file/repository"
+	"slam-team-api/internal/modules/core/lokasi"
 	"slam-team-api/internal/modules/core/medsos"
 	"slam-team-api/internal/modules/core/pengaturan"
 	"slam-team-api/internal/modules/core/prestasi"
@@ -91,6 +92,11 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	// Instansi (Master Data Instansi / Sekolah): CRUD with RBAC permission guards.
 	// Registered after file (logo uploads) and hakakses (permission checks).
 	instansi.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Lokasi (Master Data Lokasi / geofence + timezone): CRUD with RBAC permission
+	// guards. Registered after file (foto uploads). jadwal FK guard is a seam —
+	// see lokasi/service TODO(16-jadwal).
+	lokasi.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
 
 	// Anggota (Master Data Anggota / Core Member Record): CRUD with RBAC permission guards.
 	// Registered after instansi (FK validation) and file (foto uploads).
