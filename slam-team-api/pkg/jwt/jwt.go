@@ -17,6 +17,10 @@ type Claims struct {
 	UserID uint   `json:"user_id"`
 	Email  string `json:"email"`
 	Name   string `json:"name"`
+	// AnggotaID is users.anggota_id — the member record behind this account.
+	// Handlers use it to resolve the `milik_sendiri` cakupan (rows owned by
+	// the caller) without a users lookup. Nil when the account has no anggota.
+	AnggotaID *int64 `json:"anggota_id,omitempty"`
 	// RoleID is mst_role.id; RoleLevel is mst_role.level (0 = super admin,
 	// 10 = admin, 20 = moderator, 30 = user — lower is more privileged).
 	RoleID    int64 `json:"role_id,omitempty"`
@@ -37,6 +41,10 @@ type Manager struct {
 	ttl    time.Duration
 }
 
+// TTL is the access-token lifetime, exposed so login responses can report
+// expires_in without a second source of truth.
+func (m *Manager) TTL() time.Duration { return m.ttl }
+
 // New returns a token Manager. secret must match across all verifiers.
 func New(secret, issuer string, ttl time.Duration) *Manager {
 	return &Manager{secret: []byte(secret), issuer: issuer, ttl: ttl}
@@ -54,11 +62,19 @@ func (m *Manager) Issue(userID uint, email, name string) (string, error) {
 // current value of mst_pengaturan "rbac.perm_version" and lets the frontend
 // detect stale permission caches.
 func (m *Manager) IssueWithRole(userID uint, email, name string, roleID int64, roleLevel int, isSuper bool, permVersion int64) (string, error) {
+	return m.IssueAccess(userID, email, name, nil, roleID, roleLevel, isSuper, permVersion)
+}
+
+// IssueAccess is IssueWithRole plus the anggota_id claim. It is the signature
+// the auth module uses at login and refresh; the older helpers remain as thin
+// wrappers so existing callers keep compiling.
+func (m *Manager) IssueAccess(userID uint, email, name string, anggotaID *int64, roleID int64, roleLevel int, isSuper bool, permVersion int64) (string, error) {
 	now := time.Now()
 	claims := Claims{
 		UserID:      userID,
 		Email:       email,
 		Name:        name,
+		AnggotaID:   anggotaID,
 		RoleID:      roleID,
 		RoleLevel:   roleLevel,
 		IsSuper:     isSuper,

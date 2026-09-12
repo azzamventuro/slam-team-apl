@@ -2,12 +2,11 @@
 package handler
 
 import (
-	"errors"
-
 	"slam-team-api/internal/middleware"
 	"slam-team-api/internal/modules/core/auth/dto"
 	"slam-team-api/internal/modules/core/auth/service"
 	"slam-team-api/internal/shared/response"
+	"slam-team-api/pkg/validator"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,41 +20,73 @@ func NewAuthHandler(svc *service.AuthService) *AuthHandler {
 	return &AuthHandler{svc: svc}
 }
 
-// Login handles POST /auth/login.
+// clientInfo lifts the request fingerprint out of Gin for sesi_login/audit.
+func clientInfo(c *gin.Context) service.ClientInfo {
+	return service.ClientInfo{IP: c.ClientIP(), UserAgent: c.Request.UserAgent()}
+}
+
+// Login handles POST /auth/login — username OR email + password.
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Unprocess(c, "validation failed", err.Error())
+		response.Unprocess(c, "validasi gagal", validator.Explain(err))
 		return
 	}
-	res, err := h.svc.Login(c.Request.Context(), req)
+	res, err := h.svc.Login(c.Request.Context(), req, clientInfo(c))
 	if err != nil {
-		if errors.Is(err, service.ErrInvalidCredentials) {
-			response.Unauthorized(c, err.Error())
-			return
-		}
-		response.Internal(c, err)
+		response.FromError(c, err)
 		return
 	}
 	response.OK(c, res)
 }
 
-// Me handles GET /auth/me — returns the authenticated user's claims.
+// Refresh handles POST /auth/refresh — rotates the refresh token.
+func (h *AuthHandler) Refresh(c *gin.Context) {
+	var req dto.RefreshRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Unprocess(c, "validasi gagal", validator.Explain(err))
+		return
+	}
+	res, err := h.svc.Refresh(c.Request.Context(), req, clientInfo(c))
+	if err != nil {
+		response.FromError(c, err)
+		return
+	}
+	response.OK(c, res)
+}
+
+// Logout handles POST /auth/logout — revokes the caller's session.
+func (h *AuthHandler) Logout(c *gin.Context) {
+	claims := middleware.Claims(c)
+	if claims == nil {
+		response.Unauthorized(c, "not authenticated")
+		return
+	}
+	var req dto.LogoutRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.Unprocess(c, "validasi gagal", validator.Explain(err))
+		return
+	}
+	if err := h.svc.Logout(c.Request.Context(), claims, req, clientInfo(c)); err != nil {
+		response.FromError(c, err)
+		return
+	}
+	response.OK(c, nil)
+}
+
+// Me handles GET /auth/me — the account, its role, and the linked anggota.
 func (h *AuthHandler) Me(c *gin.Context) {
 	claims := middleware.Claims(c)
 	if claims == nil {
 		response.Unauthorized(c, "not authenticated")
 		return
 	}
-	response.OK(c, gin.H{
-		"id":          claims.UserID,
-		"email":       claims.Email,
-		"name":        claims.Name,
-		"role_id":     claims.RoleID,
-		"role_level":  claims.RoleLevel,
-		"is_super":    claims.IsSuper,
-		"perm_version": claims.PermVersion,
-	})
+	res, err := h.svc.Me(c.Request.Context(), claims)
+	if err != nil {
+		response.FromError(c, err)
+		return
+	}
+	response.OK(c, res)
 }
 
 // MePermissions handles GET /auth/me/permissions — returns the user's effective

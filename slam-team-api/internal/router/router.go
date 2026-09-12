@@ -76,7 +76,7 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 
 	// Auth: depends on hakakses repo (for GetUserPrimaryRole / GetPermVersion)
 	// and permGuard (for Effective in /me/permissions).
-	auth.Initialize(db, jwtMgr, hakaksesModule.Repository(), permGuard).SetupRoutes(apiV1)
+	auth.Initialize(db, jwtMgr, hakaksesModule.Repository(), permGuard, auditor, cfg.JWT.RefreshTTL).SetupRoutes(apiV1)
 
 	pengaturan.Initialize(db, jwtMgr, auditor).SetupRoutes(apiV1)
 

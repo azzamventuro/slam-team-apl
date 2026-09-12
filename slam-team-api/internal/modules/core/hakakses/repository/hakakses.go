@@ -169,19 +169,18 @@ type EffectivePerm struct {
 
 // GetPermVersion reads the current perm_version counter from mst_pengaturan.
 func (r *HakaksesRepository) GetPermVersion(ctx context.Context) (int64, error) {
-	type row struct {
-		nilai string
-	}
-	var r2 row
+	// The scan target must be exported: GORM ignores unexported struct fields,
+	// which used to leave the value empty and every token at perm_version 0.
+	var nilai string
 	err := r.db.WithContext(ctx).
 		Raw("SELECT nilai FROM mst_pengaturan WHERE kunci = 'rbac.perm_version'").
-		Scan(&r2).Error
+		Scan(&nilai).Error
 	if err != nil {
 		return 0, err
 	}
 	// Parse as int64.
 	var v int64
-	for _, c := range r2.nilai {
+	for _, c := range nilai {
 		if c >= '0' && c <= '9' {
 			v = v*10 + int64(c-'0')
 		}

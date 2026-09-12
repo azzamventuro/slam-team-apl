@@ -89,8 +89,8 @@ pkg/
 
 Request flow: **router → middleware → handler → service → repository → GORM**.
 
-`auth` shows the layout (login + me), but its entity is a placeholder — see
-Gotchas.
+`auth` is the reference implementation (login by username/email, refresh-token
+rotation over `sesi_login`, logout, `/me`, `/me/permissions`).
 
 ## Conventions
 
@@ -126,8 +126,12 @@ Gotchas.
 - **No `AutoMigrate`.** The schema is the numbered SQL files in `migrations/`,
   applied with `slamctl migrate up`. A committed migration is never edited — add
   a new, higher-numbered `.up.sql`/`.down.sql` pair.
-- **The scaffold `auth` module is a placeholder** (`users(id,name,email,password)`)
-  and does not match `slamteam_db.dbml`. Don't build on its `domain.User`.
+- **`users` has no name column.** A user's display name is
+  `anggota.nama_lengkap`, joined at read time; the JWT carries `anggota_id`
+  (`middleware.Claims(c).AnggotaID`) for `milik_sendiri` ownership checks.
+- **Refresh tokens are opaque rows in `sesi_login`**, never JWTs. Rotation
+  revokes the old row (`dicabut_pada`); logout takes the `refresh_token` in the
+  body because the access token alone cannot name a session.
 - **PostgreSQL is required to boot** — `main.go` fatals if the DB is
   unreachable. Use `docker-compose up` or set `DB_*` (default port 5432).
 - **Redis is optional** — empty `REDIS_ADDR` disables it (non-fatal).
