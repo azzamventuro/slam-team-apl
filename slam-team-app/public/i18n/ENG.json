@@ -105,13 +105,17 @@
     "JSON": "Must be valid JSON",
     "INVALID": "Invalid input"
   },
-  "LOGIN": {
-    "TITLE": "Sign In",
-    "SUBTITLE": "Enter your credentials to continue",
-    "EMAIL": "Email",
-    "PASSWORD": "Password",
-    "SUBMIT": "Sign In",
-    "ERROR": "Invalid email or password"
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Sign In",
+      "SUBTITLE": "Enter your credentials to continue",
+      "IDENTIFIER": "Username or Email",
+      "IDENTIFIER_HINT": "Either your username or your email address",
+      "PASSWORD": "Password",
+      "SUBMIT": "Sign In",
+      "ERROR_INVALID": "Invalid username/email or password",
+      "ERROR_LOCKED": "Account temporarily locked after too many failed attempts. Try again shortly."
+    }
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",

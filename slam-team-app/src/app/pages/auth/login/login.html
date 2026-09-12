@@ -7,8 +7,8 @@
       </div>
       <hr class="slam-divider login-rule" />
 
-      <h1 class="h4 login-title">{{ 'LOGIN.TITLE' | translate }}</h1>
-      <p class="login-subtitle">{{ 'LOGIN.SUBTITLE' | translate }}</p>
+      <h1 class="h4 login-title">{{ 'AUTH.LOGIN.TITLE' | translate }}</h1>
+      <p class="login-subtitle">{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
 
       @if (error(); as err) {
         <div class="alert alert-danger login-alert" role="alert">
@@ -19,30 +19,35 @@
 
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <div class="mb-3">
-          <label class="form-label" for="login-email">{{ 'LOGIN.EMAIL' | translate }}</label>
+          <label class="form-label" for="login-identifier">{{
+            'AUTH.LOGIN.IDENTIFIER' | translate
+          }}</label>
           <input
-            id="login-email"
-            type="email"
+            id="login-identifier"
+            type="text"
             class="form-control"
-            [class.is-invalid]="invalid('email')"
-            formControlName="email"
+            [class.is-invalid]="invalid('identifier')"
+            formControlName="identifier"
             autocomplete="username"
-            [attr.aria-invalid]="invalid('email')"
-            aria-describedby="login-email-error"
+            autocapitalize="none"
+            spellcheck="false"
+            [attr.aria-invalid]="invalid('identifier')"
+            aria-describedby="login-identifier-hint login-identifier-error"
           />
-          @if (invalid('email')) {
-            <div id="login-email-error" class="invalid-feedback d-block">
-              @if (form.controls.email.hasError('required')) {
-                {{ 'VALIDATION.REQUIRED' | translate }}
-              } @else {
-                {{ 'VALIDATION.EMAIL' | translate }}
-              }
+          <div id="login-identifier-hint" class="form-text login-hint">
+            {{ 'AUTH.LOGIN.IDENTIFIER_HINT' | translate }}
+          </div>
+          @if (invalid('identifier')) {
+            <div id="login-identifier-error" class="invalid-feedback d-block">
+              {{ 'VALIDATION.REQUIRED' | translate }}
             </div>
           }
         </div>
 
         <div class="mb-4">
-          <label class="form-label" for="login-password">{{ 'LOGIN.PASSWORD' | translate }}</label>
+          <label class="form-label" for="login-password">{{
+            'AUTH.LOGIN.PASSWORD' | translate
+          }}</label>
           <input
             id="login-password"
             type="password"
@@ -58,14 +63,19 @@
               @if (form.controls.password.hasError('required')) {
                 {{ 'VALIDATION.REQUIRED' | translate }}
               } @else {
-                {{ 'VALIDATION.MIN_LENGTH' | translate: { min: 6 } }}
+                {{ 'VALIDATION.MIN_LENGTH' | translate: { min: passwordMin } }}
               }
             </div>
           }
         </div>
 
-        <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="loading()">
-          {{ (loading() ? 'COMMON.LOADING' : 'LOGIN.SUBMIT') | translate }}
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg w-100"
+          [disabled]="saving()"
+          [attr.aria-busy]="saving()"
+        >
+          {{ (saving() ? 'COMMON.LOADING' : 'AUTH.LOGIN.SUBMIT') | translate }}
         </button>
       </form>
     </div>

@@ -105,13 +105,17 @@
     "JSON": "Harus berupa JSON yang valid",
     "INVALID": "Isian tidak valid"
   },
-  "LOGIN": {
-    "TITLE": "Masuk",
-    "SUBTITLE": "Masukkan kredensial Anda untuk melanjutkan",
-    "EMAIL": "Email",
-    "PASSWORD": "Kata Sandi",
-    "SUBMIT": "Masuk",
-    "ERROR": "Email atau kata sandi salah"
+  "AUTH": {
+    "LOGIN": {
+      "TITLE": "Masuk",
+      "SUBTITLE": "Masukkan kredensial Anda untuk melanjutkan",
+      "IDENTIFIER": "Username atau Email",
+      "IDENTIFIER_HINT": "Bisa memakai username maupun alamat email",
+      "PASSWORD": "Kata Sandi",
+      "SUBMIT": "Masuk",
+      "ERROR_INVALID": "Username/email atau kata sandi salah",
+      "ERROR_LOCKED": "Akun terkunci sementara karena terlalu banyak percobaan gagal. Coba lagi beberapa saat lagi."
+    }
   },
   "DASHBOARD": {
     "TITLE": "Dasbor",

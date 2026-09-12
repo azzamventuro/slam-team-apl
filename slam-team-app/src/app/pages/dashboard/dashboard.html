@@ -9,7 +9,7 @@
   <div class="card-body">
     @if (user(); as u) {
       <p class="slam-eyebrow mb-2">{{ 'DASHBOARD.WELCOME' | translate }}</p>
-      <p class="dashboard-name">{{ u.name }}</p>
+      <p class="dashboard-name">{{ u.nama }}</p>
       <p class="dashboard-email mb-0">{{ u.email }}</p>
     } @else {
       <p class="text-secondary mb-0">{{ 'COMMON.EMPTY' | translate }}</p>

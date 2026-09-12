@@ -1,5 +1,4 @@
 import { Component, inject, input, output } from '@angular/core';
-import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../core/services/auth.service';
@@ -13,7 +12,6 @@ import { SlamIconComponent } from '../../shared/components/slam-icon/slam-icon.c
 })
 export class Topbar {
   private auth = inject(AuthService);
-  private router = inject(Router);
   private translate = inject(TranslateService);
 
   /** Drawer state, owned by the shell; used for `aria-expanded`. */
@@ -34,8 +32,8 @@ export class Topbar {
     return name.trim().charAt(0).toUpperCase() || '?';
   }
 
+  /** Revokes the session (POST /auth/logout), clears it, and redirects to login. */
   logout(): void {
     this.auth.logout();
-    this.router.navigate(['/auth/login']);
   }
 }

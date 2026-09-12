@@ -68,3 +68,9 @@
   color: var(--slam-text);
   font-size: 0.875rem;
 }
+
+// "username or email" under the field — dim, not muted: it is a hint, not a label.
+.login-hint {
+  color: var(--slam-text-dim);
+  font-size: 0.8125rem;
+}
