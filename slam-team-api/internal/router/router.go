@@ -18,7 +18,9 @@ import (
 	"slam-team-api/internal/modules/core/jadwal"
 	"slam-team-api/internal/modules/core/lokasi"
 	"slam-team-api/internal/modules/core/medsos"
+	"slam-team-api/internal/modules/core/notifikasi"
 	"slam-team-api/internal/modules/core/pengaturan"
+	"slam-team-api/internal/modules/core/penugasan"
 	"slam-team-api/internal/modules/core/prestasi"
 	"slam-team-api/internal/modules/core/profileclub"
 	"slam-team-api/internal/modules/core/unit"
@@ -102,6 +104,17 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	// Jadwal (schedule definitions + generated jadwal_sesi): CRUD, generate-sesi,
 	// batalkan sesi. Registered after lokasi (geofence snapshot) and inorga (FK).
 	jadwal.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Notifikasi (in-app inbox, own-scope, bearer only). Registered before
+	// every producer: its Service() is the only sanctioned writer of
+	// notifikasi rows, handed to penugasan now and izin/absensi/kta later.
+	notifikasiModule := notifikasi.Initialize(db, jwtMgr)
+	notifikasiModule.SetupRoutes(apiV1)
+
+	// Penugasan (jadwal_peserta): assign/bulk/list/remove under /jadwal/:id/peserta*
+	// (jadwal.assign / jadwal.read) + the assignee's own PATCH /peserta/:id/respon.
+	// Registered after jadwal (FK) and notifikasi (fan-out on assign).
+	penugasan.Initialize(db, jwtMgr, permGuard, auditor, notifikasiModule.Service()).SetupRoutes(apiV1)
 
 	// Anggota (Master Data Anggota / Core Member Record): CRUD with RBAC permission guards.
 	// Registered after instansi (FK validation) and file (foto uploads).

@@ -40,3 +40,12 @@ func SoftDeleteFields(actor *int64) map[string]any {
 		"deleted_by": actor,
 	}
 }
+
+// SoftDelete is the bare soft-delete triplet for tables that carry no
+// created/modified audit columns (jadwal_peserta). Same scopes apply:
+// NotDeleted for reads, SoftDeleteFields for deletes.
+type SoftDelete struct {
+	IsDeleted bool       `gorm:"column:is_deleted;default:false" json:"-"`
+	DeletedAt *time.Time `gorm:"column:deleted_at" json:"-"`
+	DeletedBy *int64     `gorm:"column:deleted_by" json:"-"`
+}
