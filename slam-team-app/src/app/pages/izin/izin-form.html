@@ -1,0 +1,149 @@
+<div class="container-fluid py-4 izin-form">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <p class="slam-eyebrow mb-1">{{ 'IZIN.TITLE' | translate }}</p>
+      <h1 class="slam-heading h3 mb-0">{{ 'IZIN.FORM.TITLE' | translate }}</h1>
+    </div>
+    <a routerLink="/izin" class="btn btn-outline-light btn-sm">{{ 'COMMON.BACK' | translate }}</a>
+  </div>
+  <hr class="slam-divider mb-4" />
+
+  @if (noAnggota()) {
+    <div class="alert alert-warning izin-form__alert" role="alert">
+      <span aria-hidden="true">&#9888;</span>
+      {{ 'IZIN.NO_ANGGOTA' | translate }}
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-card slam-card--wide" novalidate>
+    <div class="row g-3">
+      <!-- Step 1: jadwal -->
+      <div class="col-md-6">
+        <label for="izin-jadwal" class="form-label">{{ 'IZIN.FORM.JADWAL' | translate }} *</label>
+        <select id="izin-jadwal" class="form-select" formControlName="jadwal_id">
+          <option [ngValue]="null" disabled>{{ 'IZIN.FORM.PLACEHOLDER_JADWAL' | translate }}</option>
+          @for (j of jadwalList(); track j.id) {
+            <option [ngValue]="j.id">{{ jadwalLabel(j) }}</option>
+          }
+        </select>
+        @if (hasError('jadwal_id', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Step 2: sesi of that jadwal -->
+      <div class="col-md-6">
+        <label for="izin-sesi" class="form-label">{{ 'IZIN.FORM.SESI' | translate }} *</label>
+        <select
+          id="izin-sesi"
+          class="form-select"
+          formControlName="sesi_id"
+          [attr.aria-busy]="loadingSesi()"
+        >
+          <option [ngValue]="null" disabled>
+            @if (loadingSesi()) {
+              {{ 'COMMON.LOADING' | translate }}
+            } @else if (!form.controls['jadwal_id'].value) {
+              {{ 'IZIN.FORM.PICK_JADWAL_FIRST' | translate }}
+            } @else if (!sesiList().length) {
+              {{ 'IZIN.FORM.NO_SESI' | translate }}
+            } @else {
+              {{ 'IZIN.FORM.PLACEHOLDER_SESI' | translate }}
+            }
+          </option>
+          @for (s of sesiList(); track s.id) {
+            <option [ngValue]="s.id">{{ sesiLabel(s) }}</option>
+          }
+        </select>
+        @if (hasError('sesi_id', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+        @if (serverError('sesi_id'); as msg) {
+          <small class="text-danger">{{ msg }}</small>
+        }
+      </div>
+
+      <!-- Jenis -->
+      <div class="col-md-6">
+        <label for="izin-jenis" class="form-label">{{ 'IZIN.FORM.JENIS' | translate }} *</label>
+        <select id="izin-jenis" class="form-select" formControlName="jenis">
+          @for (j of jenisOpsi; track j) {
+            <option [value]="j">{{ 'IZIN.JENIS.' + j.toUpperCase() | translate }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Waktu pulang — pulang_cepat only -->
+      @if (isPulangCepat()) {
+        <div class="col-md-6">
+          <label for="izin-waktu" class="form-label">
+            {{ 'IZIN.FORM.WAKTU_PULANG' | translate }} *
+          </label>
+          <input
+            id="izin-waktu"
+            type="time"
+            class="form-control"
+            formControlName="waktu_pulang_diminta"
+            step="60"
+          />
+          <small class="form-text izin-form__hint">{{ 'IZIN.FORM.WAKTU_PULANG_HINT' | translate }}</small>
+          @if (hasError('waktu_pulang_diminta', 'required')) {
+            <small class="text-danger d-block">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+          }
+          @if (serverError('waktu_pulang_diminta'); as msg) {
+            <small class="text-danger d-block">{{ msg }}</small>
+          }
+        </div>
+      }
+
+      <!-- Alasan -->
+      <div class="col-12">
+        <label for="izin-alasan" class="form-label">{{ 'IZIN.FORM.ALASAN' | translate }} *</label>
+        <textarea
+          id="izin-alasan"
+          class="form-control"
+          formControlName="alasan"
+          rows="4"
+          maxlength="2000"
+          [placeholder]="'IZIN.FORM.PLACEHOLDER_ALASAN' | translate"
+        ></textarea>
+        @if (hasError('alasan', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('alasan', 'maxlength')) {
+          <small class="text-danger">{{ 'VALIDATION.MAX_LENGTH' | translate: { max: 2000 } }}</small>
+        }
+        @if (serverError('alasan'); as msg) {
+          <small class="text-danger">{{ msg }}</small>
+        }
+      </div>
+
+      <!-- Lampiran (optional, PRIVATE — surat dokter etc.) -->
+      <div class="col-12">
+        <label class="form-label">{{ 'IZIN.FORM.LAMPIRAN' | translate }}</label>
+        <app-file-upload
+          kategori="dokumen"
+          reffType="izin"
+          accept=".pdf,image/*"
+          [isPublik]="false"
+          [value]="lampiranUuid()"
+          (uploaded)="onLampiranUploaded($event)"
+          (cleared)="onLampiranCleared()"
+        />
+        <small class="form-text izin-form__hint">{{ 'IZIN.FORM.LAMPIRAN_HINT' | translate }}</small>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary izin-form__submit" [disabled]="saving() || noAnggota()">
+        {{ 'IZIN.FORM.SUBMIT' | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2" aria-hidden="true"></span>
+        }
+      </button>
+      <a routerLink="/izin" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

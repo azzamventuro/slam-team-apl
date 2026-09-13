@@ -1,0 +1,165 @@
+<div class="container-fluid py-4 izin">
+  <!-- Header -->
+  <div class="izin__head mb-4">
+    <div>
+      <p class="slam-eyebrow mb-1">{{ 'MENU.GROUP.OPERASIONAL' | translate }}</p>
+      <h1 class="slam-heading h3 mb-0">{{ 'IZIN.TITLE' | translate }}</h1>
+    </div>
+    <div class="izin__actions">
+      <a routerLink="approval" class="btn btn-outline-light" *hasPermission="'izin.approve'">
+        {{ 'IZIN.QUEUE' | translate }}
+      </a>
+      <a routerLink="new" class="btn btn-primary" *hasPermission="'izin.create'">
+        {{ 'IZIN.REQUEST' | translate }}
+      </a>
+    </div>
+  </div>
+  <hr class="slam-divider mb-4" />
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-3 col-sm-6">
+      <label for="izin-f-status" class="form-label form-label-sm text-muted">
+        {{ 'IZIN.STATUS.LABEL' | translate }}
+      </label>
+      <select
+        id="izin-f-status"
+        class="form-select form-select-sm"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        @for (s of statusOpsi; track s) {
+          <option [value]="s">{{ 'IZIN.STATUS.' + s.toUpperCase() | translate }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <label for="izin-f-jenis" class="form-label form-label-sm text-muted">
+        {{ 'IZIN.FORM.JENIS' | translate }}
+      </label>
+      <select
+        id="izin-f-jenis"
+        class="form-select form-select-sm"
+        [ngModel]="jenisFilter()"
+        (ngModelChange)="onJenisChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        @for (j of jenisOpsi; track j) {
+          <option [value]="j">{{ 'IZIN.JENIS.' + j.toUpperCase() | translate }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'IZIN.TABLE.SESI' | translate }}</th>
+            @if (showsAnggota()) {
+              <th>{{ 'IZIN.TABLE.ANGGOTA' | translate }}</th>
+            }
+            <th>{{ 'IZIN.FORM.JENIS' | translate }}</th>
+            <th class="izin__col-alasan">{{ 'IZIN.FORM.ALASAN' | translate }}</th>
+            <th>{{ 'IZIN.TABLE.STATUS' | translate }}</th>
+            <th>{{ 'IZIN.TABLE.PENINJAU' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (z of items(); track z.id) {
+            <tr>
+              <td>
+                <div class="izin__sesi">
+                  <span class="slam-mono">{{ z.sesi_tanggal || '—' }}</span>
+                  @if (z.jadwal_nama) {
+                    <small class="izin__dim">{{ z.jadwal_kode }} · {{ z.jadwal_nama }}</small>
+                  }
+                </div>
+              </td>
+              @if (showsAnggota()) {
+                <td>
+                  <div class="izin__sesi">
+                    <span>{{ z.anggota_nama || '—' }}</span>
+                    @if (z.no_induk) {
+                      <small class="izin__dim slam-mono">{{ z.no_induk }}</small>
+                    }
+                  </div>
+                </td>
+              }
+              <td>
+                <div class="izin__jenis">
+                  <app-izin-jenis [jenis]="z.jenis" />
+                  @if (z.jenis === 'pulang_cepat' && z.waktu_pulang_diminta) {
+                    <small class="izin__dim">
+                      {{ 'IZIN.FORM.WAKTU_PULANG' | translate }}: {{ hhmm(z.waktu_pulang_diminta) }}
+                    </small>
+                  }
+                </div>
+              </td>
+              <td class="izin__col-alasan">
+                <span class="izin__alasan" [attr.title]="z.alasan">{{ z.alasan }}</span>
+                @if (z.lampiran?.uuid) {
+                  <div class="mt-1"><app-izin-lampiran [uuid]="z.lampiran!.uuid" /></div>
+                }
+              </td>
+              <td><app-izin-status [status]="z.status" /></td>
+              <td>
+                @if (z.status === 'menunggu') {
+                  <span class="izin__dim">—</span>
+                } @else {
+                  <div class="izin__sesi">
+                    <span>{{ z.diproses_oleh_nama || '—' }}</span>
+                    @if (z.diproses_pada) {
+                      <small class="izin__dim">{{ z.diproses_pada | date: 'dd MMM yyyy HH:mm' }}</small>
+                    }
+                    @if (z.catatan_peninjau) {
+                      <small class="izin__catatan" [attr.title]="z.catatan_peninjau">
+                        “{{ z.catatan_peninjau }}”
+                      </small>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td [attr.colspan]="showsAnggota() ? 6 : 5" class="text-center text-muted py-4">
+                {{ 'IZIN.EMPTY' | translate }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+      <small class="text-muted">
+        {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }}
+        {{ total() }} {{ 'COMMON.ENTRIES' | translate }}
+      </small>
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+          {{ 'COMMON.PREVIOUS' | translate }}
+        </button>
+        <span class="btn btn-outline-light disabled">{{ currentPage() }} / {{ totalPages() }}</span>
+        <button
+          class="btn btn-outline-light"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="nextPage()"
+        >
+          {{ 'COMMON.NEXT' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

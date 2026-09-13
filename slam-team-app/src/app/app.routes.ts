@@ -265,6 +265,32 @@ export const routes: Routes = [
           { path: ':id', pathMatch: 'full', redirectTo: ':id/peserta' },
         ],
       },
+      // ── Izin (Operasional — excuse requests tied to one session; 19) ──
+      // `izin` is a seeded sidebar module, so the menu entry comes from GET /modul.
+      {
+        path: 'izin',
+        canActivate: [permissionGuard],
+        data: { permission: 'izin.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/izin/izin-list').then((m) => m.IzinList),
+          },
+          {
+            path: 'new',
+            canActivate: [permissionGuard],
+            data: { permission: 'izin.create' },
+            loadComponent: () => import('./pages/izin/izin-form').then((m) => m.IzinForm),
+          },
+          {
+            path: 'approval',
+            canActivate: [permissionGuard],
+            data: { permission: 'izin.approve' },
+            loadComponent: () =>
+              import('./pages/izin/izin-approval').then((m) => m.IzinApproval),
+          },
+        ],
+      },
       // ── User Management — 3 surfaces sharing same components ──
       {
         path: 'admin',

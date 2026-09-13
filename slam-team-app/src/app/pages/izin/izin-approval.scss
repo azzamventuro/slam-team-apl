@@ -1,0 +1,201 @@
+:host {
+  display: block;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.queue__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slam-space-4);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.queue__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slam-space-1);
+  margin-bottom: var(--slam-space-3);
+  font-size: 0.8125rem;
+  color: var(--slam-text-muted);
+  text-decoration: none;
+  min-height: var(--slam-tap-min);
+
+  &:hover {
+    color: var(--slam-primary);
+  }
+}
+
+// The pending count — one tile in the same voice as the peserta status tiles,
+// left rule in the izin (info) colour.
+.queue__count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: var(--slam-space-2) var(--slam-space-4);
+  border: 1px solid var(--slam-border);
+  border-left: 3px solid var(--slam-info);
+  border-radius: var(--slam-radius);
+  background: var(--slam-surface);
+}
+
+.queue__count-n {
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+// ── Queue ───────────────────────────────────────────────────────────────────
+.queue__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--slam-space-3);
+}
+
+// One request = one card: who | what | decide. Reads top-to-bottom on a phone,
+// left-to-right on a desk.
+.queue__item {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(0, 2fr) auto;
+  gap: var(--slam-space-4);
+  padding: var(--slam-space-4) var(--slam-space-5);
+  background: var(--slam-surface);
+  border: 1px solid var(--slam-border);
+  border-left: 3px solid var(--slam-info);
+  border-radius: var(--slam-radius-lg);
+  transition: border-color var(--slam-transition), opacity var(--slam-transition);
+
+  &:hover {
+    border-color: var(--slam-border-strong);
+    border-left-color: var(--slam-info);
+  }
+
+  &--busy {
+    opacity: 0.7;
+  }
+}
+
+.queue__who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.queue__name {
+  font-weight: 600;
+}
+
+.queue__sesi {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--slam-space-1);
+  margin-top: var(--slam-space-1);
+  font-size: 0.875rem;
+}
+
+.queue__dim {
+  color: var(--slam-text-dim);
+  font-size: 0.75rem;
+}
+
+.queue__what {
+  display: flex;
+  flex-direction: column;
+  gap: var(--slam-space-2);
+  min-width: 0;
+}
+
+.queue__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--slam-space-2);
+}
+
+.queue__time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--slam-space-1);
+  font-size: 0.8125rem;
+  color: var(--slam-text-muted);
+}
+
+.queue__alasan {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+// ── Decide ──────────────────────────────────────────────────────────────────
+.queue__decide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--slam-space-2);
+  align-items: stretch;
+  min-width: 150px;
+}
+
+.queue__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--slam-space-1);
+  min-height: var(--slam-tap-min);
+  white-space: nowrap;
+}
+
+.queue__reject {
+  display: flex;
+  flex-direction: column;
+  gap: var(--slam-space-1);
+  min-width: 260px;
+}
+
+.queue__reject-actions {
+  display: flex;
+  gap: var(--slam-space-2);
+  margin-top: var(--slam-space-1);
+
+  .btn {
+    flex: 1 1 0;
+  }
+}
+
+.queue__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--slam-space-2);
+  padding: var(--slam-space-7) var(--slam-space-5);
+  color: var(--slam-text-muted);
+  border: 1px dashed var(--slam-border);
+  border-radius: var(--slam-radius-lg);
+}
+
+@media (max-width: 991.98px) {
+  .queue__item {
+    grid-template-columns: 1fr;
+  }
+  .queue__decide {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .queue__btn {
+    flex: 1 1 140px;
+  }
+  .queue__reject {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue__item {
+    transition: none;
+  }
+}

@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.izin-form__alert {
+  max-width: 640px;
+  display: flex;
+  gap: var(--slam-space-2);
+  align-items: flex-start;
+}
+
+.izin-form__hint {
+  color: var(--slam-text-dim);
+  font-size: 0.8125rem;
+}
+
+// Primary CTA: tap-safe on the phone this form is most likely filled on.
+.izin-form__submit {
+  min-height: var(--slam-tap-min);
+  min-width: 160px;
+}

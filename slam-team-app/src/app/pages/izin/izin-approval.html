@@ -1,0 +1,153 @@
+<div class="container-fluid py-4 queue">
+  <!-- Header -->
+  <div class="queue__head mb-4">
+    <div>
+      <a routerLink="/izin" class="queue__back">
+        <slam-icon name="list" [size]="16" />
+        {{ 'IZIN.TITLE' | translate }}
+      </a>
+      <p class="slam-eyebrow mb-1">{{ 'IZIN.QUEUE_EYEBROW' | translate }}</p>
+      <h1 class="slam-heading h3 mb-0">{{ 'IZIN.QUEUE' | translate }}</h1>
+    </div>
+    <div class="queue__count" role="status">
+      <span class="queue__count-n">{{ total() }}</span>
+      <span class="slam-eyebrow">{{ 'IZIN.STATUS.MENUNGGU' | translate }}</span>
+    </div>
+  </div>
+  <hr class="slam-divider mb-4" />
+
+  @if (loading()) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+  } @else if (!items().length) {
+    <div class="queue__empty">
+      <slam-icon name="check-square" [size]="28" />
+      <p class="mb-0">{{ 'IZIN.QUEUE_EMPTY' | translate }}</p>
+    </div>
+  } @else {
+    <ul class="queue__list" [attr.aria-label]="'IZIN.QUEUE' | translate">
+      @for (z of items(); track z.id) {
+        <li class="queue__item" [class.queue__item--busy]="busyId() === z.id" [attr.aria-busy]="busyId() === z.id">
+          <!-- Who / which session -->
+          <div class="queue__who">
+            <p class="queue__name mb-0">{{ z.anggota_nama || '—' }}</p>
+            @if (z.no_induk) {
+              <small class="slam-mono queue__dim">{{ z.no_induk }}</small>
+            }
+            <p class="queue__sesi mb-0">
+              <slam-icon name="calendar" [size]="14" />
+              <span class="slam-mono">{{ z.sesi_tanggal || '—' }}</span>
+              @if (z.jadwal_nama) {
+                <span class="queue__dim">· {{ z.jadwal_kode }} · {{ z.jadwal_nama }}</span>
+              }
+            </p>
+            <small class="queue__dim">{{ 'IZIN.SUBMITTED_AT' | translate }} {{ z.created_at | slice: 0 : 10 }}</small>
+          </div>
+
+          <!-- What -->
+          <div class="queue__what">
+            <div class="queue__chips">
+              <app-izin-jenis [jenis]="z.jenis" />
+              @if (z.jenis === 'pulang_cepat' && z.waktu_pulang_diminta) {
+                <span class="queue__time">
+                  <slam-icon name="clock" [size]="14" />
+                  {{ hhmm(z.waktu_pulang_diminta) }}
+                </span>
+              }
+              @if (z.lampiran?.uuid) {
+                <app-izin-lampiran [uuid]="z.lampiran!.uuid" />
+              }
+            </div>
+            <p class="queue__alasan mb-0">{{ z.alasan }}</p>
+          </div>
+
+          <!-- Decide -->
+          <div class="queue__decide" *hasPermission="'izin.approve'">
+            @if (rejecting() === z.id) {
+              <div class="queue__reject">
+                <label [attr.for]="'catatan-' + z.id" class="form-label mb-1">
+                  {{ 'IZIN.REJECT_NOTE' | translate }} *
+                </label>
+                <textarea
+                  [id]="'catatan-' + z.id"
+                  class="form-control form-control-sm"
+                  rows="3"
+                  [maxlength]="maxCatatan"
+                  [ngModel]="catatan()"
+                  (ngModelChange)="catatan.set($event)"
+                  [placeholder]="'IZIN.REJECT_NOTE_PLACEHOLDER' | translate"
+                  [disabled]="busyId() === z.id"
+                ></textarea>
+                @if (!catatanValid() && catatan().length) {
+                  <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+                }
+                <div class="queue__reject-actions">
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-danger queue__btn"
+                    [disabled]="!catatanValid() || busyId() === z.id"
+                    (click)="confirmReject(z)"
+                  >
+                    <slam-icon name="x" [size]="14" />
+                    {{ 'IZIN.REJECT_CONFIRM' | translate }}
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-sm btn-outline-light queue__btn"
+                    [disabled]="busyId() === z.id"
+                    (click)="cancelReject()"
+                  >
+                    {{ 'COMMON.CANCEL' | translate }}
+                  </button>
+                </div>
+              </div>
+            } @else {
+              <button
+                type="button"
+                class="btn btn-success queue__btn"
+                [disabled]="busyId() === z.id"
+                (click)="approve(z)"
+              >
+                <slam-icon name="check-square" [size]="16" />
+                {{ 'IZIN.APPROVE' | translate }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline-danger queue__btn"
+                [disabled]="busyId() === z.id"
+                (click)="openReject(z)"
+              >
+                <slam-icon name="x" [size]="16" />
+                {{ 'IZIN.REJECT' | translate }}
+              </button>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+      <small class="text-muted">
+        {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }}
+        {{ total() }} {{ 'COMMON.ENTRIES' | translate }}
+      </small>
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+          {{ 'COMMON.PREVIOUS' | translate }}
+        </button>
+        <span class="btn btn-outline-light disabled">{{ currentPage() }} / {{ totalPages() }}</span>
+        <button
+          class="btn btn-outline-light"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="nextPage()"
+        >
+          {{ 'COMMON.NEXT' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

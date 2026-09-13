@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.izin__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slam-space-3);
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.izin__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--slam-space-2);
+
+  .btn {
+    min-height: var(--slam-tap-min);
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+// Two-line cells: primary value on top, muted context below.
+.izin__sesi,
+.izin__jenis {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.izin__dim {
+  color: var(--slam-text-dim);
+  font-size: 0.75rem;
+}
+
+.izin__catatan {
+  color: var(--slam-text-muted);
+  font-size: 0.75rem;
+  font-style: italic;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The reason column carries the most text — cap it so the table stays scannable;
+// the full sentence is in the title attribute.
+.izin__col-alasan {
+  max-width: 320px;
+}
+
+.izin__alasan {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 0.875rem;
+}

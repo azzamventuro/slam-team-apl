@@ -80,7 +80,8 @@
     "PREV": "Sebelumnya",
     "ACTIVE": "Aktif",
     "INACTIVE": "Nonaktif",
-    "CREATE": "Buat"
+    "CREATE": "Buat",
+    "CHOOSE_FILE": "Pilih berkas"
   },
   "FORBIDDEN": {
     "TITLE": "Akses Ditolak",
@@ -669,5 +670,79 @@
     "MARK_READ": "Tandai dibaca",
     "MARK_ALL": "Tandai semua dibaca",
     "EMPTY": "Tidak ada notifikasi"
+  },
+  "IZIN": {
+    "TITLE": "Izin",
+    "LABEL": "Izin",
+    "REQUEST": "Ajukan Izin",
+    "QUEUE": "Antrian Persetujuan",
+    "QUEUE_EYEBROW": "Izin menunggu tinjauan",
+    "QUEUE_EMPTY": "Tidak ada izin yang menunggu persetujuan",
+    "EMPTY": "Belum ada pengajuan izin",
+    "LAMPIRAN": "Lampiran",
+    "LAMPIRAN_ERROR": "Gagal membuka lampiran",
+    "SUBMITTED_AT": "Diajukan",
+    "LOAD_ERROR": "Gagal memuat data izin",
+    "LOAD_JADWAL_ERROR": "Gagal memuat daftar jadwal",
+    "LOAD_SESI_ERROR": "Gagal memuat sesi jadwal",
+    "CREATE_SUCCESS": "Pengajuan izin berhasil dikirim",
+    "SAVE_ERROR": "Gagal mengirim pengajuan izin",
+    "DUPLICATE": "Sudah ada pengajuan izin yang menunggu/disetujui untuk sesi ini",
+    "NO_ANGGOTA": "Akun Anda belum terhubung ke data anggota, sehingga belum bisa mengajukan izin. Hubungi admin.",
+    "APPROVE": "Setujui",
+    "APPROVED": "Izin disetujui",
+    "REJECT": "Tolak",
+    "REJECT_CONFIRM": "Konfirmasi Tolak",
+    "REJECTED": "Izin ditolak",
+    "REJECT_NOTE": "Catatan peninjau",
+    "REJECT_NOTE_PLACEHOLDER": "Alasan penolakan — akan dibaca oleh pengaju",
+    "ALREADY_PROCESSED": "Izin ini sudah diproses oleh peninjau lain",
+    "PROCESS_ERROR": "Gagal memproses izin",
+    "FORM": {
+      "TITLE": "Ajukan Izin",
+      "JADWAL": "Jadwal",
+      "PLACEHOLDER_JADWAL": "Pilih jadwal...",
+      "SESI": "Sesi",
+      "PLACEHOLDER_SESI": "Pilih sesi...",
+      "PICK_JADWAL_FIRST": "Pilih jadwal terlebih dahulu",
+      "NO_SESI": "Jadwal ini belum memiliki sesi",
+      "JENIS": "Jenis",
+      "ALASAN": "Alasan",
+      "PLACEHOLDER_ALASAN": "Jelaskan alasan pengajuan...",
+      "WAKTU_PULANG": "Waktu pulang",
+      "WAKTU_PULANG_HINT": "Jam Anda meninggalkan sesi (waktu lokal jadwal).",
+      "LAMPIRAN": "Lampiran",
+      "LAMPIRAN_HINT": "Opsional — surat dokter / surat tugas (PDF atau gambar). Berkas bersifat privat.",
+      "SUBMIT": "Kirim Pengajuan"
+    },
+    "JENIS": {
+      "IZIN": "Izin",
+      "SAKIT": "Sakit",
+      "DINAS": "Dinas",
+      "PULANG_CEPAT": "Pulang Cepat"
+    },
+    "STATUS": {
+      "LABEL": "Status",
+      "MENUNGGU": "Menunggu",
+      "DISETUJUI": "Disetujui",
+      "DITOLAK": "Ditolak"
+    },
+    "TABLE": {
+      "SESI": "Sesi",
+      "ANGGOTA": "Anggota",
+      "STATUS": "Status",
+      "PENINJAU": "Peninjau"
+    }
+  },
+  "FILE": {
+    "DRAG_HERE": "Seret berkas ke sini, atau",
+    "HINT": "Maks. {{max}} MB",
+    "UPLOADING": "Mengunggah...",
+    "PROCESSING": "Diproses",
+    "REPLACE": "Ganti",
+    "REMOVE": "Hapus",
+    "TOO_LARGE": "Ukuran berkas melebihi {{max}} MB",
+    "WRONG_TYPE": "Jenis berkas tidak didukung",
+    "FAILED": "Unggahan gagal"
   }
 }

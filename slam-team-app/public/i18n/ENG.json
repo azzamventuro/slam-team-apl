@@ -80,7 +80,8 @@
     "PREV": "Previous",
     "ACTIVE": "Active",
     "INACTIVE": "Inactive",
-    "CREATE": "Create"
+    "CREATE": "Create",
+    "CHOOSE_FILE": "Choose file"
   },
   "FORBIDDEN": {
     "TITLE": "Access Denied",
@@ -669,5 +670,79 @@
     "MARK_READ": "Mark as read",
     "MARK_ALL": "Mark all as read",
     "EMPTY": "No notifications"
+  },
+  "IZIN": {
+    "TITLE": "Leave Requests",
+    "LABEL": "Leave",
+    "REQUEST": "Request Leave",
+    "QUEUE": "Approval Queue",
+    "QUEUE_EYEBROW": "Requests awaiting review",
+    "QUEUE_EMPTY": "No requests are waiting for approval",
+    "EMPTY": "No leave requests yet",
+    "LAMPIRAN": "Attachment",
+    "LAMPIRAN_ERROR": "Could not open the attachment",
+    "SUBMITTED_AT": "Submitted",
+    "LOAD_ERROR": "Failed to load leave requests",
+    "LOAD_JADWAL_ERROR": "Failed to load schedules",
+    "LOAD_SESI_ERROR": "Failed to load the schedule's sessions",
+    "CREATE_SUCCESS": "Leave request submitted",
+    "SAVE_ERROR": "Failed to submit the leave request",
+    "DUPLICATE": "A pending or approved request already exists for this session",
+    "NO_ANGGOTA": "Your account is not linked to a member record yet, so you cannot request leave. Contact an admin.",
+    "APPROVE": "Approve",
+    "APPROVED": "Request approved",
+    "REJECT": "Reject",
+    "REJECT_CONFIRM": "Confirm Reject",
+    "REJECTED": "Request rejected",
+    "REJECT_NOTE": "Reviewer note",
+    "REJECT_NOTE_PLACEHOLDER": "Reason for rejection — the requester will read this",
+    "ALREADY_PROCESSED": "This request was already processed by another reviewer",
+    "PROCESS_ERROR": "Failed to process the request",
+    "FORM": {
+      "TITLE": "Request Leave",
+      "JADWAL": "Schedule",
+      "PLACEHOLDER_JADWAL": "Choose a schedule...",
+      "SESI": "Session",
+      "PLACEHOLDER_SESI": "Choose a session...",
+      "PICK_JADWAL_FIRST": "Choose a schedule first",
+      "NO_SESI": "This schedule has no sessions yet",
+      "JENIS": "Type",
+      "ALASAN": "Reason",
+      "PLACEHOLDER_ALASAN": "Explain the reason for this request...",
+      "WAKTU_PULANG": "Leave time",
+      "WAKTU_PULANG_HINT": "The time you will leave the session (schedule local time).",
+      "LAMPIRAN": "Attachment",
+      "LAMPIRAN_HINT": "Optional — doctor's note / assignment letter (PDF or image). The file is private.",
+      "SUBMIT": "Submit Request"
+    },
+    "JENIS": {
+      "IZIN": "Excused",
+      "SAKIT": "Sick",
+      "DINAS": "Official Duty",
+      "PULANG_CEPAT": "Leave Early"
+    },
+    "STATUS": {
+      "LABEL": "Status",
+      "MENUNGGU": "Pending",
+      "DISETUJUI": "Approved",
+      "DITOLAK": "Rejected"
+    },
+    "TABLE": {
+      "SESI": "Session",
+      "ANGGOTA": "Member",
+      "STATUS": "Status",
+      "PENINJAU": "Reviewer"
+    }
+  },
+  "FILE": {
+    "DRAG_HERE": "Drag a file here, or",
+    "HINT": "Max. {{max}} MB",
+    "UPLOADING": "Uploading...",
+    "PROCESSING": "Processing",
+    "REPLACE": "Replace",
+    "REMOVE": "Remove",
+    "TOO_LARGE": "File exceeds {{max}} MB",
+    "WRONG_TYPE": "Unsupported file type",
+    "FAILED": "Upload failed"
   }
 }
