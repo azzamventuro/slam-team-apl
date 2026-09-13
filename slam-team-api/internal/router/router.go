@@ -15,6 +15,7 @@ import (
 	"slam-team-api/internal/modules/core/hakakses"
 	"slam-team-api/internal/modules/core/inorga"
 	"slam-team-api/internal/modules/core/instansi"
+	"slam-team-api/internal/modules/core/jadwal"
 	"slam-team-api/internal/modules/core/lokasi"
 	"slam-team-api/internal/modules/core/medsos"
 	"slam-team-api/internal/modules/core/pengaturan"
@@ -94,9 +95,13 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	instansi.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
 
 	// Lokasi (Master Data Lokasi / geofence + timezone): CRUD with RBAC permission
-	// guards. Registered after file (foto uploads). jadwal FK guard is a seam —
-	// see lokasi/service TODO(16-jadwal).
+	// guards. Registered after file (foto uploads). Delete is guarded by the
+	// jadwal usage count (409 while any active jadwal references the lokasi).
 	lokasi.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
+
+	// Jadwal (schedule definitions + generated jadwal_sesi): CRUD, generate-sesi,
+	// batalkan sesi. Registered after lokasi (geofence snapshot) and inorga (FK).
+	jadwal.Initialize(db, jwtMgr, permGuard, auditor).SetupRoutes(apiV1)
 
 	// Anggota (Master Data Anggota / Core Member Record): CRUD with RBAC permission guards.
 	// Registered after instansi (FK validation) and file (foto uploads).

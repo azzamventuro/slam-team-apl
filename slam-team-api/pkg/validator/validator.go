@@ -4,6 +4,9 @@
 package validator
 
 import (
+	"reflect"
+	"strings"
+
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 )
@@ -13,6 +16,23 @@ import (
 //	v.RegisterValidation("notblank", notBlank)
 func Register() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		_ = v // no custom rules yet
+		// Report fields by their wire name (json, else form) so Explain's keys
+		// match what the client sent: "alasan_batal", not "AlasanBatal".
+		v.RegisterTagNameFunc(wireName)
 	}
+}
+
+// wireName returns the json (or form) tag name of a struct field, without
+// options; "" lets validator fall back to the Go field name.
+func wireName(f reflect.StructField) string {
+	for _, tag := range []string{"json", "form"} {
+		name := strings.SplitN(f.Tag.Get(tag), ",", 2)[0]
+		if name == "-" {
+			return ""
+		}
+		if name != "" {
+			return name
+		}
+	}
+	return ""
 }

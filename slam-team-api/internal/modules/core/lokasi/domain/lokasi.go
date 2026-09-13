@@ -26,6 +26,9 @@ type Lokasi struct {
 
 	// FotoUUID is resolved via LEFT JOIN in queries (not stored in DB).
 	FotoUUID *string `gorm:"column:foto_uuid" json:"foto_uuid,omitempty"`
+	// JumlahJadwal is the count of active (non-deleted) jadwal referencing this
+	// lokasi, resolved by a subquery on reads; never written back.
+	JumlahJadwal int64 `gorm:"column:jumlah_jadwal;->" json:"jumlah_jadwal"`
 
 	model.Audit
 }

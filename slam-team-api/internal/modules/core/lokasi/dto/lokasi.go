@@ -34,7 +34,8 @@ type LokasiResp struct {
 	FotoUUID    *string `json:"foto_uuid"`
 	Keterangan  string  `json:"keterangan"`
 	IsAktif     bool    `json:"is_aktif"`
-	// JumlahJadwal is always 0 until 16-jadwal lands — see service.toResp.
+	// JumlahJadwal counts active jadwal that reference this lokasi; while it is
+	// non-zero the lokasi cannot be deleted (409).
 	JumlahJadwal int64   `json:"jumlah_jadwal"`
 	CreatedAt    string  `json:"created_at"`
 	ModifiedAt   *string `json:"modified_at"`

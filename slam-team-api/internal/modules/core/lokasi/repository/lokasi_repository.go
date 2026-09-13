@@ -35,12 +35,14 @@ func (r *LokasiRepository) baseQuery() *gorm.DB {
 	return r.db.Model(&domain.Lokasi{}).Where("mst_lokasi.is_deleted = false")
 }
 
-// listJoin applies the LEFT JOIN for the foto UUID. Call before Find/Count.
+// listJoin applies the LEFT JOIN for the foto UUID and the jadwal usage
+// count. Call before Find, never before Count.
 func (r *LokasiRepository) listJoin(q *gorm.DB) *gorm.DB {
 	return q.
 		Select(`
 			mst_lokasi.*,
-			f.uuid AS foto_uuid
+			f.uuid AS foto_uuid,
+			(SELECT count(*) FROM jadwal j WHERE j.lokasi_id = mst_lokasi.id AND j.is_deleted = false) AS jumlah_jadwal
 		`).
 		Joins("LEFT JOIN mst_file f ON f.id = mst_lokasi.foto_file_id AND f.is_deleted = false")
 }
@@ -49,12 +51,12 @@ func (r *LokasiRepository) listJoin(q *gorm.DB) *gorm.DB {
 
 // Create inserts one row and returns the populated entity.
 func (r *LokasiRepository) Create(ctx context.Context, l *domain.Lokasi) error {
-	return r.db.WithContext(ctx).Omit("foto_uuid").Create(l).Error
+	return r.db.WithContext(ctx).Omit("foto_uuid", "jumlah_jadwal").Create(l).Error
 }
 
 // Update persists all mutable fields of an existing row.
 func (r *LokasiRepository) Update(ctx context.Context, l *domain.Lokasi) error {
-	return r.db.WithContext(ctx).Omit("foto_uuid").Save(l).Error
+	return r.db.WithContext(ctx).Omit("foto_uuid", "jumlah_jadwal").Save(l).Error
 }
 
 // SoftDelete marks a row as deleted. It does NOT check foreign-key guards —
@@ -128,6 +130,16 @@ func (r *LokasiRepository) ExistsKode(ctx context.Context, kode string, exceptID
 		return false, err
 	}
 	return count > 0, nil
+}
+
+// CountJadwalByLokasi counts the active (non-deleted) jadwal rows that
+// reference a lokasi — the delete guard: while > 0 the lokasi stays.
+func (r *LokasiRepository) CountJadwalByLokasi(ctx context.Context, lokasiID int64) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).
+		Raw("SELECT count(*) FROM jadwal WHERE lokasi_id = ? AND is_deleted = false", lokasiID).
+		Scan(&count).Error
+	return count, err
 }
 
 // FileExists checks whether a mst_file row exists and is not soft-deleted.

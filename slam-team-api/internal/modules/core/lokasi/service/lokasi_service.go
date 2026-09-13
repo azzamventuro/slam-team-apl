@@ -202,10 +202,10 @@ func (s *LokasiService) Update(ctx context.Context, id int64, req dto.UpdateLoka
 
 // SoftDelete soft-deletes a lokasi and writes an audit log.
 //
-// TODO(16-jadwal): mst_lokasi is referenced by jadwal.lokasi_id (restrict),
-// but the jadwal table does not exist yet. Once 16-jadwal lands, guard this
-// with a CountJadwalAktif(id) check that returns apperr.ErrConflict when the
-// lokasi is still used by an active jadwal.
+// jadwal.lokasi_id references mst_lokasi with ON DELETE RESTRICT; the same
+// rule is applied to the soft delete here: a lokasi still used by an active
+// (non-deleted) jadwal is refused with 409 so schedules never lose their
+// location.
 func (s *LokasiService) SoftDelete(ctx context.Context, id int64, actor Actor) error {
 	// 1. Load existing row (triggers ErrNotFound if missing).
 	existing, err := s.repo.FindByID(ctx, id)
@@ -213,12 +213,21 @@ func (s *LokasiService) SoftDelete(ctx context.Context, id int64, actor Actor) e
 		return err
 	}
 
-	// 2. Soft-delete.
+	// 2. Usage guard.
+	n, err := s.repo.CountJadwalByLokasi(ctx, id)
+	if err != nil {
+		return fmt.Errorf("cek pemakaian jadwal: %w", err)
+	}
+	if n > 0 {
+		return fmt.Errorf("lokasi masih dipakai %d jadwal: %w", n, apperr.ErrConflict)
+	}
+
+	// 3. Soft-delete.
 	if err := s.repo.SoftDelete(ctx, id, actor.UserID); err != nil {
 		return err
 	}
 
-	// 3. Audit log.
+	// 4. Audit log.
 	s.auditor.Log(ctx, audit.Entry{
 		AktorUserID: actor.UserID,
 		Modul:       "lokasi",
@@ -302,8 +311,7 @@ func toResp(l *domain.Lokasi) *dto.LokasiResp {
 		FotoUUID:    l.FotoUUID,
 		Keterangan:  l.Keterangan,
 		IsAktif:     l.IsAktif,
-		// JumlahJadwal stays 0 until 16-jadwal lands (jadwal table doesn't exist yet).
-		JumlahJadwal: 0,
+		JumlahJadwal: l.JumlahJadwal,
 		CreatedAt:    l.CreatedAt.Format(time.RFC3339),
 		ModifiedAt:   modStr,
 	}
