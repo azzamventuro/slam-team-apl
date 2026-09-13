@@ -1,0 +1,453 @@
+<div class="container-fluid py-4 peserta">
+  <!-- ── Header: schedule identity + status summary ───────────────────── -->
+  <header class="peserta__head mb-3">
+    <div class="peserta__ident">
+      <a routerLink="/jadwal" class="peserta__back">
+        <slam-icon name="calendar" [size]="16" />
+        {{ 'PESERTA.BACK_TO_JADWAL' | translate }}
+      </a>
+      <p class="slam-eyebrow mb-1">{{ 'PESERTA.EYEBROW' | translate }}</p>
+      <h1 class="slam-heading h3 mb-1">
+        @if (jadwal(); as j) {
+          {{ j.nama }}
+        } @else {
+          <span class="text-muted">{{ 'COMMON.LOADING' | translate }}</span>
+        }
+      </h1>
+      @if (jadwal(); as j) {
+        <p class="peserta__meta mb-0">
+          <span class="slam-mono">{{ j.kode }}</span>
+          <span aria-hidden="true">·</span>
+          <span>{{ dateOnly(j.tanggal_mulai) }}@if (j.tanggal_selesai) { – {{ dateOnly(j.tanggal_selesai) }}}</span>
+          <span aria-hidden="true">·</span>
+          <span>{{ hhmm(j.jam_mulai) }}–{{ hhmm(j.jam_selesai) }} ({{ j.timezone }})</span>
+          @if (j.lokasi_nama) {
+            <span aria-hidden="true">·</span>
+            <span><slam-icon name="map-pin" [size]="14" /> {{ j.lokasi_nama }}</span>
+          }
+          <span aria-hidden="true">·</span>
+          <span>{{ j.jumlah_sesi }} {{ 'PESERTA.SESI' | translate }}</span>
+        </p>
+      }
+    </div>
+
+    <dl class="peserta__stats" [attr.aria-label]="'PESERTA.SUMMARY' | translate">
+      @for (s of statusOptions; track s) {
+        <div class="peserta__stat" [class]="'peserta__stat peserta__stat--' + s">
+          <dt class="slam-eyebrow">{{ 'PESERTA.STATUS.' + s.toUpperCase() | translate }}</dt>
+          <dd>{{ counts()[s] }}</dd>
+        </div>
+      }
+    </dl>
+  </header>
+  <hr class="slam-divider mb-4" />
+
+  <!-- ── Assign (Admin/Moderator only — jadwal.assign) ────────────────── -->
+  <section *hasPermission="'jadwal.assign'" class="peserta__assign mb-4" aria-labelledby="assign-title">
+    <div class="peserta__assign-head">
+      <h2 id="assign-title" class="h5 mb-0">{{ 'PESERTA.ASSIGN' | translate }}</h2>
+      <div class="btn-group btn-group-sm" role="tablist" [attr.aria-label]="'PESERTA.ASSIGN_MODE' | translate">
+        <button
+          type="button"
+          role="tab"
+          class="btn btn-outline-light peserta__tab"
+          [class.active]="mode() === 'single'"
+          [attr.aria-selected]="mode() === 'single'"
+          (click)="mode.set('single')"
+        >
+          {{ 'PESERTA.SINGLE' | translate }}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          class="btn btn-outline-light peserta__tab"
+          [class.active]="mode() === 'bulk'"
+          [attr.aria-selected]="mode() === 'bulk'"
+          (click)="mode.set('bulk')"
+        >
+          {{ 'PESERTA.BULK' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Shared options: sesi / peran / wajib_absen -->
+    <div class="row g-3 peserta__opts">
+      <div class="col-md-4">
+        <label class="form-label" for="assign-sesi">{{ 'PESERTA.SESI' | translate }}</label>
+        <select
+          id="assign-sesi"
+          class="form-select"
+          [ngModel]="sesiId()"
+          (ngModelChange)="sesiId.set($event)"
+        >
+          <option [ngValue]="null">{{ 'PESERTA.ALL_SESI' | translate }}</option>
+          @for (s of sesiList(); track s.id) {
+            <option [ngValue]="s.id">{{ sesiOption(s) }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label" for="assign-peran">{{ 'PESERTA.PERAN.LABEL' | translate }}</label>
+        <select
+          id="assign-peran"
+          class="form-select"
+          [ngModel]="peran()"
+          (ngModelChange)="peran.set($event)"
+        >
+          @for (p of peranOptions; track p) {
+            <option [value]="p">{{ 'PESERTA.PERAN.' + p.toUpperCase() | translate }}</option>
+          }
+        </select>
+      </div>
+      <div class="col-md-5">
+        <span class="form-label d-block">{{ 'PESERTA.WAJIB_ABSEN' | translate }}</span>
+        <div class="form-check form-switch peserta__switch">
+          <input
+            id="assign-wajib"
+            class="form-check-input"
+            type="checkbox"
+            role="switch"
+            [ngModel]="wajibAbsen()"
+            (ngModelChange)="wajibAbsen.set($event)"
+          />
+          <label class="form-check-label" for="assign-wajib">
+            {{ (wajibAbsen() ? 'COMMON.YES' : 'COMMON.NO') | translate }}
+          </label>
+        </div>
+        <small class="peserta__hint">{{ 'PESERTA.WAJIB_ABSEN_HINT' | translate }}</small>
+      </div>
+    </div>
+
+    <!-- Single: anggota picker -->
+    @if (mode() === 'single') {
+      <form class="row g-3 mt-1" (ngSubmit)="submitSingle()">
+        <div class="col-md-7 position-relative">
+          <label class="form-label" for="pick-anggota">{{ 'PESERTA.ANGGOTA' | translate }}</label>
+          @if (selectedAnggota(); as a) {
+            <div class="peserta__chip">
+              <span class="peserta__chip-name">{{ a.nama_lengkap }}</span>
+              @if (a.no_induk) {
+                <span class="slam-mono peserta__chip-nra">{{ a.no_induk }}</span>
+              }
+              <span class="peserta__chip-inst">{{ a.instansi_nama }}</span>
+              <button
+                type="button"
+                class="peserta__chip-x"
+                [attr.aria-label]="'COMMON.RESET' | translate"
+                (click)="clearPick()"
+              >
+                <slam-icon name="x" [size]="16" />
+              </button>
+            </div>
+          } @else {
+            <input
+              id="pick-anggota"
+              type="search"
+              class="form-control"
+              autocomplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-controls="pick-results"
+              [attr.aria-expanded]="pickerOpen()"
+              [placeholder]="'PESERTA.SEARCH_ANGGOTA' | translate"
+              [ngModel]="pickerQ()"
+              name="pickerQ"
+              (ngModelChange)="pickerQ.set($event); pickerOpen.set(true)"
+              (focus)="pickerOpen.set(true)"
+              (blur)="pickerOpen.set(false)"
+              (keydown.escape)="pickerOpen.set(false)"
+            />
+            @if (pickerOpen() && pickerQ().trim().length >= 2) {
+              <ul id="pick-results" class="peserta__results" role="listbox">
+                @for (a of pickerResults(); track a.id) {
+                  <li
+                    role="option"
+                    class="peserta__result"
+                    [class.peserta__result--taken]="assignedIds().has(a.id)"
+                    [attr.aria-selected]="false"
+                    (mousedown)="$event.preventDefault(); pick(a)"
+                  >
+                    <span class="peserta__result-name">{{ a.nama_lengkap }}</span>
+                    <span class="peserta__result-meta">
+                      @if (a.no_induk) {
+                        <span class="slam-mono">{{ a.no_induk }}</span> ·
+                      }
+                      {{ a.instansi_nama }}
+                      @if (assignedIds().has(a.id)) {
+                        · <em>{{ 'PESERTA.ALREADY' | translate }}</em>
+                      }
+                    </span>
+                  </li>
+                } @empty {
+                  <li class="peserta__result peserta__result--empty">{{ 'COMMON.NO_RESULTS' | translate }}</li>
+                }
+              </ul>
+            }
+          }
+        </div>
+        <div class="col-md-5">
+          <label class="form-label" for="assign-ket">{{ 'PESERTA.KETERANGAN' | translate }}</label>
+          <input
+            id="assign-ket"
+            type="text"
+            class="form-control"
+            name="keterangan"
+            maxlength="255"
+            [ngModel]="keterangan()"
+            (ngModelChange)="keterangan.set($event)"
+          />
+        </div>
+        <div class="col-12 d-flex justify-content-end">
+          <button type="submit" class="btn btn-primary peserta__cta" [disabled]="!selectedAnggota() || saving()">
+            {{ (saving() ? 'COMMON.SAVING' : 'PESERTA.ASSIGN') | translate }}
+          </button>
+        </div>
+      </form>
+    }
+
+    <!-- Bulk: multi-select + by-instansi expander -->
+    @if (mode() === 'bulk') {
+      <div class="row g-3 mt-1 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label" for="bulk-instansi">{{ 'PESERTA.BY_INSTANSI' | translate }}</label>
+          <select
+            id="bulk-instansi"
+            class="form-select"
+            [ngModel]="bulkInstansi() ?? ''"
+            (ngModelChange)="onBulkInstansi($event)"
+          >
+            <option value="">{{ 'COMMON.ALL' | translate }}</option>
+            @for (i of instansiList(); track i.id) {
+              <option [value]="i.id">{{ i.nama }} ({{ i.jumlah_anggota }})</option>
+            }
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="bulk-q">{{ 'COMMON.SEARCH' | translate }}</label>
+          <input
+            id="bulk-q"
+            type="search"
+            class="form-control"
+            [placeholder]="'PESERTA.SEARCH_ANGGOTA' | translate"
+            [ngModel]="bulkQ()"
+            (ngModelChange)="bulkQ.set($event); onBulkFilter()"
+          />
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-light flex-fill"
+            [disabled]="!bulkInstansi() || expanding()"
+            [attr.title]="!bulkInstansi() ? ('PESERTA.PICK_INSTANSI_FIRST' | translate) : null"
+            (click)="selectWholeInstansi()"
+          >
+            {{ (expanding() ? 'COMMON.LOADING' : 'PESERTA.SELECT_INSTANSI') | translate }}
+          </button>
+        </div>
+      </div>
+
+      <div class="peserta__picklist mt-3" role="group" [attr.aria-label]="'PESERTA.BULK' | translate">
+        <div class="peserta__picklist-head">
+          <label class="form-check m-0">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              [checked]="pageAllSelected()"
+              [disabled]="!bulkItems().length"
+              (change)="togglePage()"
+            />
+            <span class="form-check-label">{{ 'PESERTA.SELECT_PAGE' | translate }}</span>
+          </label>
+          <span class="peserta__count" aria-live="polite">
+            <strong>{{ selectedCount() }}</strong> / {{ bulkMax }} {{ 'PESERTA.SELECTED' | translate }}
+          </span>
+          <button type="button" class="btn btn-sm btn-link text-muted" [disabled]="!selectedCount()" (click)="clearSelection()">
+            {{ 'COMMON.RESET' | translate }}
+          </button>
+        </div>
+        <ul class="peserta__picks">
+          @for (a of bulkItems(); track a.id) {
+            <li>
+              <label class="peserta__pick" [class.peserta__pick--taken]="assignedIds().has(a.id)">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="isSelected(a.id)"
+                  [disabled]="assignedIds().has(a.id)"
+                  (change)="toggle(a.id)"
+                />
+                <span class="peserta__pick-name">{{ a.nama_lengkap }}</span>
+                <span class="peserta__pick-meta">
+                  @if (a.no_induk) {
+                    <span class="slam-mono">{{ a.no_induk }}</span> ·
+                  }
+                  {{ a.instansi_nama }}
+                </span>
+                @if (assignedIds().has(a.id)) {
+                  <span class="badge rounded-pill text-bg-secondary">{{ 'PESERTA.ALREADY' | translate }}</span>
+                }
+              </label>
+            </li>
+          } @empty {
+            <li class="peserta__pick peserta__pick--empty">{{ 'COMMON.NO_RESULTS' | translate }}</li>
+          }
+        </ul>
+        <div class="peserta__picklist-foot">
+          <small class="text-muted">
+            {{ 'COMMON.SHOWING' | translate }} {{ bulkItems().length }} {{ 'COMMON.OF' | translate }}
+            {{ bulkResult().total }} {{ 'COMMON.ENTRIES' | translate }}
+          </small>
+          <div class="btn-group btn-group-sm">
+            <button type="button" class="btn btn-outline-light" [disabled]="bulkPage() <= 1" (click)="bulkPrev()">
+              {{ 'COMMON.PREVIOUS' | translate }}
+            </button>
+            <span class="btn btn-outline-light disabled">{{ bulkPage() }} / {{ bulkResult().last_page }}</span>
+            <button
+              type="button"
+              class="btn btn-outline-light"
+              [disabled]="bulkPage() >= bulkResult().last_page"
+              (click)="bulkNext()"
+            >
+              {{ 'COMMON.NEXT' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-3">
+        <button type="button" class="btn btn-primary peserta__cta" [disabled]="!selectedCount() || saving()" (click)="submitBulk()">
+          {{ (saving() ? 'COMMON.SAVING' : 'PESERTA.ASSIGN_N') | translate: { n: selectedCount() } }}
+        </button>
+      </div>
+    }
+  </section>
+
+  <!-- ── Participant list ─────────────────────────────────────────────── -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-4 col-sm-6">
+      <label class="form-label form-label-sm text-muted" for="list-q">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        id="list-q"
+        type="search"
+        class="form-control form-control-sm"
+        [placeholder]="'PESERTA.SEARCH_ANGGOTA' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="load()"
+      />
+    </div>
+    <div class="col-md-3 col-sm-4">
+      <label class="form-label form-label-sm text-muted" for="list-status">{{ 'PESERTA.STATUS.LABEL' | translate }}</label>
+      <select
+        id="list-status"
+        class="form-select form-select-sm"
+        [ngModel]="statusFilter()"
+        (ngModelChange)="onStatusFilter($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        @for (s of statusOptions; track s) {
+          <option [value]="s">{{ 'PESERTA.STATUS.' + s.toUpperCase() | translate }}</option>
+        }
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button type="button" class="btn btn-outline-light btn-sm w-100" (click)="load()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'PESERTA.ANGGOTA' | translate }}</th>
+            <th>{{ 'PESERTA.PERAN.LABEL' | translate }}</th>
+            <th>{{ 'PESERTA.SESI' | translate }}</th>
+            <th>{{ 'PESERTA.WAJIB_ABSEN' | translate }}</th>
+            <th>{{ 'PESERTA.STATUS.LABEL' | translate }}</th>
+            <th>{{ 'PESERTA.DITUGASKAN_PADA' | translate }}</th>
+            <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of rows(); track r.id) {
+            <tr [class.peserta__row--mine]="isMine(r)">
+              <td>
+                <div class="peserta__name">
+                  {{ r.anggota_nama || ('#' + r.anggota_id) }}
+                  @if (isMine(r)) {
+                    <span class="badge rounded-pill peserta__me">{{ 'PESERTA.YOU' | translate }}</span>
+                  }
+                </div>
+                @if (r.no_induk) {
+                  <small class="slam-mono text-muted">{{ r.no_induk }}</small>
+                }
+              </td>
+              <td>
+                @if (r.peran_peserta) {
+                  <span class="badge rounded-pill peserta__peran">{{ 'PESERTA.PERAN.' + r.peran_peserta.toUpperCase() | translate }}</span>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td>{{ sesiLabel(r) }}</td>
+              <td>
+                <!-- read-only: the API owns this flag (forced false for account-less anggota) -->
+                @if (r.wajib_absen) {
+                  <span class="peserta__flag peserta__flag--on">
+                    <slam-icon name="check-square" [size]="16" /> {{ 'COMMON.YES' | translate }}
+                  </span>
+                } @else {
+                  <span class="peserta__flag">
+                    <slam-icon name="x" [size]="16" /> {{ 'COMMON.NO' | translate }}
+                  </span>
+                  @if (!r.anggota_berakun) {
+                    <small class="peserta__auto-off d-block">{{ 'PESERTA.WAJIB_ABSEN_AUTO_OFF' | translate }}</small>
+                  }
+                }
+              </td>
+              <td>
+                <span class="badge rounded-pill" [class]="'badge rounded-pill ' + statusClass(r.status_tugas)">
+                  {{ 'PESERTA.STATUS.' + r.status_tugas.toUpperCase() | translate }}
+                </span>
+              </td>
+              <td class="text-muted small">{{ dateOnly(r.ditugaskan_pada) }}</td>
+              <td class="text-end">
+                <div class="peserta__actions">
+                  @if (isMine(r)) {
+                    <app-peserta-respon [peserta]="r" (responded)="onResponded($event)" />
+                  }
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger btn-sm peserta__remove"
+                    *hasPermission="'jadwal.assign'"
+                    (click)="remove(r)"
+                  >
+                    <slam-icon name="trash" [size]="16" /> {{ 'PESERTA.REMOVE' | translate }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7">
+                <div class="slam-empty">
+                  <slam-icon name="user-circle" [size]="40" cssClass="slam-empty__icon" />
+                  <p class="slam-empty__text mb-0">{{ 'PESERTA.EMPTY' | translate }}</p>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

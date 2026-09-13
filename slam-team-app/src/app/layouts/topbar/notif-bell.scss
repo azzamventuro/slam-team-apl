@@ -1,0 +1,234 @@
+:host {
+  display: block;
+}
+
+.bell {
+  position: relative;
+}
+
+// Trigger — same 44px tap box as the drawer toggle next to it.
+.bell__btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: var(--slam-tap-min);
+  min-height: var(--slam-tap-min);
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius-sm);
+  background: transparent;
+  color: var(--slam-text);
+  transition: background-color var(--slam-transition-fast), border-color var(--slam-transition-fast);
+
+  &:hover,
+  &[aria-expanded='true'] {
+    background: var(--slam-surface-2);
+    border-color: var(--slam-border-strong);
+  }
+}
+
+// Unread count — the one legitimate red fill in the chrome.
+.bell__badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--slam-radius-pill);
+  background: var(--slam-primary);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--slam-surface);
+}
+
+// Dropdown — raised surface, anchored right, viewport-safe on phones.
+.bell__menu {
+  position: absolute;
+  top: calc(100% + var(--slam-space-2));
+  right: 0;
+  z-index: 1040;
+  width: min(380px, calc(100vw - 2 * var(--slam-space-4)));
+  border: 1px solid var(--slam-border-strong);
+  border-radius: var(--slam-radius-lg);
+  background: var(--slam-surface-2);
+  box-shadow: var(--slam-shadow-lg);
+  overflow: hidden;
+}
+
+.bell__head {
+  display: flex;
+  align-items: center;
+  gap: var(--slam-space-2);
+  padding: var(--slam-space-3) var(--slam-space-4);
+  border-bottom: 2px solid var(--slam-primary);
+}
+
+.bell__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slam-text);
+}
+
+.bell__unread {
+  font-size: 0.75rem;
+  color: var(--slam-text-muted);
+}
+
+.bell__all {
+  margin-left: auto;
+  padding: 0;
+  font-size: 0.75rem;
+  color: var(--slam-primary);
+  text-decoration: none;
+  min-height: 32px;
+
+  &:hover:not(:disabled) {
+    color: var(--slam-primary-hover);
+    text-decoration: underline;
+  }
+
+  &:disabled {
+    color: var(--slam-text-dim);
+  }
+}
+
+.bell__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+}
+
+.bell__item {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--slam-border);
+  border-left: 3px solid transparent;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+// Unread = tinted row + the left rule in the notification's colour + a
+// screen-reader prefix. Read rows fall back to muted text.
+.bell__item--unread {
+  background: var(--slam-primary-soft);
+}
+
+.bell__item--info.bell__item--unread       { border-left-color: var(--slam-info); }
+.bell__item--sukses.bell__item--unread     { border-left-color: var(--slam-success); }
+.bell__item--peringatan.bell__item--unread { border-left-color: var(--slam-warning); }
+.bell__item--bahaya.bell__item--unread     { border-left-color: var(--slam-danger); }
+
+.bell__item--info .bell__icon       { color: var(--slam-info); }
+.bell__item--sukses .bell__icon     { color: var(--slam-success); }
+.bell__item--peringatan .bell__icon { color: var(--slam-warning); }
+.bell__item--bahaya .bell__icon     { color: var(--slam-danger); }
+
+.bell__open {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: var(--slam-space-3);
+  padding: var(--slam-space-3) var(--slam-space-4);
+  min-height: var(--slam-tap-min);
+  border: 0;
+  background: transparent;
+  color: var(--slam-text);
+  text-align: left;
+  transition: background-color var(--slam-transition-fast);
+
+  &:hover {
+    background: var(--slam-surface-3);
+  }
+}
+
+.bell__icon {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--slam-radius-sm);
+  background: var(--slam-surface);
+}
+
+.bell__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.bell__judul {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.3;
+
+  .bell__item:not(.bell__item--unread) & {
+    font-weight: 500;
+    color: var(--slam-text-muted);
+  }
+}
+
+.bell__isi {
+  font-size: 0.8125rem;
+  color: var(--slam-text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bell__when {
+  font-size: 0.6875rem;
+  color: var(--slam-text-dim);
+  letter-spacing: 0.02em;
+}
+
+.bell__read {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: var(--slam-tap-min);
+  border: 0;
+  border-left: 1px solid var(--slam-border);
+  background: transparent;
+  color: var(--slam-text-muted);
+  transition: color var(--slam-transition-fast), background-color var(--slam-transition-fast);
+
+  &:hover {
+    color: var(--slam-success);
+    background: var(--slam-surface-3);
+  }
+}
+
+.bell__state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--slam-space-2);
+  padding: var(--slam-space-6) var(--slam-space-4);
+  color: var(--slam-text-muted);
+  font-size: 0.875rem;
+}
+
+.bell__empty {
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bell__btn,
+  .bell__open,
+  .bell__read {
+    transition: none;
+  }
+}

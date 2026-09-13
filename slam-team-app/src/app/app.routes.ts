@@ -247,6 +247,24 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/profile-club/profile-club').then((m) => m.ProfileClubComponent),
       },
+      // ── Jadwal — penugasan peserta (17). The jadwal list/detail/calendar
+      // pages belong to 16-jadwal APP (not built yet); until then `/jadwal/:id`
+      // and `/jadwal/:id/sesi/:sesiId` — the routes notifications point to —
+      // land on the participant panel.
+      {
+        path: 'jadwal',
+        canActivate: [permissionGuard],
+        data: { permission: 'jadwal.read' },
+        children: [
+          {
+            path: ':id/peserta',
+            loadComponent: () =>
+              import('./pages/jadwal/peserta-panel').then((m) => m.PesertaPanel),
+          },
+          { path: ':id/sesi/:sesiId', redirectTo: ':id/peserta' },
+          { path: ':id', pathMatch: 'full', redirectTo: ':id/peserta' },
+        ],
+      },
       // ── User Management — 3 surfaces sharing same components ──
       {
         path: 'admin',

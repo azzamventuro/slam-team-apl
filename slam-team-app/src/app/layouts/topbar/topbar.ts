@@ -3,10 +3,11 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../core/services/auth.service';
 import { SlamIconComponent } from '../../shared/components/slam-icon/slam-icon.component';
+import { NotifBell } from './notif-bell';
 
 @Component({
   selector: 'app-topbar',
-  imports: [TranslatePipe, SlamIconComponent],
+  imports: [TranslatePipe, SlamIconComponent, NotifBell],
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
 })

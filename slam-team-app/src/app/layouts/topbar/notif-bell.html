@@ -1,0 +1,91 @@
+<div class="bell">
+  <button
+    type="button"
+    class="bell__btn"
+    aria-haspopup="true"
+    aria-controls="notif-menu"
+    [attr.aria-expanded]="open()"
+    [attr.aria-label]="
+      hasUnread()
+        ? ('NOTIF.ARIA_UNREAD' | translate: { n: unread() })
+        : ('NOTIF.TITLE' | translate)
+    "
+    (click)="toggle()"
+  >
+    <slam-icon name="bell" [size]="20" />
+    @if (hasUnread()) {
+      <span class="bell__badge" aria-hidden="true">{{ badge() }}</span>
+    }
+  </button>
+
+  @if (open()) {
+    <div id="notif-menu" class="bell__menu" role="dialog" [attr.aria-label]="'NOTIF.TITLE' | translate">
+      <div class="bell__head">
+        <span class="bell__title">{{ 'NOTIF.TITLE' | translate }}</span>
+        @if (hasUnread()) {
+          <span class="bell__unread">{{ unread() }} {{ 'NOTIF.UNREAD' | translate }}</span>
+        }
+        <button
+          type="button"
+          class="btn btn-sm btn-link bell__all"
+          [disabled]="!hasUnread() || busy()"
+          (click)="markAll()"
+        >
+          {{ 'NOTIF.MARK_ALL' | translate }}
+        </button>
+      </div>
+
+      @if (loading() && !items().length) {
+        <div class="bell__state">
+          <div class="spinner-border spinner-border-sm text-danger" role="status">
+            <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+          </div>
+        </div>
+      } @else {
+        <ul class="bell__list" role="list">
+          @for (n of items(); track n.id) {
+            <li
+              class="bell__item"
+              [class]="'bell__item ' + warnaClass(n.warna)"
+              [class.bell__item--unread]="!n.is_dibaca"
+            >
+              <button type="button" class="bell__open" (click)="openItem(n)">
+                <span class="bell__icon" aria-hidden="true">
+                  <slam-icon [name]="icon(n)" [size]="18" />
+                </span>
+                <span class="bell__body">
+                  <span class="bell__judul">
+                    @if (!n.is_dibaca) {
+                      <span class="visually-hidden">{{ 'NOTIF.UNREAD_ONE' | translate }}: </span>
+                    }
+                    {{ n.judul }}
+                  </span>
+                  @if (n.isi) {
+                    <span class="bell__isi">{{ n.isi }}</span>
+                  }
+                  <span class="bell__when">{{ when(n) }}</span>
+                </span>
+              </button>
+              @if (!n.is_dibaca) {
+                <button
+                  type="button"
+                  class="bell__read"
+                  [attr.aria-label]="'NOTIF.MARK_READ' | translate"
+                  [attr.title]="'NOTIF.MARK_READ' | translate"
+                  (click)="markRead(n, $event)"
+                >
+                  <slam-icon name="check-square" [size]="16" />
+                </button>
+              }
+            </li>
+          } @empty {
+            <li class="bell__state bell__empty">
+              <slam-icon name="bell" [size]="28" cssClass="slam-empty__icon" />
+              <span>{{ 'NOTIF.EMPTY' | translate }}</span>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>
