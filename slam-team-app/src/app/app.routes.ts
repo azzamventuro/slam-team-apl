@@ -62,15 +62,18 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./pages/instansi/instansi-list').then((m) => m.InstansiList),
+            loadComponent: () =>
+              import('./pages/instansi/instansi-list').then((m) => m.InstansiList),
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/instansi/instansi-form').then((m) => m.InstansiFormComponent),
+            loadComponent: () =>
+              import('./pages/instansi/instansi-form').then((m) => m.InstansiFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/instansi/instansi-form').then((m) => m.InstansiFormComponent),
+            loadComponent: () =>
+              import('./pages/instansi/instansi-form').then((m) => m.InstansiFormComponent),
           },
         ],
       },
@@ -86,15 +89,18 @@ export const routes: Routes = [
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/anggota/anggota-form').then((m) => m.AnggotaFormComponent),
+            loadComponent: () =>
+              import('./pages/anggota/anggota-form').then((m) => m.AnggotaFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/anggota/anggota-form').then((m) => m.AnggotaFormComponent),
+            loadComponent: () =>
+              import('./pages/anggota/anggota-form').then((m) => m.AnggotaFormComponent),
           },
           {
             path: ':id',
-            loadComponent: () => import('./pages/anggota/anggota-detail').then((m) => m.AnggotaDetail),
+            loadComponent: () =>
+              import('./pages/anggota/anggota-detail').then((m) => m.AnggotaDetail),
           },
         ],
       },
@@ -118,6 +124,32 @@ export const routes: Routes = [
           },
         ],
       },
+      // ── Lokasi (Operasional — training/activity locations, geofence + timezone) ──
+      {
+        path: 'lokasi',
+        canActivate: [permissionGuard],
+        data: { permission: 'lokasi.read' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./pages/lokasi/lokasi-list').then((m) => m.LokasiList),
+          },
+          {
+            path: 'new',
+            canActivate: [permissionGuard],
+            data: { permission: 'lokasi.create' },
+            loadComponent: () =>
+              import('./pages/lokasi/lokasi-form').then((m) => m.LokasiFormComponent),
+          },
+          {
+            path: ':id/edit',
+            canActivate: [permissionGuard],
+            data: { permission: 'lokasi.update' },
+            loadComponent: () =>
+              import('./pages/lokasi/lokasi-form').then((m) => m.LokasiFormComponent),
+          },
+        ],
+      },
       // ── Prestasi (Achievements) ──
       {
         path: 'prestasi',
@@ -126,15 +158,18 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./pages/prestasi/prestasi-list').then((m) => m.PrestasiList),
+            loadComponent: () =>
+              import('./pages/prestasi/prestasi-list').then((m) => m.PrestasiList),
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/prestasi/prestasi-form').then((m) => m.PrestasiFormComponent),
+            loadComponent: () =>
+              import('./pages/prestasi/prestasi-form').then((m) => m.PrestasiFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/prestasi/prestasi-form').then((m) => m.PrestasiFormComponent),
+            loadComponent: () =>
+              import('./pages/prestasi/prestasi-form').then((m) => m.PrestasiFormComponent),
           },
         ],
       },
@@ -150,11 +185,13 @@ export const routes: Routes = [
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/inorga/inorga-form').then((m) => m.InorgaFormComponent),
+            loadComponent: () =>
+              import('./pages/inorga/inorga-form').then((m) => m.InorgaFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/inorga/inorga-form').then((m) => m.InorgaFormComponent),
+            loadComponent: () =>
+              import('./pages/inorga/inorga-form').then((m) => m.InorgaFormComponent),
           },
         ],
       },
@@ -170,11 +207,13 @@ export const routes: Routes = [
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/medsos/medsos-form').then((m) => m.MedsosFormComponent),
+            loadComponent: () =>
+              import('./pages/medsos/medsos-form').then((m) => m.MedsosFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/medsos/medsos-form').then((m) => m.MedsosFormComponent),
+            loadComponent: () =>
+              import('./pages/medsos/medsos-form').then((m) => m.MedsosFormComponent),
           },
         ],
       },
@@ -190,11 +229,13 @@ export const routes: Routes = [
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/dokumen/dokumen-form').then((m) => m.DokumenFormComponent),
+            loadComponent: () =>
+              import('./pages/dokumen/dokumen-form').then((m) => m.DokumenFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/dokumen/dokumen-form').then((m) => m.DokumenFormComponent),
+            loadComponent: () =>
+              import('./pages/dokumen/dokumen-form').then((m) => m.DokumenFormComponent),
           },
         ],
       },
@@ -203,7 +244,8 @@ export const routes: Routes = [
         path: 'profile-club',
         canActivate: [permissionGuard],
         data: { permission: 'profile_club.read' },
-        loadComponent: () => import('./pages/profile-club/profile-club').then((m) => m.ProfileClubComponent),
+        loadComponent: () =>
+          import('./pages/profile-club/profile-club').then((m) => m.ProfileClubComponent),
       },
       // ── User Management — 3 surfaces sharing same components ──
       {
@@ -213,15 +255,18 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-list').then((m) => m.UserListComponent),
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
           },
         ],
       },
@@ -232,15 +277,18 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-list').then((m) => m.UserListComponent),
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
           },
         ],
       },
@@ -251,15 +299,18 @@ export const routes: Routes = [
         children: [
           {
             path: '',
-            loadComponent: () => import('./pages/user-management/user-list').then((m) => m.UserListComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-list').then((m) => m.UserListComponent),
           },
           {
             path: 'create',
-            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
           },
           {
             path: ':id/edit',
-            loadComponent: () => import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
+            loadComponent: () =>
+              import('./pages/user-management/user-form').then((m) => m.UserFormComponent),
           },
         ],
       },

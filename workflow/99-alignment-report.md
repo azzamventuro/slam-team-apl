@@ -162,12 +162,86 @@ Diisi dari hasil audit dan temuan saat eksekusi build.
   `slamteam_db` (drop + migrate dari nol, atau `force 3`) adalah keputusan
   operator, bukan bagian modul ini.
 
+### 2026-09-13 — `02-file-management`: `dto.UploadResp` kini mengembalikan `id`
+
+- **Seam yang diprediksi di atas jadi nyata.** Catatan `02-file-management` di
+  atas hanya menandai kepemilikan; celah terpisah yang lebih besar baru
+  terlihat saat membangun `15-lokasi` (APP): `POST /files` **tidak pernah**
+  mengembalikan `mst_file.id`, hanya `uuid` — padahal HAMPIR SEMUA kolom
+  pemilik di `.dbml` bertipe `*_file_id bigint` (`mst_lokasi.foto_file_id`,
+  `mst_instansi.logo_utama_file_id`, `anggota.foto_profil_file_id`,
+  `mst_inorga.logo_file_id`, `prestasi.flyer_file_id`,
+  `profile_club.banner_file_id`, dst) — bukan uuid. Halaman yang sudah
+  ter-commit (`instansi-form`, `anggota-form`, `prestasi-form`, `inorga-form`,
+  `profile-club`) membaca `res.id` dari respons upload dan mengirim `undefined`
+  ke `*_file_id`: unggahan berhasil, tapi FK-nya **tidak pernah tertulis**.
+  (`unit` dan `dokumen` lolos dari bug ini karena DTO-nya memang memakai
+  `*_uuid`, bukan `*_file_id`.)
+- **Perbaikan aditif, satu field.** `dto.UploadResp.ID int64` ditambahkan
+  (diisi dari `f.ID`, yang sudah terisi oleh `repo.Create` sebelum
+  `service.respond` dipanggil) — tidak ada konsumen lama yang kolomnya
+  berpindah/berubah bentuk. `go build`/`go vet`/`go test ./internal/modules/core/file/...`
+  bersih. **Modul lama yang sudah memakai `res.id` (instansi/anggota/prestasi/
+  inorga/profile-club) otomatis ikut benar setelah ini** — tidak disentuh
+  ulang di sesi ini, hanya dicatat di sini supaya tidak dikira sengaja
+  dibiarkan rusak.
+- `15-lokasi` (APP) memakai `<app-file-upload>` milik `02` (bukan
+  `core/services/file.service.ts` yang dipakai modul-modul di atas) yang
+  sudah menaruh `id` di `FileRef` sejak awal — begitu backend mengisinya,
+  jalur foto lokasi langsung benar tanpa perubahan frontend tambahan.
+
+### 2026-09-13 — `15-lokasi` (APP) dibangun
+
+- **Peta: Leaflet 1.9.4 + `@types/leaflet`, tile OpenStreetMap, tanpa API key**
+  (menuntaskan pertanyaan terbuka §5). CSS di-daftarkan global lewat
+  `angular.json` (`node_modules/leaflet/dist/leaflet.css`) — bukan `@import` di
+  SCSS komponen, karena Leaflet menyuntikkan DOM-nya lewat API DOM biasa, di
+  luar `ViewEncapsulation` Angular; style ter-scope tidak akan pernah
+  menjangkaunya. Ikon marker memakai `L.divIcon` dengan `style` inline
+  (bukan PNG bawaan Leaflet) — sengaja, supaya tidak perlu meng-alias path
+  `marker-icon.png` yang rusak di bawah bundler esbuild, dan sekalian memakai
+  warna SLAM red alih-alih pin biru bawaan.
+- **"Lingkaran yang bisa diseret" diimplementasikan sebagai marker (draggable
+  asli) + circle yang selalu mengikuti posisi marker**, bukan circle yang
+  edge-nya bisa diseret langsung. Leaflet tidak mendukung drag pada `Path`
+  (termasuk `Circle`) tanpa plugin (`Leaflet.Path.Drag`); menambah plugin
+  hanya untuk kapabilitas yang sudah didapat gratis dari marker dianggap tidak
+  sepadan. Radius (`radius_meter`) tetap dua-arah lewat `<input type=range>` +
+  `<input type=number>` yang berbagi satu `FormControl` — keduanya memicu
+  `circle.setRadius()`.
+- **Warna `--slam-primary` ditulis sebagai literal hex** (`#e11d2a`) di opsi
+  `L.circle`/`divIcon`, bukan `var(--slam-primary)`. Leaflet menulis atribut
+  SVG mentah lewat `setAttribute`, di luar cascade CSS tempat `var()`
+  di-resolve — satu-satunya tempat di modul ini yang sengaja menyimpang dari
+  aturan "jangan hardcode hex" `design-tokens.md`, dengan alasan teknis, bukan
+  kelalaian.
+- **Kategori file foto lokasi: `banner`** (bukan nilai yang tidak ada di
+  `oneof` seperti `'foto'` yang dipakai beberapa modul lama — lihat catatan di
+  atas). `banner` juga defaultnya publik di `mst_file`, cocok untuk foto lokasi
+  latihan yang bukan data sensitif.
+- **Verifikasi jalur peta dilakukan di luar Angular**, lewat harness Leaflet
+  statis (bukan bagian repo) yang memanggil persis pemanggilan API yang sama
+  (`L.marker(...).on('dragend',…)`, `map.on('click',…)`, `circle.setRadius`)
+  dan dibuka di Chrome sungguhan: klik peta memindahkan titik, drag marker
+  memindahkan titik, `setRadius(400)` membesarkan lingkaran — ketiganya
+  dikonfirmasi lewat log + tangkapan layar. **Uji end-to-end BERAUTENTIKASI di
+  app sungguhan (create/edit/delete lewat UI, gating 403 Mod/User) tidak
+  dilakukan**: `slamteam_db` lokal sudah punya satu super admin dan
+  kredensialnya tidak diketahui sesi ini; `slamctl create-superadmin` menolak
+  membuat yang kedua (by design); menulis akun/baris uji langsung ke database
+  bersama yang sedang dipakai sesi lain dianggap terlalu berisiko untuk
+  dilakukan tanpa izin. `npm run build:local` + `npm test` (44/44, tidak
+  berubah) dipakai sebagai jaring pengaman sebagai gantinya. Operator yang
+  punya kredensial super admin perlu menjalankan checklist §"Verification"
+  prompt ini secara manual sebelum menandai modul benar-benar tuntas end-to-end.
+
 ---
 
 ## 5. Pertanyaan terbuka / keputusan yang tertunda
 
-- **Library peta** (`15-lokasi`) — Leaflet + OSM (tanpa API key) vs input lat/long numerik.
-  Prompt menawarkan keduanya; finalisasi saat build UI.
+- ~~**Library peta** (`15-lokasi`)~~ — **selesai 2026-09-13**: Leaflet 1.9.4 +
+  OSM, lihat §4. Input lat/long numerik dipertahankan sebagai fallback (bukan
+  pengganti), persis seperti yang diminta prompt.
 - **Library render KTA PNG** (`20-kta-nra-qr`) — pustaka Go untuk generate CR80 300dpi
   (mis. `fogleman/gg` / `golang.org/x/image`) + QR; finalisasi saat build.
 - **Library export** (`21-laporan-rekap`) — Excel (`excelize`) + PDF (mis. `gofpdf` /

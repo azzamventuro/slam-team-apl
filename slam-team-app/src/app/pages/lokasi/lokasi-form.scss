@@ -1,0 +1,39 @@
+:host {
+  display: block;
+}
+
+// The map + its fallback numeric fields need more room than a member/instansi
+// form — `.slam-card--wide` (640px) still applies, this only lifts the cap.
+.lokasi-form-card {
+  max-width: 900px;
+}
+
+.lokasi-map-hint {
+  margin: 0 0 var(--slam-space-2);
+  color: var(--slam-text-muted);
+  font-size: 0.8125rem;
+}
+
+.lokasi-map {
+  height: 320px;
+  border: 1px solid var(--slam-border);
+  border-radius: var(--slam-radius);
+  overflow: hidden;
+  // Leaflet's own default is `pointer`, but the map itself is a required
+  // form field here — a focus ring on click communicates that, same as any
+  // other control.
+  &:focus-within {
+    box-shadow: var(--slam-shadow-focus);
+  }
+}
+
+.lokasi-radius-input {
+  max-width: 140px;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 767.98px) {
+  .lokasi-map {
+    height: 260px;
+  }
+}

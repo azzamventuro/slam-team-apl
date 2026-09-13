@@ -1,0 +1,270 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex align-items-center mb-4">
+    <a routerLink="/lokasi" class="btn btn-outline-light me-3">{{ 'COMMON.BACK' | translate }}</a>
+    <h1 class="slam-heading mb-0">
+      @if (isEdit()) {
+        {{ 'COMMON.EDIT' | translate }} {{ 'LOKASI.LABEL' | translate }}
+      } @else {
+        {{ 'COMMON.ADD' | translate }} {{ 'LOKASI.LABEL' | translate }}
+      }
+    </h1>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="slam-card slam-card--wide lokasi-form-card">
+    <div class="row g-3">
+      <!-- Kode -->
+      <div class="col-md-4">
+        <label for="lokasi-kode" class="form-label">{{ 'LOKASI.FORM.KODE' | translate }} *</label>
+        <input
+          id="lokasi-kode"
+          type="text"
+          class="form-control slam-mono"
+          [class.is-invalid]="hasError('kode', 'required') || hasError('kode', 'server')"
+          formControlName="kode"
+          maxlength="50"
+        />
+        @if (hasError('kode', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('kode', 'server')) {
+          <small class="text-danger">{{ form.get('kode')?.errors?.['server'] }}</small>
+        }
+      </div>
+
+      <!-- Nama -->
+      <div class="col-md-5">
+        <label for="lokasi-nama" class="form-label">{{ 'LOKASI.FORM.NAMA' | translate }} *</label>
+        <input
+          id="lokasi-nama"
+          type="text"
+          class="form-control"
+          [class.is-invalid]="hasError('nama', 'required')"
+          formControlName="nama"
+          maxlength="150"
+        />
+        @if (hasError('nama', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <!-- Jenis lokasi -->
+      <div class="col-md-3">
+        <label for="lokasi-jenis" class="form-label">{{ 'LOKASI.FORM.JENIS' | translate }}</label>
+        <input
+          id="lokasi-jenis"
+          type="text"
+          class="form-control"
+          formControlName="jenis_lokasi"
+          list="lokasi-jenis-opsi"
+          maxlength="50"
+        />
+        <datalist id="lokasi-jenis-opsi">
+          @for (j of jenisOpsi; track j) {
+            <option [value]="j"></option>
+          }
+        </datalist>
+      </div>
+
+      <!-- Alamat -->
+      <div class="col-12">
+        <label for="lokasi-alamat" class="form-label">{{ 'LOKASI.FORM.ALAMAT' | translate }}</label>
+        <textarea
+          id="lokasi-alamat"
+          class="form-control"
+          formControlName="alamat"
+          rows="2"
+        ></textarea>
+      </div>
+
+      <hr class="my-2" />
+
+      <!-- Map picker -->
+      <div class="col-12">
+        <label class="form-label mb-1">{{ 'LOKASI.FORM.PETA' | translate }} *</label>
+        <p class="lokasi-map-hint">{{ 'LOKASI.FORM.PETA_HINT' | translate }}</p>
+        <div
+          #mapEl
+          class="lokasi-map"
+          role="application"
+          [attr.aria-label]="'LOKASI.FORM.PETA' | translate"
+        ></div>
+      </div>
+
+      <!-- Latitude (fallback) -->
+      <div class="col-md-3 col-6">
+        <label for="lokasi-lat" class="form-label"
+          >{{ 'LOKASI.FORM.LATITUDE' | translate }} *</label
+        >
+        <input
+          id="lokasi-lat"
+          type="number"
+          step="0.0000001"
+          class="form-control slam-mono"
+          [class.is-invalid]="
+            hasError('latitude', 'min') ||
+            hasError('latitude', 'max') ||
+            hasError('latitude', 'required')
+          "
+          formControlName="latitude"
+        />
+        @if (hasError('latitude', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('latitude', 'min')) {
+          <small class="text-danger">{{ 'VALIDATION.MIN' | translate: { min: -90 } }}</small>
+        }
+        @if (hasError('latitude', 'max')) {
+          <small class="text-danger">{{ 'VALIDATION.MAX' | translate: { max: 90 } }}</small>
+        }
+      </div>
+
+      <!-- Longitude (fallback) -->
+      <div class="col-md-3 col-6">
+        <label for="lokasi-lng" class="form-label"
+          >{{ 'LOKASI.FORM.LONGITUDE' | translate }} *</label
+        >
+        <input
+          id="lokasi-lng"
+          type="number"
+          step="0.0000001"
+          class="form-control slam-mono"
+          [class.is-invalid]="
+            hasError('longitude', 'min') ||
+            hasError('longitude', 'max') ||
+            hasError('longitude', 'required')
+          "
+          formControlName="longitude"
+        />
+        @if (hasError('longitude', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('longitude', 'min')) {
+          <small class="text-danger">{{ 'VALIDATION.MIN' | translate: { min: -180 } }}</small>
+        }
+        @if (hasError('longitude', 'max')) {
+          <small class="text-danger">{{ 'VALIDATION.MAX' | translate: { max: 180 } }}</small>
+        }
+      </div>
+
+      <!-- Radius (number + range, both bound to the same control) -->
+      <div class="col-md-6">
+        <label for="lokasi-radius" class="form-label"
+          >{{ 'LOKASI.FORM.RADIUS' | translate }} *</label
+        >
+        <div class="d-flex align-items-center gap-3">
+          <input
+            type="range"
+            class="form-range flex-grow-1"
+            [min]="minRadius"
+            [max]="500"
+            step="1"
+            formControlName="radius_meter"
+            [attr.aria-label]="'LOKASI.FORM.RADIUS' | translate"
+          />
+          <div class="input-group lokasi-radius-input">
+            <input
+              id="lokasi-radius"
+              type="number"
+              class="form-control slam-mono"
+              [class.is-invalid]="
+                hasError('radius_meter', 'min') ||
+                hasError('radius_meter', 'max') ||
+                hasError('radius_meter', 'required')
+              "
+              [min]="minRadius"
+              [max]="maxRadius"
+              formControlName="radius_meter"
+            />
+            <span class="input-group-text">m</span>
+          </div>
+        </div>
+        @if (hasError('radius_meter', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+        @if (hasError('radius_meter', 'min')) {
+          <small class="text-danger">{{ 'VALIDATION.MIN' | translate: { min: minRadius } }}</small>
+        }
+        @if (hasError('radius_meter', 'max')) {
+          <small class="text-danger">{{ 'VALIDATION.MAX' | translate: { max: maxRadius } }}</small>
+        }
+      </div>
+
+      <!-- Timezone -->
+      <div class="col-md-6">
+        <label for="lokasi-tz" class="form-label">{{ 'LOKASI.FORM.TIMEZONE' | translate }} *</label>
+        <select
+          id="lokasi-tz"
+          class="form-select slam-mono"
+          [class.is-invalid]="hasError('timezone', 'required')"
+          formControlName="timezone"
+        >
+          @for (tz of timezones; track tz) {
+            <option [value]="tz">{{ tz }}</option>
+          }
+        </select>
+        @if (hasError('timezone', 'required')) {
+          <small class="text-danger">{{ 'VALIDATION.REQUIRED' | translate }}</small>
+        }
+      </div>
+
+      <hr class="my-2" />
+
+      <!-- Foto -->
+      <div class="col-md-6">
+        <label class="form-label">{{ 'LOKASI.FORM.FOTO' | translate }}</label>
+        <app-file-upload
+          kategori="banner"
+          reffType="lokasi"
+          accept="image/*"
+          previewVarian="medium"
+          [value]="fotoUuid()"
+          (uploaded)="onFotoUploaded($event)"
+          (cleared)="onFotoCleared()"
+        />
+      </div>
+
+      <!-- Keterangan -->
+      <div class="col-md-6">
+        <label for="lokasi-keterangan" class="form-label">{{
+          'LOKASI.FORM.KETERANGAN' | translate
+        }}</label>
+        <textarea
+          id="lokasi-keterangan"
+          class="form-control"
+          formControlName="keterangan"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <!-- Aktif -->
+      <div class="col-12">
+        <div class="form-check form-switch">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            formControlName="is_aktif"
+            id="lokasi-aktif"
+          />
+          <label class="form-check-label" for="lokasi-aktif">
+            {{
+              (form.get('is_aktif')?.value ? 'LOKASI.STATUS.AKTIF' : 'LOKASI.STATUS.NONAKTIF')
+                | translate
+            }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-danger" [disabled]="saving()">
+        {{ (isEdit() ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate }}
+        @if (saving()) {
+          <span class="spinner-border spinner-border-sm ms-2"></span>
+        }
+      </button>
+      <a routerLink="/lokasi" class="btn btn-outline-light">{{ 'COMMON.CANCEL' | translate }}</a>
+    </div>
+  </form>
+</div>

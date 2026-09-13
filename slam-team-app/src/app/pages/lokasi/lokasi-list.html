@@ -1,0 +1,132 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="slam-heading mb-0">{{ 'LOKASI.TITLE' | translate }}</h1>
+    <a routerLink="new" class="btn btn-danger" *hasPermission="'lokasi.create'">
+      {{ 'COMMON.ADD' | translate }} {{ 'LOKASI.LABEL' | translate }}
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="row g-2 mb-3 align-items-end">
+    <div class="col-md-4 col-sm-6">
+      <label class="form-label form-label-sm text-muted">{{ 'COMMON.SEARCH' | translate }}</label>
+      <input
+        type="text"
+        class="form-control form-control-sm"
+        [placeholder]="'LOKASI.SEARCH_PLACEHOLDER' | translate"
+        [ngModel]="q()"
+        (ngModelChange)="q.set($event)"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+    <div class="col-md-3 col-sm-4">
+      <label class="form-label form-label-sm text-muted">{{
+        'LOKASI.STATUS.LABEL' | translate
+      }}</label>
+      <select
+        class="form-select form-select-sm"
+        [ngModel]="aktifFilter()"
+        (ngModelChange)="onAktifChange($event)"
+      >
+        <option value="">{{ 'COMMON.ALL' | translate }}</option>
+        <option value="true">{{ 'LOKASI.STATUS.AKTIF' | translate }}</option>
+        <option value="false">{{ 'LOKASI.STATUS.NONAKTIF' | translate }}</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-2">
+      <button class="btn btn-outline-light btn-sm w-100" (click)="onSearch()">
+        {{ 'COMMON.SEARCH' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  @if (loading()) {
+    <div class="text-center py-4">
+      <div class="spinner-border text-danger" role="status">
+        <span class="visually-hidden">{{ 'COMMON.LOADING' | translate }}</span>
+      </div>
+    </div>
+  } @else {
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>{{ 'LOKASI.TABLE.KODE' | translate }}</th>
+            <th>{{ 'LOKASI.TABLE.NAMA' | translate }}</th>
+            <th>{{ 'LOKASI.TABLE.JENIS' | translate }}</th>
+            <th class="text-end">{{ 'LOKASI.TABLE.RADIUS' | translate }}</th>
+            <th>{{ 'LOKASI.TABLE.TIMEZONE' | translate }}</th>
+            <th class="text-center">{{ 'LOKASI.TABLE.STATUS' | translate }}</th>
+            <th class="text-end">{{ 'LOKASI.TABLE.JUMLAH_JADWAL' | translate }}</th>
+            <th class="text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (l of items(); track l.id) {
+            <tr>
+              <td class="slam-mono">{{ l.kode }}</td>
+              <td>{{ l.nama }}</td>
+              <td>{{ l.jenis_lokasi || '—' }}</td>
+              <td class="text-end">{{ l.radius_meter }} m</td>
+              <td>{{ l.timezone }}</td>
+              <td class="text-center">
+                <span [class]="statusClass(l.is_aktif)">
+                  {{ (l.is_aktif ? 'LOKASI.STATUS.AKTIF' : 'LOKASI.STATUS.NONAKTIF') | translate }}
+                </span>
+              </td>
+              <td class="text-end">{{ l.jumlah_jadwal }}</td>
+              <td class="text-end">
+                <a
+                  [routerLink]="[l.id, 'edit']"
+                  class="btn btn-outline-light btn-sm me-1"
+                  *hasPermission="'lokasi.update'"
+                >
+                  {{ 'COMMON.EDIT' | translate }}
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-outline-danger btn-sm"
+                  *hasPermission="'lokasi.delete'"
+                  [disabled]="l.jumlah_jadwal > 0"
+                  [attr.title]="l.jumlah_jadwal > 0 ? ('LOKASI.DELETE_IN_USE' | translate) : null"
+                  (click)="deleteItem(l)"
+                >
+                  {{ 'COMMON.DELETE' | translate }}
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="text-center text-muted py-4">
+                {{ 'COMMON.EMPTY' | translate }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+      <small class="text-muted">
+        {{ 'COMMON.SHOWING' | translate }} {{ items().length }} {{ 'COMMON.OF' | translate }}
+        {{ total() }} {{ 'COMMON.ENTRIES' | translate }}
+      </small>
+      <div class="btn-group btn-group-sm">
+        <button class="btn btn-outline-light" [disabled]="currentPage() <= 1" (click)="prevPage()">
+          {{ 'COMMON.PREVIOUS' | translate }}
+        </button>
+        <span class="btn btn-outline-light disabled">{{ currentPage() }} / {{ totalPages() }}</span>
+        <button
+          class="btn btn-outline-light"
+          [disabled]="currentPage() >= totalPages()"
+          (click)="nextPage()"
+        >
+          {{ 'COMMON.NEXT' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+</div>

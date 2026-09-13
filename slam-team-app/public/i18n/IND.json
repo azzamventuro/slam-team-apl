@@ -561,5 +561,46 @@
       "UNLOCK": "Buka Kunci Akun",
       "UNLOCK_HELP": "Aktifkan untuk membuka akun yang terkunci"
     }
+  },
+  "LOKASI": {
+    "TITLE": "Lokasi",
+    "LABEL": "Lokasi",
+    "LOAD_ERROR": "Gagal memuat data lokasi",
+    "DELETE_SUCCESS": "Lokasi berhasil dihapus",
+    "DELETE_ERROR": "Gagal menghapus lokasi",
+    "DELETE_IN_USE": "Lokasi masih dipakai jadwal aktif dan tidak dapat dihapus",
+    "CREATE_SUCCESS": "Lokasi berhasil ditambahkan",
+    "UPDATE_SUCCESS": "Lokasi berhasil diperbarui",
+    "SAVE_ERROR": "Gagal menyimpan lokasi",
+    "KODE_DUPLICATE": "Kode lokasi sudah digunakan",
+    "SEARCH_PLACEHOLDER": "Cari kode / nama / alamat...",
+    "STATUS": {
+      "LABEL": "Status",
+      "AKTIF": "Aktif",
+      "NONAKTIF": "Nonaktif"
+    },
+    "TABLE": {
+      "KODE": "Kode",
+      "NAMA": "Nama",
+      "JENIS": "Jenis",
+      "RADIUS": "Radius",
+      "TIMEZONE": "Zona Waktu",
+      "STATUS": "Status",
+      "JUMLAH_JADWAL": "Jadwal"
+    },
+    "FORM": {
+      "KODE": "Kode",
+      "NAMA": "Nama",
+      "JENIS": "Jenis Lokasi",
+      "ALAMAT": "Alamat",
+      "PETA": "Titik Lokasi",
+      "PETA_HINT": "Klik peta untuk menetapkan titik, atau seret penanda merah. Lingkaran menunjukkan radius geofence.",
+      "LATITUDE": "Latitude",
+      "LONGITUDE": "Longitude",
+      "RADIUS": "Radius",
+      "TIMEZONE": "Zona Waktu",
+      "FOTO": "Foto",
+      "KETERANGAN": "Keterangan"
+    }
   }
 }

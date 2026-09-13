@@ -561,5 +561,46 @@
       "UNLOCK": "Unlock Account",
       "UNLOCK_HELP": "Enable to unlock a locked account"
     }
+  },
+  "LOKASI": {
+    "TITLE": "Locations",
+    "LABEL": "Location",
+    "LOAD_ERROR": "Failed to load location data",
+    "DELETE_SUCCESS": "Location deleted successfully",
+    "DELETE_ERROR": "Failed to delete location",
+    "DELETE_IN_USE": "This location is still referenced by an active schedule and cannot be deleted",
+    "CREATE_SUCCESS": "Location added successfully",
+    "UPDATE_SUCCESS": "Location updated successfully",
+    "SAVE_ERROR": "Failed to save location",
+    "KODE_DUPLICATE": "This location code is already in use",
+    "SEARCH_PLACEHOLDER": "Search code / name / address...",
+    "STATUS": {
+      "LABEL": "Status",
+      "AKTIF": "Active",
+      "NONAKTIF": "Inactive"
+    },
+    "TABLE": {
+      "KODE": "Code",
+      "NAMA": "Name",
+      "JENIS": "Type",
+      "RADIUS": "Radius",
+      "TIMEZONE": "Timezone",
+      "STATUS": "Status",
+      "JUMLAH_JADWAL": "Schedules"
+    },
+    "FORM": {
+      "KODE": "Code",
+      "NAMA": "Name",
+      "JENIS": "Location Type",
+      "ALAMAT": "Address",
+      "PETA": "Location Point",
+      "PETA_HINT": "Click the map to set the point, or drag the red marker. The circle shows the geofence radius.",
+      "LATITUDE": "Latitude",
+      "LONGITUDE": "Longitude",
+      "RADIUS": "Radius",
+      "TIMEZONE": "Timezone",
+      "FOTO": "Photo",
+      "KETERANGAN": "Notes"
+    }
   }
 }
