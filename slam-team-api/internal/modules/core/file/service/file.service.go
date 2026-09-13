@@ -613,6 +613,7 @@ func (s *FileService) respond(ctx context.Context, f domain.File) (dto.UploadRes
 	}
 
 	return dto.UploadResp{
+		ID:           f.ID,
 		UUID:         f.UUID,
 		NamaAsli:     f.NamaAsli,
 		NamaSlug:     f.NamaSlug,

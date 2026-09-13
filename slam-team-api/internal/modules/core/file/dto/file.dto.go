@@ -54,6 +54,10 @@ type VarianResp struct {
 // being written, so a client that needs them can re-read or simply ask for
 // "original", which always exists by the time this is returned.
 type UploadResp struct {
+	// ID is mst_file.id — what an owning row stores in its `*_file_id` column.
+	// The public identity in every URL stays the uuid; this is only here so a
+	// client can populate a numeric FK after an upload without a second call.
+	ID           int64        `json:"id"`
 	UUID         string       `json:"uuid"`
 	NamaAsli     string       `json:"nama_asli"`
 	NamaSlug     string       `json:"nama_slug"`
