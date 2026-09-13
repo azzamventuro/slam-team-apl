@@ -15,6 +15,7 @@ import (
 	"slam-team-api/internal/modules/core/hakakses"
 	"slam-team-api/internal/modules/core/inorga"
 	"slam-team-api/internal/modules/core/instansi"
+	"slam-team-api/internal/modules/core/izin"
 	"slam-team-api/internal/modules/core/jadwal"
 	"slam-team-api/internal/modules/core/lokasi"
 	"slam-team-api/internal/modules/core/medsos"
@@ -115,6 +116,11 @@ func Setup(cfg *config.Config, db *gorm.DB, jwtMgr *jwt.Manager, rdb *goredis.Cl
 	// (jadwal.assign / jadwal.read) + the assignee's own PATCH /peserta/:id/respon.
 	// Registered after jadwal (FK) and notifikasi (fan-out on assign).
 	penugasan.Initialize(db, jwtMgr, permGuard, auditor, notifikasiModule.Service()).SetupRoutes(apiV1)
+
+	// Izin (absensi_izin): submit / list (cakupan) / approve / tolak under
+	// /izin. Registered after jadwal (sesi FK) and notifikasi (fan-out on
+	// decision). The absensi linkage (absensi.izin_id) is owned by 18-absensi.
+	izin.Initialize(db, jwtMgr, permGuard, auditor, notifikasiModule.Service()).SetupRoutes(apiV1)
 
 	// Anggota (Master Data Anggota / Core Member Record): CRUD with RBAC permission guards.
 	// Registered after instansi (FK validation) and file (foto uploads).
