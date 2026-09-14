@@ -1,41 +1,44 @@
-# PROMPT — Extend APP login + AuthService/PermissionService (Fase 0)
+# PROMPT — Complete `04-auth-session` APP: real login + refresh/logout wiring (Fase 0)
 
-Paste this whole prompt into Claude Code with the working directory at
-`D:/xampp/htdocs/slam-team-apl/slam-team-app`.
+> **Repo-accurate (revised 2026-09-12).** Auth UI is PARTIALLY built (toy login by email). You are ALIGNING it to the new API contract from `04-auth-session` (API) — **extend, don't rebuild**. `PermissionService`, the guards, and `HasPermissionDirective` already exist (from `05-hak-akses`) — reuse them.
 
----
+Working directory: `D:/xampp/htdocs/slam-team-apl/slam-team-app`.
 
 ## 0. FIRST — design method (mandatory)
-Announce **"Using design-taste-frontend"**, run its audit on the existing login screen, enforce the SLAM tokens in `_shared/design-tokens.md` (dark, SLAM red, UPPERCASE headings, red focus ring, 44px targets), Bootstrap 5. *If `blog-fe` restored mirror it; else follow tokens.*
+Announce **"Using design-taste-frontend"**, run its audit, enforce the SLAM tokens in `_shared/design-tokens.md` (dark, SLAM red, UPPERCASE headings, red focus ring, 44px targets), Bootstrap 5. *If `blog-fe` restored, mirror it; else follow tokens.*
 
-## 1. Read first
-- `D:/xampp/htdocs/slam-team-apl/workflow/modules/04-auth-session.md`.
-- `_shared/conventions-app.md` §5 (auth + dynamic RBAC: AuthService, PermissionService, guards) + §4 (interceptors).
-- The existing `pages/auth/login`, `core/services/auth.service.ts`, `core/interceptors/*` — **extend, don't rebuild**.
+## 1. Read first / align with existing code
+- `workflow/modules/04-auth-session.md`; `_shared/conventions-app.md` §4 (interceptors) + §5 (auth + RBAC).
+- Existing (DO NOT rebuild): `core/services/auth.service.ts` (toy: posts `email`, reads `token`), `core/services/permission.service.ts` (loads perms — KEEP, just reload after login), `core/guards/{auth,permission,admin}.guard.ts`, `shared/directives` `HasPermissionDirective`, `pages/auth/login`, `core/interceptors/{auth,error}`.
 
-## 2. Scope
-Wire the real auth flow against the backend (envelope `{success,message,data,errors}`):
+## 2. New backend contract (from #7) — routes are under `/auth`
+- POST `/auth/login` `{identifier, password}` → `{access_token, refresh_token, token_type, expires_in, user{id, username, email, anggota_id, nama, role{id,nama,level,is_super}, perm_version}}`
+- POST `/auth/refresh` `{refresh_token}` → same shape (rotates the refresh token)
+- POST `/auth/logout` (bearer, body `{refresh_token}`) → revoke session
+- GET `/auth/me`, GET `/auth/me/permissions` (already consumed by PermissionService)
 
-| Method | Path |
-|--------|------|
-| POST | `/auth/login` `{identifier, password}` |
-| POST | `/auth/refresh` `{refresh_token}` |
-| POST | `/auth/logout` |
-| GET | `/me`, `/me/permissions` |
+## 3. Gap to fill
 
-## 3. Work items
-- **`pages/auth/login`** (extend): reactive form `identifier` + `password` (required, min 8); submit → `AuthService.login`; on success store `slam_token`/`slam_user`, call `PermissionService.load()`, navigate `/dashboard`; on 401 show a **generic** error (`AUTH.LOGIN.ERROR_INVALID`); on locked show `AUTH.LOGIN.ERROR_LOCKED`. Disable submit while `saving()`.
-- **`AuthService`** (extend): `login(identifier, password)`, `refresh()`, `logout()`, `user` signal, `token()`. Persist token/user in `localStorage` (`slam_token`/`slam_user`); hydrate `user` on boot.
-- **`PermissionService`** (`core/services/permission.service.ts`): `load()` from `/me/permissions`, holds a `Set<string>` + `is_super`, exposes `can(code)`; called after login and on boot; `clear()` on logout.
-- **interceptors**: `authInterceptor` attaches Bearer (existing). In `errorInterceptor`, optionally attempt **one** `refresh()` on 401 before logout+redirect; 403 → toast, no logout.
+### 3a. AuthService (extend `core/services/auth.service.ts`)
+- `login(identifier, password)` → POST `/auth/login`; store `slam_token` (access), `slam_refresh` (refresh), `slam_user`; set the `user` signal. Expose `token()` and `refreshToken()`.
+- `refresh()` → POST `/auth/refresh {refresh_token}`; rotate the stored access + refresh; on failure clear + throw.
+- `logout()` → POST `/auth/logout {refresh_token}` (best-effort), then clear storage + `PermissionService.clear()` + navigate `/auth/login`.
+- **Boot hydration**: if `slam_token` present on startup, load `/auth/me` into `user` + `PermissionService.load()`.
+
+### 3b. Login page (`pages/auth/login`, extend)
+- Replace the `email` control with **`identifier`** (username OR email); keep password (`min 8`). On submit → `AuthService.login`; on success store tokens + `PermissionService.load()` → navigate `/dashboard`. On **401** show generic `AUTH.LOGIN.ERROR_INVALID` (jangan sebut field mana); on **403 locked** show `AUTH.LOGIN.ERROR_LOCKED`. Disable submit while `saving()`.
+
+### 3c. Interceptors
+- `errorInterceptor`: on **401** for a non-`/auth/*` request, attempt **one** silent `AuthService.refresh()`, then retry the original request with the new access token; if refresh fails → `logout()` + redirect. **403** → toast, no logout (unchanged).
+- `authInterceptor`: keep attaching Bearer from `slam_token`.
 
 ## 4. i18n
-Namespace `AUTH` (`LOGIN.TITLE`, `.IDENTIFIER`, `.PASSWORD`, `.SUBMIT`, `.ERROR_INVALID`, `.ERROR_LOCKED`) + `COMMON.*`. IND & ENG in sync.
+`AUTH.LOGIN.TITLE`, `.IDENTIFIER`, `.PASSWORD`, `.SUBMIT`, `.ERROR_INVALID`, `.ERROR_LOCKED` + `COMMON.*`. IND & ENG in sync.
 
 ## 5. Verification checklist
 - [ ] `npm run build:local` compiles.
-- [ ] Login with username OR email works; token + user stored; `PermissionService.load()` runs after login.
-- [ ] Wrong credentials → generic inline error (no field disclosure); locked account → locked message.
-- [ ] Refresh path works (token rotates); logout clears token/user + permissions and redirects to login.
-- [ ] Boot hydrates user + permissions from storage/`/me`.
-- [ ] Dark theme + red accent + focus ring; IND/ENG keys match; existing files extended; taste-skill announced.
+- [ ] Login with **username** and with **email** both work; access + refresh tokens stored; `PermissionService` reloaded after login; dynamic sidebar + `*hasPermission` reflect the role.
+- [ ] Wrong credentials → generic inline error; locked account → locked message.
+- [ ] An expired access token triggers **one** silent `/auth/refresh` that recovers the in-flight request; a failed refresh logs out + redirects to login.
+- [ ] Logout calls `/auth/logout`, clears tokens + permissions, redirects to `/auth/login`.
+- [ ] Existing `PermissionService`/guards/`HasPermissionDirective` reused (not rebuilt); dark theme + red accent + focus ring; IND/ENG key sets match; "Using design-taste-frontend" announced.

@@ -2,7 +2,9 @@
 
 Tracker per-prompt untuk build SLAM Team. Satu baris = satu prompt yang di-paste ke Claude Code (API atau APP). Urutan = build order (`EXECUTION.md` §3). Tandai selesai setiap kali sebuah prompt tuntas + terverifikasi + ter-commit.
 
-**Progress: 32 / 49 selesai** · 🟡 0 proses · ⬜ 17 belum
+**Progress: 35 / 49 selesai** · 🟡 0 proses · ⬜ 14 belum
+
+> ⚠️ **#32 `16-jadwal` APP (kalender/form) di-SKIP** — belum dibangun (urutan sempat meloncat ke penugasan). `pages/jadwal/` saat ini hanya berisi panel penugasan (#34). Kerjakan #32 sebelum menganggap Fase 3 tuntas.
 
 Status: ⬜ Belum · 🟡 Proses · ✅ Selesai · ⛔ Terblokir
 
